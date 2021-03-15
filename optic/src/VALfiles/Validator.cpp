@@ -1920,9 +1920,9 @@ vector<string> Gantt::getSigObjs(const Action * a)
 	vector<string> so;
 	//vector<string>::iterator i;
 	
-	for(var_symbol_list::const_iterator i = a->getAction()->parameters->begin() ; i != a->getAction()->parameters->end(); ++i)
+	for(var_symbol_list::const_iterator ii = a->getAction()->parameters->begin() ; ii != a->getAction()->parameters->end(); ++ii)
 	{
-		par = a->getBindings().find(*i)->second->getName();
+		par = a->getBindings().find(*ii)->second->getName();
 		//is parameter a sigificant object?
 		vector<string>::iterator i = std::find(sigObjs.begin(),sigObjs.end(),par);
 		if(i != sigObjs.end())

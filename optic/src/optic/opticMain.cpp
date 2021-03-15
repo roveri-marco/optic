@@ -58,6 +58,7 @@
 #endif
 
 #include <sys/times.h>
+#include <unistd.h>
 
 #include <sstream>
 #include "temporalanalysis.h"
@@ -131,14 +132,14 @@ int main(int argc, char * argv[])
     bool postHocTotalOrder = false;
     bool debugPreprocessing = false;
     bool postHocScheduleToMetric = false;
-    
+
     #ifdef STOCHASTICDURATIONS
     const char * const defaultDurationManager = "montecarlo";
- 
+
     const char * durationManagerString = defaultDurationManager;
     #endif
-    
-    
+
+
     while (argcount < argc && argv[argcount][0] == '-') {
 
         string remainder(&(argv[argcount][1]));
@@ -179,7 +180,7 @@ int main(int argc, char * argv[])
             cout << "\tmonth = \"May\"\n";
             cout << "}\n\n";
 
-            
+
             cout << "--------------------------------------------------------------------------------\n\n";
 
         } else {
@@ -368,7 +369,7 @@ int main(int argc, char * argv[])
                 break;
             }
             case 'v': {
-                if (argv[argcount][2] == 'p') {            
+                if (argv[argcount][2] == 'p') {
                     PreferenceHandler::preferenceDebug = true;
                 } else if (argv[argcount][2] != 0) {
                     Globals::writeableVerbosity = atoi(&(argv[argcount][2]));
@@ -394,7 +395,7 @@ int main(int argc, char * argv[])
                     exit(1);
                 }
                 const int commaAt = Warg.find(',');
-                if (commaAt == string::npos) {                
+                if (commaAt == string::npos) {
                     istringstream conv(Warg);
                     if (!(conv >> FF::doubleU)) {
                         cerr << "Error: must specify weight after W, e.g. -W5, or specify a weight and restart weight reduction, e.g. -W5,1\n";
@@ -413,7 +414,7 @@ int main(int argc, char * argv[])
                     }
                     const string WR = Warg.substr(commaAt + 1);
                     {
-                        istringstream conv(WR);                       
+                        istringstream conv(WR);
                         if (!(conv >> FF::doubleUReduction)) {
                             cerr << "Error: must specify weight after W, e.g. -W5, or specify a weight and restart weight reduction, e.g. -W5,1\n";
                             usage(argv);
@@ -488,7 +489,7 @@ int main(int argc, char * argv[])
 
     #ifdef STOCHASTICDURATIONS
     const int expectFromHere = 3;
-    #else 
+    #else
     const int expectFromHere = 2;
     #endif
 
@@ -512,7 +513,7 @@ int main(int argc, char * argv[])
 
     #ifdef TOTALORDERSTATES
     MinimalState::setTransformer(new TotalOrderTransformer());
-    #else    
+    #else
     if (Globals::totalOrder) {
         MinimalState::setTransformer(new TotalOrderTransformer());
     } else {
@@ -520,28 +521,28 @@ int main(int argc, char * argv[])
     }
     #endif
 
-    #ifdef ENABLE_DEBUGGING_HOOKS    
+    #ifdef ENABLE_DEBUGGING_HOOKS
     if (debugPreprocessing) {
         Globals::planFilename = argv[argc - 1];
     }
     #endif
-    
+
     #ifdef POPF3ANALYSIS
     const bool realOpt = Globals::optimiseSolutionQuality;
     Globals::optimiseSolutionQuality = (Globals::optimiseSolutionQuality || postHocScheduleToMetric);
     #endif
-    
+
     RPGBuilder::initialise();
 
     #ifdef POPF3ANALYSIS
     Globals::optimiseSolutionQuality = realOpt;
     #endif
-    
+
     #ifdef STOCHASTICDURATIONS
-    initialiseDistributions();            
+    initialiseDistributions();
     setSolutionDeadlineTimeToLatestGoal();
     #endif
-    
+
     if (Globals::optimiseSolutionQuality && Globals::givenSolutionQualityDefined) {
         if (RPGBuilder::getMetric()) {
             cout << "Forcing the use of the given solution quality of " << Globals::givenSolutionQuality << endl;
@@ -555,11 +556,11 @@ int main(int argc, char * argv[])
         }
     }
 
-    
+
     bool reachesGoals;
-    
+
     Solution planAndConstraints;
-    
+
     list<FFEvent> * & spSoln = planAndConstraints.plan;
     if (readInAPlan) {
         spSoln = readPlan(argv[argc - 1]);
@@ -572,11 +573,11 @@ int main(int argc, char * argv[])
     }
 
     if (spSoln) {
-        
+
         for (int pass = 0; pass < 2; ++pass) {
             if (pass) {
                 if (!postHocScheduleToMetric) break;
-                #ifndef TOTALORDERSTATES                                                
+                #ifndef TOTALORDERSTATES
                 if (!spSoln->empty()) {
                     if (Globals::totalOrder && !postHocTotalOrder) {
                         MinimalState::setTransformer(new PartialOrderTransformer());
@@ -594,9 +595,9 @@ int main(int argc, char * argv[])
                 cout << "; States evaluated: " << RPGHeuristic::statesEvaluated << endl;
                 cout << "; Cost: " << planAndConstraints.quality << endl;
             }
-            
+
             FFEvent::printPlan(*spSoln);
-            
+
         }
 
         if (benchmark) {
@@ -795,7 +796,7 @@ list<FFEvent> * readPlan(char* filename)
         if (debug) {
             cout << "TIL " << toInsert.divisionID << " goes at " << tilTS << endl;
         }
-        
+
         list<FFEvent>::iterator insItr = toReturn->begin();
         const list<FFEvent>::iterator insEnd = toReturn->end();
         for (int insAt = 0; insItr != insEnd; ++insItr, ++insAt) {
@@ -813,7 +814,7 @@ list<FFEvent> * readPlan(char* filename)
     if (debug) {
         list<FFEvent>::iterator insItr = toReturn->begin();
         const list<FFEvent>::iterator insEnd = toReturn->end();
-        
+
         for (int i = 0; insItr != insEnd; ++insItr, ++i) {
             cout << i << ": ";
             if (insItr->action) {
@@ -831,4 +832,3 @@ list<FFEvent> * readPlan(char* filename)
 
     return toReturn;
 };
-

@@ -41,15 +41,16 @@ using std::ostringstream;
 using std::endl;
 
 #include <sys/times.h>
+#include <unistd.h>
 
 namespace Planner {
 
 int FFEvent::tilLimit = 0;
-    
+
 FFEvent::~FFEvent() {
     #ifdef STOCHASTICDURATIONS
     delete stochasticTimestamp;
-    #endif            
+    #endif
 }
 
 FFEvent::FFEvent(instantiatedOp* a, const double & dMin, const double & dMax)
@@ -62,7 +63,7 @@ FFEvent::FFEvent(instantiatedOp* a, const double & dMin, const double & dMax)
     #ifdef STOCHASTICDURATIONS
     stochasticTimestamp = 0;
     #endif
-            
+
 }
 
 FFEvent::FFEvent(instantiatedOp* a, const int & pw, const double & dMin, const double & dMax)
@@ -73,7 +74,7 @@ FFEvent::FFEvent(instantiatedOp* a, const int & pw, const double & dMin, const d
     #ifdef STOCHASTICDURATIONS
     stochasticTimestamp = 0;
     #endif
-            
+
 }
 
 FFEvent::FFEvent(instantiatedOp* a, const int & s, const int & pw, const double & dMin, const double & dMax)
@@ -84,7 +85,7 @@ FFEvent::FFEvent(instantiatedOp* a, const int & s, const int & pw, const double 
     #ifdef STOCHASTICDURATIONS
     stochasticTimestamp = 0;
     #endif
-    
+
 }
 
 FFEvent::FFEvent(const int & t)
@@ -96,7 +97,7 @@ FFEvent::FFEvent(const int & t)
     #ifdef STOCHASTICDURATIONS
     stochasticTimestamp = 0;
     #endif
-    
+
 }
 
 
@@ -109,7 +110,7 @@ FFEvent::FFEvent(const FFEvent & f)
     #ifdef STOCHASTICDURATIONS
     stochasticTimestamp = (f.stochasticTimestamp ? f.stochasticTimestamp->clone() : 0);
     #endif
-        
+
 }
 
 FFEvent::FFEvent()
@@ -120,7 +121,7 @@ FFEvent::FFEvent()
     #ifdef STOCHASTICDURATIONS
     stochasticTimestamp = 0;
     #endif
-    
+
 }
 
 FFEvent & FFEvent::operator=(const FFEvent & f)
@@ -137,12 +138,12 @@ FFEvent & FFEvent::operator=(const FFEvent & f)
     lpMaxTimestamp = f.lpMaxTimestamp;
     divisionID = f.divisionID;
     needToFinish = f.needToFinish;
-    
+
     #ifdef STOCHASTICDURATIONS
     delete stochasticTimestamp;
     stochasticTimestamp = (f.stochasticTimestamp ? f.stochasticTimestamp->clone() : 0);
     #endif
-    
+
     return *this;
 }
 
@@ -150,29 +151,29 @@ FFEvent & FFEvent::operator=(const FFEvent & f)
 string threeDP(double d)
 {
     ostringstream toReturn;
-    
+
     d *= 1000;
-    
+
     int asInt = d;
-    
+
     d -= asInt;
     if (d >= 0.5) {
         asInt += 1;
     }
-    
+
     int fractionalPart = asInt % 1000;
-    
+
     toReturn << asInt / 1000 << ".";
-       
+
     if (fractionalPart < 100) {
         toReturn << "0";
     }
     if (fractionalPart < 10) {
         toReturn << "0";
     }
-    
+
     toReturn << asInt % 1000;
-    
+
     return toReturn.str();
 }
 
@@ -180,7 +181,7 @@ void FFEvent::printPlan(const list<FFEvent> & toPrint)
 {
     tms refReturn;
     times(&refReturn);
-    
+
     double secs = ((double)refReturn.tms_utime + (double)refReturn.tms_stime) / ((double) sysconf(_SC_CLK_TCK));
 
     int twodp = (int)(secs * 100.0);
@@ -243,14 +244,13 @@ void FFEvent::printPlan(const list<FFEvent> & toPrint)
                 cout << " [" << threeDP(RPGBuilder::getNonTemporalDurationToPrint()[planItr->action->getID()]) << "]";
                 #ifdef STOCHASTICDURATIONS
                 cout << ";\t\t {" << planItr->stochasticTimestamp->getTimestampForRPGHeuristic() << "} {" << EPSILON + planItr->stochasticTimestamp->getTimestampForRPGHeuristic() << "}";
-                #endif                        
+                #endif
             } else {
                 assert(false);
             }
-            cout << endl;                                                            
+            cout << endl;
         }
     }
 }
 
 };
-

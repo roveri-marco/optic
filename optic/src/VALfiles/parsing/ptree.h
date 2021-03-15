@@ -61,7 +61,7 @@
 
 
 /*-----------------------------------------------------------------------------
-  Forward declaration of classes, 
+  Forward declaration of classes,
   (because in some cases we have mutually referring structures).
  ----------------------------------------------------------------------------*/
 
@@ -171,10 +171,10 @@ typedef unsigned long pddl_req_flag;
 
 
 // When changing these, also look at the function pddl_req_attribute_name()
-enum pddl_req_attr { E_EQUALITY              =    1, 
-		     E_STRIPS                =    2, 
+enum pddl_req_attr { E_EQUALITY              =    1,
+		     E_STRIPS                =    2,
 		     E_TYPING                =    4,
-		     E_DISJUNCTIVE_PRECONDS  =    8, 
+		     E_DISJUNCTIVE_PRECONDS  =    8,
 		     E_EXT_PRECS             =   16,
 		     E_UNIV_PRECS            =   32,
 		     E_COND_EFFS             =   64,
@@ -190,8 +190,8 @@ enum pddl_req_attr { E_EQUALITY              =    1,
 		     E_CONSTRAINTS           = 65536,
 		     E_OFLUENTS              = 131072,
 		     E_ACTIONCOSTS           = 262144
-		     
-// Attributes which are defined as combinations of others 
+
+// Attributes which are defined as combinations of others
 // are expanded by parser, and don't need to be included here.
 };
 
@@ -300,34 +300,34 @@ struct SpecialistSymbolFactory : public SymbolFactory<T> {
 	T * build(const string & name) {return new U(name);};
 };
 
-template<class symbol_class> 
+template<class symbol_class>
 class symbol_table : public map<string,symbol_class*>
 {
 private:
 	typedef map<string,symbol_class*> _Base;
 	auto_ptr<SymbolFactory<symbol_class> > factory;
-	
+
 public :
 
 	symbol_table() : factory(new SymbolFactory<symbol_class>()) {};
 
-	void setFactory(SymbolFactory<symbol_class> * sf) 
+	void setFactory(SymbolFactory<symbol_class> * sf)
 	{
 		auto_ptr<SymbolFactory<symbol_class> > x(sf);
 		factory = x;
 	};
 
 	template<class T>
-	void replaceFactory() 
+	void replaceFactory()
 	{
 		auto_ptr<SymbolFactory<symbol_class> > x(new SpecialistSymbolFactory<symbol_class,T>());
 		factory = x;
 	};
-	
+
     typedef typename _Base::iterator iterator;
 
  	typedef typename _Base::const_iterator const_iterator;
- 
+
     // symbol_ref(string)
     // Don't care whether symbol is already present
     symbol_class* symbol_ref(const string& name)
@@ -346,7 +346,7 @@ public :
 		// Create new symbol for name and add to table
 		symbol_class* sym= factory->build(name);
 
-		insert(std::make_pair(name,sym));
+		this->insert(std::make_pair(name,sym));
 		return sym;
 	    }
 	};
@@ -389,7 +389,7 @@ public :
 		log_error( E_WARNING,
 			   "Undeclared symbol: " + name );
 		symbol_class* sym= factory->build(name);
-		insert(std::make_pair(name,sym));
+		this->insert(std::make_pair(name,sym));
 
 		return(sym);
  	    }
@@ -413,7 +413,7 @@ public :
  	    {
 		// add new symbol
 		symbol_class* sym= factory->build(name);
-		insert(std::make_pair(name,sym));
+		this->insert(std::make_pair(name,sym));
 
 		return(sym);
  	    }
@@ -449,7 +449,7 @@ typedef symbol_table<operator_symbol>  operator_symbol_table;
 
 
 /*-----------------------------------------------------------------------------
-  Lists of symbols 
+  Lists of symbols
   ---------------------------------------------------------------------------*/
 
 // No destructor for symbol lists
@@ -463,7 +463,7 @@ private:
 public:
     typedef typename _Base::iterator iterator;
 	typedef typename _Base::const_iterator const_iterator;
-	
+
     void set_types(pddl_type* t)
 	{
 	    //for (typed_symbol_list::iterator i= begin(); i!=end(); ++i)
@@ -491,7 +491,7 @@ public:
  	    //for (typed_symbol_list::iterator i= begin(); i!=end(); ++i)
  	    iterator i= _Base::begin();
  	    if(i == _Base::end())
- 	    { 
+ 	    {
  	    	return;
  	    };
  	    (*i)->either_types = tl;
@@ -525,7 +525,7 @@ public:
 		{
 			(*i)->visit(v);
 		};
-	};		
+	};
 
     virtual ~typed_symbol_list() {};
 };
@@ -542,7 +542,7 @@ typedef typed_symbol_list<pddl_type> pddl_type_list;
 /*----------------------------------------------------------------------------
   Symbols
    used for constants, variables, types, and predicate names.
-   Generally, a pointer to a symbol will be used as a unique identifier. 
+   Generally, a pointer to a symbol will be used as a unique identifier.
   --------------------------------------------------------------------------*/
 
 class symbol : public parse_category
@@ -557,7 +557,7 @@ public:
     virtual void display(int ind) const;
     virtual void write(ostream & o) const;
 	virtual void visit(VisitController * v) const;
-	
+
     const string getName() const {return name;};
 };
 
@@ -586,8 +586,8 @@ public:
 
     pddl_typed_symbol() : symbol(""), type(NULL), either_types(NULL) {};
     pddl_typed_symbol(const string& s) : symbol(s), type(NULL), either_types(NULL) {};
-    
-    virtual ~pddl_typed_symbol() 
+
+    virtual ~pddl_typed_symbol()
 	{
 	    delete either_types;
 	};
@@ -597,7 +597,7 @@ public:
 };
 
 // Parameters can be variables or constant symbols
-class parameter_symbol : public pddl_typed_symbol 
+class parameter_symbol : public pddl_typed_symbol
 {
 public:
     parameter_symbol(const string& s) : pddl_typed_symbol(s) {};
@@ -605,7 +605,7 @@ public:
 };
 
 
-class var_symbol   : public parameter_symbol 
+class var_symbol   : public parameter_symbol
 {
 public:
     var_symbol(const string& s) : parameter_symbol(s) {};
@@ -616,7 +616,7 @@ public:
 };
 
 
-class const_symbol : public parameter_symbol 
+class const_symbol : public parameter_symbol
 {
 public:
     const_symbol(const string& s) : parameter_symbol(s) {};
@@ -697,9 +697,9 @@ protected:
     var_symbol_table* var_tab;
 
 public:
-    pred_decl(pred_symbol* h, 
-//	      typed_symbol_list<var_symbol>* a, 
-	      var_symbol_list* a, 
+    pred_decl(pred_symbol* h,
+//	      typed_symbol_list<var_symbol>* a,
+	      var_symbol_list* a,
 	      var_symbol_table* vt) :
 	head(h), args(a), var_tab(vt) {};
 
@@ -715,7 +715,7 @@ public:
 			(*i)->either_types = (*j)->either_types;
 		};
     };
-    
+
     virtual ~pred_decl() { delete args; delete var_tab; };
     virtual void display(int ind) const;
     virtual void write(ostream & o) const;
@@ -733,8 +733,8 @@ private:
 
 
 public:
-    func_decl(func_symbol* h, 
-//	      typed_symbol_list<var_symbol>* a, 
+    func_decl(func_symbol* h,
+//	      typed_symbol_list<var_symbol>* a,
 	      var_symbol_list* a,
 	      var_symbol_table* vt) :
       head(h), args(a), var_tab(vt) {};
@@ -745,7 +745,7 @@ public:
     virtual ~func_decl() { delete args; delete var_tab; };
     virtual void display(int ind) const;
     virtual void write(ostream & o) const;
-	virtual void visit(VisitController * v) const;    
+	virtual void visit(VisitController * v) const;
 };
 
 
@@ -756,7 +756,7 @@ public:
     virtual void write(ostream & o) const;
 };
 
-class func_decl_list : public pc_list<func_decl*> 
+class func_decl_list : public pc_list<func_decl*>
 {
 public:
     virtual ~func_decl_list() {};
@@ -772,7 +772,7 @@ class expression : public parse_category
 };
 
 class binary_expression : public expression {
-protected: 
+protected:
 	expression * arg1;
 	expression * arg2;
 public:
@@ -791,9 +791,9 @@ public:
 class plus_expression : public binary_expression
 {
 public:
-    plus_expression(expression *a1, expression *a2) : 
+    plus_expression(expression *a1, expression *a2) :
 	binary_expression(a1,a2) {};
-    
+
     virtual void display(int ind) const;
     virtual void write(ostream & o) const;
     virtual void visit(VisitController * v) const;
@@ -802,20 +802,20 @@ public:
 class minus_expression : public binary_expression
 {
 public:
-    minus_expression(expression *a1, expression *a2) : 
+    minus_expression(expression *a1, expression *a2) :
 	binary_expression(a1,a2) {};
-    
+
     virtual void display(int ind) const;
     virtual void write(ostream & o) const;
     virtual void visit(VisitController * v) const;
-};  
+};
 
 class mul_expression : public binary_expression
 {
 public:
-    mul_expression(expression *a1, expression *a2) : 
+    mul_expression(expression *a1, expression *a2) :
 	binary_expression(a1,a2) {};
-    
+
     virtual void display(int ind) const;
     virtual void write(ostream & o) const;
     virtual void visit(VisitController * v) const;
@@ -824,9 +824,9 @@ public:
 class div_expression : public binary_expression
 {
 public:
-    div_expression(expression *a1, expression *a2) : 
+    div_expression(expression *a1, expression *a2) :
 	binary_expression(a1,a2) {};
-    
+
     virtual void display(int ind) const;
     virtual void write(ostream & o) const;
     virtual void visit(VisitController * v) const;
@@ -837,16 +837,16 @@ class uminus_expression : public expression
 private:
     expression *arg1;
 public:
-    uminus_expression(expression *a1) : 
+    uminus_expression(expression *a1) :
 	arg1(a1) {};
     virtual ~uminus_expression()
 	{ delete arg1;};
     virtual void display(int ind) const;
     virtual void write(ostream & o) const;
     virtual void visit(VisitController * v) const;
-    
+
     const expression * getExpr() const {return arg1;};
-};  
+};
 
 typedef long double NumScalar;
 
@@ -866,7 +866,7 @@ public:
     virtual void display(int ind) const;
     virtual void write(ostream & o) const;
     virtual void visit(VisitController * v) const;
-    
+
     const NumScalar double_value() const {return static_cast<const NumScalar>(val);};
 };
 
@@ -889,13 +889,13 @@ private:
     func_symbol *func_sym;
     parameter_symbol_list *param_list;
 public:
-    func_term(func_symbol *fs, parameter_symbol_list *psl) : 
+    func_term(func_symbol *fs, parameter_symbol_list *psl) :
 	func_sym(fs), param_list(psl) {};
     virtual ~func_term() {delete param_list;};
     virtual void display(int ind) const;
     virtual void write(ostream & o) const;
     virtual void visit(VisitController * v) const;
-    
+
     const func_symbol * getFunction() const {return func_sym;};
     const parameter_symbol_list * getArgs() const {return param_list;};
 };
@@ -939,7 +939,7 @@ public:
 class goal_list: public pc_list<goal*>
 {
 public:
-    virtual ~goal_list() {}; 
+    virtual ~goal_list() {};
     virtual void display(int ind) const;
     virtual void write(ostream & o) const;
 };
@@ -953,7 +953,7 @@ public:
 
 class con_goal : public goal {};
 
-class constraint_goal : public con_goal 
+class constraint_goal : public con_goal
 {
 private:
 	constraint_sort cons;
@@ -982,7 +982,7 @@ public:
 	double getFrom() const {return from;};
 };
 
-class preference : public con_goal 
+class preference : public con_goal
 {
 private:
 	string name;
@@ -1028,7 +1028,7 @@ public:
 	qfier(q),
 	vars(vl),
 	sym_tab(s),
-	gl(g) 
+	gl(g)
 	{};
     virtual ~qfied_goal()  { delete vars; delete sym_tab; delete gl; };
     const quantifier getQuantifier() const {return qfier;};
@@ -1054,7 +1054,7 @@ public:
 	virtual void visit(VisitController * v) const;
 };
 
-class disj_goal : public goal 
+class disj_goal : public goal
 {
 private:
     goal_list* goals;
@@ -1111,7 +1111,7 @@ private:
 public:
     timed_goal (goal* g, time_spec t) : gl(g), ts(t) {};
     virtual ~timed_goal() { delete gl; };
-    goal * clearGoal() 
+    goal * clearGoal()
     {
     	goal * gl1 = gl;
     	gl = 0;
@@ -1130,11 +1130,11 @@ private:
     comparison_op op;
 
 public:
-    comparison(comparison_op c_op, expression* e1, expression* e2) : 
+    comparison(comparison_op c_op, expression* e1, expression* e2) :
 	 binary_expression(e1,e2), op(c_op) {};
 	virtual void display(int ind) const;
 	virtual void write(ostream & o) const;
-	virtual void visit(VisitController * v) const;   
+	virtual void visit(VisitController * v) const;
     const comparison_op getOp() const {return op;};
 };
 
@@ -1169,7 +1169,7 @@ public:
   effect classes
   ---------------------------------------------------------------------------*/
 
-class effect : public parse_category 
+class effect : public parse_category
 {
 public:
     effect() {};
@@ -1179,7 +1179,7 @@ public:
 };
 
 
-class simple_effect : public effect 
+class simple_effect : public effect
 {
 public:
     proposition* prop;
@@ -1200,8 +1200,8 @@ private:
     var_symbol_table* var_tab;
 
 public:
-    forall_effect(effect_lists* eff, var_symbol_list* vs,var_symbol_table* vt) : 
-	effect(), operand(eff), vars(vs), var_tab(vt) 
+    forall_effect(effect_lists* eff, var_symbol_list* vs,var_symbol_table* vt) :
+	effect(), operand(eff), vars(vs), var_tab(vt)
 	{};
 
     virtual ~forall_effect()
@@ -1229,11 +1229,11 @@ private:
 
 public:
     // Construct from a list
-    cond_effect(goal* g, effect_lists* e) : 
-	effect(), 
+    cond_effect(goal* g, effect_lists* e) :
+	effect(),
 	cond(g),
 	effects(e)
-        
+
 	{};
 
     virtual ~cond_effect()
@@ -1251,7 +1251,7 @@ public:
 };
 
 
-class timed_effect : public effect 
+class timed_effect : public effect
 {
 public:
     time_spec ts;
@@ -1266,7 +1266,7 @@ public:
 
 class timed_initial_literal : public timed_effect
 {
-public: 
+public:
 	long double time_stamp;
   ~timed_initial_literal() {effs = 0;};
   //effs->add_effects.clear();effs->del_effects.clear();effs->assign_effects.clear();effs->timed_effects.clear();};
@@ -1280,10 +1280,10 @@ class assignment : public effect
 {
 private:
     func_term *f_term; // Thing to which value is assigned.
-    assign_op op;      // Assignment operator, e.g. 
+    assign_op op;      // Assignment operator, e.g.
     expression *expr;  // Value that gets assigned
 public:
-    assignment(func_term *ft, assign_op a_op, expression *e) : 
+    assignment(func_term *ft, assign_op a_op, expression *e) :
 	f_term(ft), op(a_op), expr(e) {};
     virtual ~assignment() { delete f_term; delete expr; };
     virtual void display(int ind) const;
@@ -1300,7 +1300,7 @@ public:
  * Structures
  * --------------------------------------------------------------------------*/
 
-class structure_def : public parse_category 
+class structure_def : public parse_category
 {
 public:
 	virtual ~structure_def() {};
@@ -1316,7 +1316,7 @@ public:
   Operators
   --------------------------------------------------------------------------*/
 
-class operator_list: public pc_list<operator_*> 
+class operator_list: public pc_list<operator_*>
 {
 public:
     virtual void display(int ind) const;
@@ -1344,9 +1344,9 @@ public:
 	parameters(ps),
 	precondition(pre),
 	effects(effs)
-	
+
 	{};
-    virtual ~operator_() 
+    virtual ~operator_()
 	{
 	    delete parameters;
 	    delete precondition;
@@ -1372,7 +1372,7 @@ public:
  * Structure store
  *-------------------------------------------------------------------------*/
 
-class derivations_list : public pc_list<derivation_rule *> 
+class derivations_list : public pc_list<derivation_rule *>
 {
 public:
     virtual void display(int ind) const;
@@ -1389,15 +1389,15 @@ pc_list<pc>::~pc_list()
 
 class structure_store : public parse_category
 {
-private: 
+private:
 	operator_list * ops;
 	derivations_list * dvs;
 public:
 	structure_store() : ops(new operator_list), dvs(new derivations_list) {};
 
-	void push_back(structure_def * s) 
+	void push_back(structure_def * s)
 	{
-		if(s) 
+		if(s)
 		{
 			s->add_to(ops,dvs);
 		}
@@ -1424,10 +1424,10 @@ public:
 	proposition * get_head() const {return head;};
 	goal * get_body() const {return body;};
     void set_body(goal * g) {body = g; body_changed = true; };
-   
+
 	virtual void write(ostream & o) const;
 	virtual void visit(VisitController * v) const;
-	virtual ~derivation_rule() 
+	virtual ~derivation_rule()
 	{
 		delete head;
 		if(!body_changed) delete body;
@@ -1442,7 +1442,7 @@ public:
 /*----------------------------------------------------------------------------
   Classes derived from operator:
     action
-    event 
+    event
     process
     durative_action
   --------------------------------------------------------------------------*/
@@ -1501,7 +1501,7 @@ class durative_action : public operator_
 public:
     goal* dur_constraint;
     durative_action() {};
-    virtual ~durative_action() 
+    virtual ~durative_action()
 	{
 	    delete dur_constraint;
 	};
@@ -1533,7 +1533,7 @@ public:
     func_decl_list* functions;
     con_goal * constraints;
 
-    domain( structure_store * ss) : 
+    domain( structure_store * ss) :
 	ops(ss->get_operators()),
 	drvs(ss->get_derivations()),
 	req(0),
@@ -1547,7 +1547,7 @@ public:
 		delete ss;
 	};
 
-    virtual ~domain() 
+    virtual ~domain()
 	{
 		delete drvs;
 	    delete ops;
@@ -1580,7 +1580,7 @@ class plan_step : public parse_category
 public:
     operator_symbol* op_sym;
     const_symbol_list* params;
-    
+
     bool start_time_given;
     bool duration_given;
     double start_time;
@@ -1603,7 +1603,7 @@ public:
 };
 
 
-class plan : public pc_list<plan_step*> 
+class plan : public pc_list<plan_step*>
 {private:
 	double timeTaken;
 public:
@@ -1654,7 +1654,7 @@ public:
 
 class problem : public parse_category
 {
-    
+
 public:
 	char * name;
 	char * domain_name;
@@ -1677,10 +1677,10 @@ public:
 	the_goal(NULL),
 	constraints(NULL),
 	metric(NULL),
-	length(NULL) 
+	length(NULL)
 	{};
-	
-    virtual ~problem() 
+
+    virtual ~problem()
 	{
 		delete [] name;
 		delete [] domain_name;
@@ -1725,7 +1725,7 @@ public:
   Analysis.
   Here we store various symbol tables for constants, types, and predicates.
   For variables, we have a stack of symbol tables which is used during
-  parsing.  
+  parsing.
   Operators and quantified constructs have their own local scope,
   and their own symbol tables.
  *---------------------------------------------------------------------------*/
@@ -1768,7 +1768,7 @@ class analysis
 private:
 	auto_ptr<VarTabFactory> varTabFactory;
 	auto_ptr<StructureFactory> strucFactory;
-	
+
 public:
 	var_symbol_table * buildPredTab() {return varTabFactory->buildPredTab();};
 	var_symbol_table * buildFuncTab() {return varTabFactory->buildFuncTab();};
@@ -1794,7 +1794,7 @@ public:
 	     effect_lists* effs,
 	     var_symbol_table* st) {return strucFactory->buildProcess(nm,ps,pre,effs,st);};
 
-	void setFactory(VarTabFactory * vf) 
+	void setFactory(VarTabFactory * vf)
 	{
 		auto_ptr<VarTabFactory> x(vf);
 		varTabFactory = x;
@@ -1813,9 +1813,9 @@ public:
     func_symbol_table      func_tab;
     operator_symbol_table  op_tab;
     pddl_req_flag          req;
-    
+
     parse_error_list error_list;
-    
+
     domain* the_domain;
     problem* the_problem;
 
@@ -1829,7 +1829,7 @@ public:
 	    var_tab_stack.push(new var_symbol_table);
 	}
 
-    virtual ~analysis() 
+    virtual ~analysis()
 	{
 	    delete the_domain;
 	    delete the_problem;
@@ -1839,4 +1839,3 @@ public:
 };
 
 #endif /* PTREE_H */
-
