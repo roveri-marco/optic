@@ -110,17 +110,17 @@ parameter_symbol * getAt(parameter_symbol_list * ps,int v)
 	return *i;
 };
 
-	
+
 TransitionRule::TransitionRule(TIMAnalyser * t,operator_ * o,int v,
 					PropertyState * e,PropertyState * l,PropertyState * r,
-					opType ty) : 
+					opType ty) :
 	tan(t), op(o), drv(0), opt(ty), var(v), enablers(e), lhs(l), rhs(r),
 	objects(var>=0?tan->getTC().range(getAt(op->parameters,var)):vector<const_symbol*>())
 {};
 
 TransitionRule::TransitionRule(TIMAnalyser * t,derivation_rule * o,int v,
 					PropertyState * e,PropertyState * l,PropertyState * r,
-					opType ty) : 
+					opType ty) :
 	tan(t), op(0), drv(o), opt(ty), var(v), enablers(e), lhs(l), rhs(r),
 	objects(var>=0?tan->getTC().range(getAt(drv->get_head()->args,var)):vector<const_symbol*>())
 {};
@@ -162,13 +162,13 @@ private:
 	};
 
 public:
-	RuleObjectIterator(TransitionRule * tr) : 
+	RuleObjectIterator(TransitionRule * tr) :
 		trule(tr), obit(trule->objects.begin())
 	{
 		findValid();
 	};
 
-	void toEnd() 
+	void toEnd()
 	{
 		obit = trule->objects.end();
 	};
@@ -180,7 +180,7 @@ public:
 		return *this;
 	};
 
-	TIMobjectSymbol * operator*() 
+	TIMobjectSymbol * operator*()
 	{
 		return static_cast<TIMobjectSymbol*>(*obit);
 	};
@@ -243,11 +243,11 @@ struct extendWithStateRule {
 	set<PropertyState *> & got;
 	list<PropertyState *> & toExtend;
 	PropertyState * prop;
-	
-	extendWithStateRule(set<PropertyState*> & s,list<PropertyState*> & l) : 
+
+	extendWithStateRule(set<PropertyState*> & s,list<PropertyState*> & l) :
 		got(s), toExtend(l), prop(toExtend.empty()?0:*(toExtend.begin())) {};
 
-	void operator()(TransitionRule * tr) 
+	void operator()(TransitionRule * tr)
 	{
 		if(!prop) return;
 		PropertyState * p = tr->tryRule(prop);
@@ -256,7 +256,7 @@ struct extendWithStateRule {
 			set<PropertyState *>::const_iterator i = isSuper(p,got.begin(),got.end());
 			if(i != got.end())
 			{
-				OUTPUT cout << *p << " is a superset of a state we already have: " << 
+				OUTPUT cout << *p << " is a superset of a state we already have: " <<
 					**i << "\n";
 			}
 			else
@@ -267,7 +267,7 @@ struct extendWithStateRule {
 		};
 	};
 
-	void next() 
+	void next()
 	{
 		toExtend.pop_front();
 		prop = toExtend.empty()?0:*(toExtend.begin());
@@ -292,15 +292,15 @@ bool PropertySpace::extend()
 	else
 	{
 //		cout << "\nExtending state space...\n";
-// For each state in the space we need to apply each rule (if it can be applied) and 
+// For each state in the space we need to apply each rule (if it can be applied) and
 // add the corresponding new state to the space. We really should confirm that we only
-// use states for enabled objects, but maybe that's a refinement we can save until 
+// use states for enabled objects, but maybe that's a refinement we can save until
 // later.
-// 
+//
 // Basic pattern: for each state and rule pair, if rule applies then produce new state.
 // Key issue: avoid retesting states with rules. One way to do this would be to take
 // each state in turn and extend it with all rules, adding new states to a list as they
-// are generated. As they are added to the list they can also be added to the internal 
+// are generated. As they are added to the list they can also be added to the internal
 // set of states, so that membership can be checked fast.
 		list<PropertyState *> toExtend;
 		copy(states.begin(),states.end(),inserter(toExtend,toExtend.begin()));
@@ -325,7 +325,7 @@ struct process_argument {
 	proposition * prp;
 
 	virtual ~process_argument() {};
-	
+
 	template<class T>
 	process_argument(TIMAnalyser * t,T * g,proposition * p) :
 		ta(t), timps(findPred<T>(g)), arg(0), prp(p) {};
@@ -338,12 +338,12 @@ struct process_argument {
 };
 
 struct process_argument_in_goal : public process_argument {
-	process_argument_in_goal(TIMAnalyser * t,simple_goal * g) : 
+	process_argument_in_goal(TIMAnalyser * t,simple_goal * g) :
 		process_argument(t,g)
 	{};
 
 	virtual ~process_argument_in_goal() {};
-	
+
 	virtual void operator()(parameter_symbol * p)
 	{
 		Property * prop = timps->property(arg);
@@ -353,12 +353,12 @@ struct process_argument_in_goal : public process_argument {
 };
 
 struct process_argument_in_effect : public process_argument {
-	process_argument_in_effect(TIMAnalyser * t,simple_effect * g) : 
+	process_argument_in_effect(TIMAnalyser * t,simple_effect * g) :
 		process_argument(t,g)
 	{};
 
 	virtual ~process_argument_in_effect() {};
-	
+
 	virtual void operator()(parameter_symbol * p)
 	{
 		Property * prop = timps->property(arg);
@@ -368,12 +368,12 @@ struct process_argument_in_effect : public process_argument {
 };
 
 struct process_argument_in_derivation_effect : public process_argument {
-	process_argument_in_derivation_effect(TIMAnalyser * t,derivation_rule * g) : 
+	process_argument_in_derivation_effect(TIMAnalyser * t,derivation_rule * g) :
 		process_argument(t,g)
 	{};
 
 	virtual ~process_argument_in_derivation_effect() {};
-	
+
 	virtual void operator()(parameter_symbol * p)
 	{
 		Property * prop = timps->property(arg);
@@ -384,12 +384,12 @@ struct process_argument_in_derivation_effect : public process_argument {
 
 
 struct process_constant_in_goal : public process_argument {
-	process_constant_in_goal(TIMAnalyser * t,simple_goal * g) : 
+	process_constant_in_goal(TIMAnalyser * t,simple_goal * g) :
 		process_argument(t,g)
 	{};
 
 	virtual ~process_constant_in_goal() {};
-	
+
 	virtual void operator()(parameter_symbol * p)
 	{
 		Property * prop = timps->property(arg);
@@ -399,12 +399,12 @@ struct process_constant_in_goal : public process_argument {
 };
 
 struct process_constant_in_initial : public process_argument {
-	process_constant_in_initial(TIMAnalyser * t,simple_effect * g) : 
+	process_constant_in_initial(TIMAnalyser * t,simple_effect * g) :
 		process_argument(t,g,g->prop)
 	{};
 
 	virtual ~process_constant_in_initial() {};
-	
+
 	virtual void operator()(parameter_symbol * p)
 	{
 		Property * prop = timps->property(arg);
@@ -413,7 +413,7 @@ struct process_constant_in_initial : public process_argument {
 	};
 };
 
-void TIMAnalyser::visit_simple_goal(simple_goal * p) 
+void TIMAnalyser::visit_simple_goal(simple_goal * p)
 {
 	if(finally)
 	{
@@ -466,7 +466,7 @@ bool Property::matches(const extended_pred_symbol * eps,pddl_type * pt)
 	{
 	//	cout << "C: " << **(eps->tcBegin()+posn) << "\n";
 	}
-	else 
+	else
 	{
 	//	cout << "C: ***\n";
 		return false;
@@ -477,7 +477,7 @@ bool Property::matches(const extended_pred_symbol * eps,pddl_type * pt)
 bool Property::equivalent(const Property * p) const
 {
 	if(this==p) return true;
-	if(posn != p->posn || 
+	if(posn != p->posn ||
 			EPS(predicate)->getParent() != EPS(p->predicate)->getParent())
 			return false;
 	return true;
@@ -487,7 +487,7 @@ struct notMatchFor {
 	pddl_type * pt;
 	Property * prop;
 
-	notMatchFor(pddl_type * p,Property * pr) : pt(p), prop(pr) 
+	notMatchFor(pddl_type * p,Property * pr) : pt(p), prop(pr)
 	{};
 	bool operator()(extended_pred_symbol * eps)
 	{
@@ -557,10 +557,10 @@ void TIMobjectSymbol::distributeStates(TIMAnalyser * tan)
 	for_each(initial.begin(),initial.end(),setMatchers(matchers));
 	s = matchers.begin();
 	e = matchers.end();
-	
+
 	while(s != e)
 	{
-		if((*s)->begin() == (*s)->end()) 
+		if((*s)->begin() == (*s)->end())
 		{
 			// State belonging to no property space.
 			// This should not happen...but, see notes.
@@ -580,7 +580,7 @@ void TIMobjectSymbol::distributeStates(TIMAnalyser * tan)
 Property * Property::getBaseProperty(const pddl_type * pt) const
 {
 	if(!EPS(predicate)->getParent()) return const_cast<Property*>(this);
-	TIMpredSymbol * tps = 
+	TIMpredSymbol * tps =
 		static_cast<TIMpredSymbol*>(EPS(predicate)->getParent()->
 			find(predicate,makeTT(EPS(predicate)->tBegin(),posn,pt),
 										makeTT(EPS(predicate)->tEnd(),0,0)));
@@ -593,7 +593,7 @@ ostream & operator <<(ostream & o,const TIMobjectSymbol & t)
 	return o;
 };
 
-void TIMAnalyser::visit_simple_effect(simple_effect * p) 
+void TIMAnalyser::visit_simple_effect(simple_effect * p)
 {
 	if(initially)
 	{
@@ -607,7 +607,7 @@ void TIMAnalyser::visit_simple_effect(simple_effect * p)
 	};
 };
 
-void TIMAnalyser::visit_simple_derivation_effect(derivation_rule * p) 
+void TIMAnalyser::visit_simple_derivation_effect(derivation_rule * p)
 {
 	for_each(p->get_head()->args->begin(),p->get_head()->args->end(),
 				process_argument_in_derivation_effect(this,p));
@@ -615,12 +615,12 @@ void TIMAnalyser::visit_simple_derivation_effect(derivation_rule * p)
 
 void TIMAnalyser::insertPre(int v,Property * p)
 {
-	if(v<0) 
+	if(v<0)
 	{
 		OUTPUT cout << "Property for a constant\n";
 		return;
 	};
-	if(overall) 
+	if(overall)
 	{
 		MEX(op)->addInvariant(p,v);
 		return;
@@ -638,7 +638,7 @@ void TIMAnalyser::insertPre(int v,Property * p)
 
 void TIMAnalyser::insertEff(int v,Property * p)
 {
-	if(v<0) 
+	if(v<0)
 	{
 		OUTPUT cout << "Property for a constant\n";
 		return;
@@ -660,7 +660,7 @@ void TIMAnalyser::insertEff(int v,Property * p)
 void TIMAnalyser::insertGoal(parameter_symbol * c,Property * p)
 {
 	TIMobjectSymbol * cc = dynamic_cast<TIMobjectSymbol *>(c);
-	
+
 	cc->addFinal(p);
 };
 
@@ -699,7 +699,7 @@ void ProtoRule::addRules(TRules & trules)
 	parameter_symbol * v = (var>=0?(op ? getAt(op->parameters,var) : getAt(drv->get_head()->args,var)):0);
 	vector<const pddl_type *> types(tan->getTC().leaves(v->type));
 	if(types.empty()) types.push_back(v->type);
-	if(is.size()>1 || is.size()==1 && (dels.size()>1 || adds.size()>1)) 
+	if(is.size()>1 || is.size()==1 && (dels.size()>1 || adds.size()>1))
 	{
 		assert(op);
 		//don't worry, cannot ever be true for derivation rules: have no delete effects, so is empty, dels empty....
@@ -717,13 +717,13 @@ void ProtoRule::addRules(TRules & trules)
 			{
 				PropertyState * x = PropertyState::getPS(tan,*pt,i,i+1);
 				PropertyState * en = PropertyState::getPS(tan,*pt,enablers.begin(),enablers.end());
-		
+
 				trules.push_back(new TransitionRule(tan,op,var,en,x,x,opt));
 			};
 			enablers.insert(find_if(enablers.begin(),enablers.end(),
 										bind2nd(greater<Property*>(),p)),p);
 		};
-			
+
 		if(adds.size() > is.size() || dels.size() > is.size())
 		{
 			vector<Property *> nadds, ndels;
@@ -772,7 +772,7 @@ struct unifyWith {
 	PM & pm;
 	Property * pr;
 	TransitionRule * trl;
-	
+
 	unifyWith(PM & p,Property * pp,TransitionRule * tr) : pm(p), pr(pp), trl(tr) {};
 
 	void operator()(Property * p)
@@ -795,7 +795,7 @@ struct makeSpace {
 
 	makeSpace(PM & p) : pm(p) {};
 
-	void operator()(Property * p) 
+	void operator()(Property * p)
 	{
 		if(!pm.contains(p))
 		{
@@ -816,7 +816,7 @@ struct rulePartitioner {
 			return;
 		};
 		Property * p = tr->isIncreasing()?*(tr->rhs->begin()):*(tr->lhs->begin());
-		
+
 		for_each(tr->lhs->begin(),tr->lhs->end(),unifyWith(pm,p,tr));
 		for_each(tr->rhs->begin(),tr->rhs->end(),unifyWith(pm,p,tr));
 		for_each(tr->enablers->begin(),tr->enablers->end(),makeSpace(pm));
@@ -936,7 +936,7 @@ struct aMxs3 {
 
 	aMxs3(TransitionRule * t) : tr(t) {};
 
-	void operator()(Property * p) 
+	void operator()(Property * p)
 	{
 		for(Property::SpaceIt i = p->begin();i != p->end();++i)
 		{
@@ -945,7 +945,7 @@ struct aMxs3 {
 				cout << *p << " is candidate enabler for action " << tr->byWhat()->name->getName() << "\n";
 				(*i)->assembleMutexes(tr,p);
 			};
-		};	
+		};
 	};
 };
 
@@ -1008,8 +1008,8 @@ void PropertySpace::assembleMutexes(Property * p1,Property * p2)
 void TransitionRule::assembleMutex(TransitionRule * tr)
 {
 	if (op) {
-		OUTPUT cout << "Mutex caused by rules: " << *this 
-				<< " (" << this->byWhat()->name->getName() << ") and " << *tr 
+		OUTPUT cout << "Mutex caused by rules: " << *this
+				<< " (" << this->byWhat()->name->getName() << ") and " << *tr
 				<< " (" << tr->byWhat()->name->getName() << ")\n";
 
 		mutex::constructMutex(op,var,tr->op,tr->var,opt,tr->opt);
@@ -1052,15 +1052,15 @@ void mutex::write(ostream & o) const
 			else
 			{
 				o << i->first << "th argument";
-			};					
+			};
 			o << " " << i->one << "-" << i->other << "\n";
 		}
 		else
 		{
 
-			o << "Mutex for '" << op1->name->getName() << "' and '" << 
+			o << "Mutex for '" << op1->name->getName() << "' and '" <<
 						op2->name->getName() << " args: " << i->first << " " << i->second << "\n";
-				o << "Mutex for '" << op1->name->getName() << "' and '" << 
+				o << "Mutex for '" << op1->name->getName() << "' and '" <<
 						op2->name->getName()
 					<< "' when using same ";
 			if(getAt(op1->parameters,i->first)->type)
@@ -1198,7 +1198,7 @@ struct addMx1 {
 		//cout << "Property space: " << *ps << "\n";
 		//if(pr.opt == MIDDLE && !ps->isState()) return;
 		if(!ps->isState()) return;
-		
+
 		ps->assembleMutexes(op,pr);
 	};
 
@@ -1273,7 +1273,7 @@ void recordSV::operator()(Property * p)
 	vector<int> cnts(ps->countsFor(p));
 	int mx = cnts.empty()?0:*max_element(cnts.begin(),cnts.end());
 	int mn = cnts.empty()?0:*min_element(cnts.begin(),cnts.end());
-	
+
 	p->setSV(mx==1,mn>0);
 	if(mx==1)
 	{
@@ -1293,8 +1293,8 @@ bool PropertySpace::examine(vector<PropertySpace *> & as)
 	if(std::accumulate(rules.begin(),rules.end(),true,
 			checkRule))
 	{
-		OUTPUT cout << "\nPotential pseudo space...\n" << 
-		"This will cause problems in several uses of TIM - tell Derek to get on with fixing it!\n" 
+		OUTPUT cout << "\nPotential pseudo space...\n" <<
+		"This will cause problems in several uses of TIM - tell Derek to get on with fixing it!\n"
 		<< *this << "\n";
 	};
 //#endif
@@ -1306,7 +1306,7 @@ bool PropertySpace::examine(vector<PropertySpace *> & as)
 		for(set<TransitionRule*>::iterator i = rules.begin(); i != rules.end();++i)
 		{
 			Property * p = (*i)->candidateSplit();
-			if(p) 
+			if(p)
 			{
 //				cout << "Splitter is " << *p << "\n";
 				PropertySpace * ps = slice(p);
@@ -1331,7 +1331,7 @@ bool PropertySpace::examine(vector<PropertySpace *> & as)
 
 typedef set<PropertyState*> PStates;
 
-void doExamine::operator()(PropertySpace * p) 
+void doExamine::operator()(PropertySpace * p)
 {
 	if(p->examine(newas))
 	{
@@ -1349,14 +1349,14 @@ struct getConditionally {
 	Property * prop;
 	TI pit;
 	TI terminus;
-	
-	getConditionally(bool c,Property * p,TI pt,TI term) : 
-		cond(c), prop(p), pit(pt), terminus(term) 
+
+	getConditionally(bool c,Property * p,TI pt,TI term) :
+		cond(c), prop(p), pit(pt), terminus(term)
 	{
 		while(pit != terminus && (c?(*pit == prop):(*pit != prop))) ++pit;
 	};
 
-	Property * operator*() 
+	Property * operator*()
 	{
 		return *pit;
 	};
@@ -1397,20 +1397,20 @@ pair<PropertyState *,PropertyState *> PropertyState::split(Property * p)
 
 TransitionRule * TransitionRule::splitRule(Property * p)
 {
-	if(find(lhs->begin(),lhs->end(),p)==lhs->end() && 
+	if(find(lhs->begin(),lhs->end(),p)==lhs->end() &&
 			find(rhs->begin(),rhs->end(),p)==rhs->end())
 	{
 		return 0;
 	};
 //	cout << "This rule splits: " << *this << "\n";
-	
+
 	pair<PropertyState *,PropertyState *> lhss, rhss;
 	PropertyState * ens;
 
-// Need to remove all instances of p from the lhs/rhs of rule. Note that since 
-// we split rules that had a property in both sides the only way p can appear 
+// Need to remove all instances of p from the lhs/rhs of rule. Note that since
+// we split rules that had a property in both sides the only way p can appear
 // in both lhs and rhs is if one or other side contains nothing except p (possibly
-// several copies). 
+// several copies).
 	lhss = lhs->split(p);
 //	cout << "Left splits to " << *(lhss.first) << " and " << *(lhss.second) << "\n";
 	ens = enablers;
@@ -1440,11 +1440,11 @@ struct ruleSplitOn {
 
 	ruleSplitOn(Property * p,set<TransitionRule *> & rs) : xrules(rs), prop(p) {};
 
-	void operator()(TransitionRule * tr) 
+	void operator()(TransitionRule * tr)
 	{
 		TransitionRule * t = tr->splitRule(prop);
 		if(t) xrules.insert(t);
-		if(!tr->isTrivial()) 
+		if(!tr->isTrivial())
 		{
 			rules.insert(tr);
 		};
@@ -1452,7 +1452,7 @@ struct ruleSplitOn {
 
 	operator set<TransitionRule *>() {
 		return rules;
-	}; 
+	};
 };
 
 void splitRules(set<TransitionRule *> & rules,Property * p,set<TransitionRule *> & xrules)
@@ -1464,7 +1464,7 @@ void splitObjects(vector<TIMobjectSymbol *> & tobs,Property * p,vector<TIMobject
 {
 // I think we should be checking whether the objects are really valid for both
 // spaces - in particular if the new space is a state space we should be filtering it.
-// 
+//
 //	cout << "SYMBOLS: ";
 //	for_each(tobs.begin(),tobs.end(),ptrwriter<const_symbol>(cout," "));
 //	cout << "\n";
@@ -1550,3 +1550,11 @@ set<PropertySpace *> TIMAnalyser::relevant(pddl_type * tp)
 
 };
 
+namespace std
+{
+  template<class TI>
+  struct iterator_traits<TIM::getConditionally<TI> >
+  {
+    typedef typename TI::value_type value_type;
+  };
+}
