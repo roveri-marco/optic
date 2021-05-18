@@ -132,7 +132,7 @@ private:
 
 protected:
     MinimalState * decorated;
-    
+
     ExtendedMinimalState(const ExtendedMinimalState & e)
     : decorated(new MinimalState(*(e.decorated))), startEventQueue(e.startEventQueue), timeStamp(e.timeStamp), stepBeforeTIL(e.stepBeforeTIL), tilFanIn(e.tilFanIn), tilComesBefore(e.tilComesBefore)  {
 
@@ -144,13 +144,13 @@ protected:
         for (; bqItr != bqEnd; ++bqItr) {
             entriesForAction[bqItr->actID].push_back(bqItr);
         }
-        
+
         //cout << "Cloning extended minimal state " << &e << ", new state at " << this << std::endl;
 
     }
-        
+
     ExtendedMinimalState & operator=(const ExtendedMinimalState & e);
-    
+
 public:
 
     list<StartEvent> startEventQueue;
@@ -161,7 +161,7 @@ public:
     int tilFanIn;
     list<int> tilComesBefore;
     bool hasBeenDominated;
-    
+
     ExtendedMinimalState(const set<int> & f, const vector<double> & sMin, const vector<double> & sMax,
                          //const PreferenceStatusArray * psa,
                          const map<int, set<int> > & sa,
@@ -170,7 +170,7 @@ public:
         : decorated(new MinimalState(f, sMin, sMax, /*psa, */sa, ps, ppv, tdrStatus, sc, nt, pl)),
           timeStamp(ts), stepBeforeTIL(-1), tilFanIn(0), hasBeenDominated(false) {
     }
-        
+
     ExtendedMinimalState()
         : decorated(new MinimalState()), timeStamp(0.0), stepBeforeTIL(-1), tilFanIn(0), hasBeenDominated(false) {
     }
@@ -280,14 +280,14 @@ struct FullExtendedStateLessThan {
 };
 
 struct Solution {
-  
-    list<FFEvent> * plan;   
+
+    list<FFEvent> * plan;
     TemporalConstraints * constraints;
     double quality;
-    
+
     Solution();
     void update(const list<FFEvent> & newPlan, const TemporalConstraints * const newCons, const double & newMetric);
-    
+
 };
 
 class StateHash;
@@ -303,17 +303,17 @@ public:
     public:
 
         double heuristicValue;
-        double makespan;        
+        double makespan;
         double makespanEstimate;
         double admissibleCostEstimate;
-        double qbreak;        
-        
+        double qbreak;
+
 #ifndef NDEBUG
         const char * diagnosis;
 #endif
 
         bool goalsSatisfied;
-        
+
         HTrio() : goalsSatisfied(false) {};
         HTrio(const double & hvalue, const double & msIn, const double & mseIn, const int & planLength, const char *
 #ifndef NDEBUG
@@ -390,7 +390,7 @@ private:
                                                               list<ActionSegment> & helpfulActions,
                                                               list<FFEvent> & header, list<FFEvent> & now, const int & stepID,
                                                               map<double, list<pair<int, int> > > * justApplied = 0, double tilFrom = 0.001);
-    
+
     static HTrio calculateHeuristicAndSchedule(ExtendedMinimalState & theState, ExtendedMinimalState * prevState, set<int> & goals, set<int> & goalFluents, ParentData * const p,
                                                list<ActionSegment> & helpfulActions, pair<bool,double> & currentCost,
                                                list<FFEvent> & header, list<FFEvent> & now, const int & stepID, bool considerCache = false, map<double, list<pair<int, int> > > * justApplied = 0, double tilFrom = 0.001);
@@ -420,9 +420,9 @@ private:
      * @param theAction  The action applied to transform <code>parent</code> into <code>child</code>
      * @retval <code>true</code> if child is meaningfully different to parent
      */
-    static bool stateHasProgressedBeyondItsParent(const ActionSegment & theAction, const ExtendedMinimalState & parent, const ExtendedMinimalState & child);    
-    
-    static void evaluateStateAndUpdatePlan(auto_ptr<SearchQueueItem> & succ,
+    static bool stateHasProgressedBeyondItsParent(const ActionSegment & theAction, const ExtendedMinimalState & parent, const ExtendedMinimalState & child);
+
+    static void evaluateStateAndUpdatePlan(unique_ptr<SearchQueueItem> & succ,
                                            ExtendedMinimalState & state, ExtendedMinimalState * prevState,
                                            set<int> & goals, set<int> & goalFluents,
                                            ParentData * const incrementalData,
@@ -430,13 +430,13 @@ private:
                                            const ActionSegment & actID,
                                            list<FFEvent> & header, const list<pair<int, FFEvent> > & newDummySteps);
 
-//  static void justEvaluateNotReuse(auto_ptr<SearchQueueItem> & succ, RPGHeuristic* rpg, ExtendedMinimalState & state, ExtendedMinimalState * prevState, set<int> & goals, set<int> & goalFluents, list<ActionSegment> & helpfulActionsExport, list<FFEvent> & extraEvents, list<FFEvent> & header, HTrio & bestNodeLimitHeuristic, list<FFEvent> *& bestNodeLimitPlan, bool & bestNodeLimitGoal, bool & stagnant, map<double, list<pair<int,int> > > * justApplied, double tilFrom=0.001);
+//  static void justEvaluateNotReuse(unique_ptr<SearchQueueItem> & succ, RPGHeuristic* rpg, ExtendedMinimalState & state, ExtendedMinimalState * prevState, set<int> & goals, set<int> & goalFluents, list<ActionSegment> & helpfulActionsExport, list<FFEvent> & extraEvents, list<FFEvent> & header, HTrio & bestNodeLimitHeuristic, list<FFEvent> *& bestNodeLimitPlan, bool & bestNodeLimitGoal, bool & stagnant, map<double, list<pair<int,int> > > * justApplied, double tilFrom=0.001);
 
 
 //  static bool checkTSTemporalSoundness(RPGHeuristic* const rpg, ExtendedMinimalState & theState, const int & theAction, const VAL::time_spec & ts, const double & incr, int oldTIL=-1);
-    
+
     static void pairDummyStepsWithRealSteps(MinimalState & theState, int & currStepID, list<FFEvent> & header, list<FFEvent> & nowList, const list<pair<int, FFEvent> > & newDummySteps);
-    
+
     static bool precedingActions(ExtendedMinimalState & theState, const ActionSegment & actionSeg, list<ActionSegment> & alsoMustDo, int oldTIL = -1, double moveOn = 0.001);
 
     static bool checkTemporalSoundness(ExtendedMinimalState * prevState, ExtendedMinimalState & theState, const ActionSegment & actionSeg, int oldTIL = -1, double moveOn = 0.001);
@@ -448,16 +448,16 @@ private:
     /** @brief Find whether to carry on searching after a given goal state.
      *
      * @return First value: <code>true</code> if to carry on searching.  Second value: <code>true</code> if the state has room for improvement (in the case of preferences).
-     */ 
+     */
     static pair<bool,bool> carryOnSearching(const MinimalState & theState,  const list<FFEvent> & plan, const pair<bool,double> & currentCost, const double & gCost, bool & wasNewBestSolution);
-    
+
     static Solution workingBestSolution;
-    
+
     static StateHash* getStateHash();
 public:
 
     static void printPlanAsDot(ostream & o, const list<FFEvent> & plan, const TemporalConstraints * cons);
-    
+
     static bool steepestDescent;
     static bool bestFirstSearch;
     static bool helpfulActions;

@@ -65,7 +65,7 @@ using std::ofstream;
 namespace Planner
 {
 
-    
+
 
 
 class BuildingPayload;
@@ -133,7 +133,7 @@ EpsilonResolutionTimestamp earliestPointForNumericPrecondition(const RPGBuilder:
                 if (varTwo >= varCount) varTwo -= varCount;
                 stepID = theState.temporalConstraints->lastStepToTouchPNE[varTwo].lastInstantaneousEffect;
                 if (stepID != -1) {
-                    actTS = EpsilonResolutionTimestamp(stepTimes[stepID], true);  
+                    actTS = EpsilonResolutionTimestamp(stepTimes[stepID], true);
                     if (TS < actTS) {
                         TS = actTS;
                     }
@@ -143,7 +143,7 @@ EpsilonResolutionTimestamp earliestPointForNumericPrecondition(const RPGBuilder:
             if (var >= varCount) var -= varCount;
             stepID = theState.temporalConstraints->lastStepToTouchPNE[var].lastInstantaneousEffect;
             if (stepID != -1) {
-                actTS = EpsilonResolutionTimestamp(stepTimes[stepID], true);  
+                actTS = EpsilonResolutionTimestamp(stepTimes[stepID], true);
                 if (TS < actTS) {
                     TS = actTS;
                 }
@@ -170,10 +170,10 @@ struct RPGRegress {
 
     /** @brief The propositional subgoals to achieve in this layer */
     map<int, EpsilonResolutionTimestamp> propositionalGoals;
-    
+
     /** @brief The negative propositional subgoals to achieve in this layer */
     map<int, EpsilonResolutionTimestamp> negativePropositionalGoals;
-    
+
     /** @brief The numeric subgoals to achieve in this layer
      *
      *  Each numeric variable maps to a pair of doubles:
@@ -181,7 +181,7 @@ struct RPGRegress {
      *  - the second denotes the TIL deadline weight of this
      */
     map<int, pair<double,EpsilonResolutionTimestamp> > numericValueGreaterThan;
-    
+
     /** @brief Request a numeric precondition in this layer.
      *
      *  If there is already a request for the specified variable to take a given variable, the maximum
@@ -194,7 +194,7 @@ struct RPGRegress {
      */
     void requestNumericThreshold(const int & variable, const double & threshold, const EpsilonResolutionTimestamp & weight) {
         const pair<map<int, pair<double,EpsilonResolutionTimestamp> >::iterator, bool> insPair = numericValueGreaterThan.insert(make_pair(variable, make_pair(threshold, weight)));
-        
+
         if (!insPair.second) {
             if (insPair.first->second.first < threshold) {
                 insPair.first->second.first = threshold;
@@ -203,12 +203,12 @@ struct RPGRegress {
                 insPair.first->second.second = weight;
             }
         }
-        
+
     }
-    
+
 
     //map<int, double> numericGoals;
-    
+
     /** @brief Action starts that must be included in this layer.
      *
      *  Each action index maps to a pair:
@@ -216,13 +216,13 @@ struct RPGRegress {
      *  - the second denotes the TIL deadline weight.
      */
     map<int, pair<int, EpsilonResolutionTimestamp> > actionStarts;
-    
+
     /** @brief Action starts that must be included in this layer.
      *
      *  Each action index maps to a pair:
      *  - the first entry denotes how many times the action must be ended in this layer;
      *  - the second denotes the TIL deadline weight.
-     */    
+     */
     map<int, pair<int, EpsilonResolutionTimestamp> > actionEnds;
 
 };
@@ -234,22 +234,22 @@ typedef map<EpsilonResolutionTimestamp, RPGRegress> RPGRegressionMap;
 #else
 
 class RPGRegressionMap {
-    
+
 protected:
     map<EpsilonResolutionTimestamp, RPGRegress> internal;
     EpsilonResolutionTimestamp forbidLaterThan;
 public:
-    
+
     RPGRegressionMap()
-    : forbidLaterThan(EpsilonResolutionTimestamp::infinite()) {        
+    : forbidLaterThan(EpsilonResolutionTimestamp::infinite()) {
     }
-    
+
     typedef map<EpsilonResolutionTimestamp, RPGRegress>::iterator iterator;
     typedef map<EpsilonResolutionTimestamp, RPGRegress>::const_iterator const_iterator;
-    
+
     typedef map<EpsilonResolutionTimestamp, RPGRegress>::reverse_iterator reverse_iterator;
     typedef map<EpsilonResolutionTimestamp, RPGRegress>::const_reverse_iterator const_reverse_iterator;
-    
+
     RPGRegress & operator[](const EpsilonResolutionTimestamp & t) {
         #ifndef NDEBUG
         if (t >= forbidLaterThan) {
@@ -259,23 +259,23 @@ public:
         #endif
         return internal[t];
     }
-    
+
     bool empty() const {
         return internal.empty();
     }
-    
+
     reverse_iterator rbegin() {
         return internal.rbegin();
     }
-    
+
     reverse_iterator rend() {
         return internal.rend();
     }
-    
+
     iterator end() {
         return internal.end();
     }
-    
+
     void erase(const EpsilonResolutionTimestamp & t) {
         forbidLaterThan = t;
         internal.erase(t);
@@ -295,13 +295,13 @@ public:
  *  earlier layer.
  */
 struct SupportingAction {
-  
+
     int actID;
     Planner::time_spec ts;
     int howManyTimes;
     EpsilonResolutionTimestamp tilR;
-    
-   
+
+
     SupportingAction(const int & actionID, const Planner::time_spec & timeSpecifier,
                      const int & applyThisManyTimes, const EpsilonResolutionTimestamp & tilRelevance)
         : actID(actionID), ts(timeSpecifier),
@@ -317,30 +317,30 @@ void rpprintState(MinimalState & e)
 };
 
 /** @brief A struct used to record details about the actions capable of having each effect.
- * 
+ *
  *  This is used to update the variables' values when the values of the variables referred to by
  *  an effect have changed.
  */
 struct ActionAndHowManyTimes {
     /** @brief The ID of the action. */
     int actID;
-    
+
     /** @brief Whether the effect occurs at the start of the action or the end. */
     Planner::time_spec ts;
-    
+
     /** @brief At most how many times the action can be applied (<code>INT_MAX</code> for infinite). */
-    int howManyTimes;    
+    int howManyTimes;
 
     /** @brief The minimum duration of the action. */
     double minDur;
-    
+
     /** @brief The maximum duration of the action. */
     double maxDur;
-    
+
     /** @brief The layer at which its gradients effect finish. */
     EpsilonResolutionTimestamp gradientsFinishAt;
-    
-    /** @brief If this action starts its gradients. 
+
+    /** @brief If this action starts its gradients.
      *
      *  This is set to <code>true</code> in one of two cases:
      *  - The first time this action has appeared in the RPG, in which case all its gradient
@@ -348,18 +348,18 @@ struct ActionAndHowManyTimes {
      *  - When the action reappears in the RPG (after an assignment has been made to a variable
      *    upon which it has a gradient effect), and then iff the actions gradient had expired
      *    earlier in the RPG (and hence needs re-starting again).
-     */    
+     */
     bool gradientNeedsStarting;
-    
+
     /** @brief If this action (a start action) is already in the plan. */
     bool alreadyInThePlan;
-    
+
     ActionAndHowManyTimes(const int & act, const Planner::time_spec & timeSpec, const int & lim, const double & dmin, const double & dmax, const bool alreadyIn=false)
      : actID(act), ts(timeSpec), howManyTimes(lim), minDur(dmin), maxDur(dmax), gradientsFinishAt(EpsilonResolutionTimestamp::infinite()), gradientNeedsStarting(true), alreadyInThePlan(alreadyIn)
     {
         assert(howManyTimes > 0);
     }
-    
+
     #ifndef NDEBUG
     ActionAndHowManyTimes(const ActionAndHowManyTimes & other)
         : actID(other.actID), ts(other.ts), howManyTimes(other.howManyTimes),
@@ -368,7 +368,7 @@ struct ActionAndHowManyTimes {
           alreadyInThePlan(other.alreadyInThePlan) {
         assert(howManyTimes);
     }
-    
+
     ActionAndHowManyTimes & operator=(const ActionAndHowManyTimes & other) {
         actID = other.actID;
         ts = other.ts;
@@ -382,65 +382,65 @@ struct ActionAndHowManyTimes {
         return *this;
     }
     #endif
-    
+
     bool operator<(const ActionAndHowManyTimes & other) const {
-        
+
         if (!alreadyInThePlan && other.alreadyInThePlan) return true;
         if (alreadyInThePlan && !other.alreadyInThePlan) return false;
-        
+
         if (actID < other.actID) return true;
         if (actID > other.actID) return false;
-        
+
         if (ts < other.ts) return true;
         if (ts > other.ts) return false;
-        
+
         return false;
     }
 };
 
 /** @brief A gradient effect of an action already in the plan */
 struct DelayedGradientDescriptor : public ActionAndHowManyTimes {
-   
+
     /** @brief Variable--Value pair for a gradient effect */
     pair<int,double> gradientEffect;
-    
+
     DelayedGradientDescriptor(const int & act, const Planner::time_spec & timeSpec, const double & dmax, const pair<int,double> & effect)
         : ActionAndHowManyTimes(act, timeSpec, 1, dmax, dmax, true), gradientEffect(effect) {
     }
-    
+
 };
 
 
 /** @brief Struct to represent a fact layer, during RPG expansion. */
 struct FactLayerEntry {
-    
+
     pair<set<int>, set<int> > * endOfJustApplied;
-    
+
     set<int> startDelayedUntilNow;
-    
+
     /** @brief Propositional facts, new to this fact layer.
      *
      *  Each <code>int</code> corresponds to the literal with the same index
      *  in <code>RPGBuilder::literals</code>.
      */
     list<int> first;
-   
+
     /** @brief Propositional facts, with lower cost in this fact layer.
     *
     *  Each <code>int</code> corresponds to the literal with the same index
     *  in <code>RPGBuilder::literals</code>.
     */
     set<int> firstRepeated;
-        
+
     /** @brief Negative propositional facts, new to this fact layer. */
     list<int> negativeLiterals;
-    
+
     /** @brief Numeric preconditions, new to this fact layer.
      *
      *  Each <code>int</code> is an index into <code>RPGBuilder::getNumericPreTable()</code>.
      */
     list<int> second;
-    
+
     /** @brief Facts added by Timed Initial Literals.
      *
      *   Each entry used to be a pair where:
@@ -448,7 +448,7 @@ struct FactLayerEntry {
      *   - the second <code>int</code> is the fact added, an index into <code>RPGBuilder::literals</code>.
      */
     list<int> TILs;
-    
+
     /** @brief  Facts deleted by Timed Initial Literals.
      *
      *  Each <code>int</code> corresponds to the literal with the same index
@@ -457,7 +457,7 @@ struct FactLayerEntry {
     list<int> negativeTILs;
 
     list<pair<int, int> > preferencePairedWithFactNowFreeToAdd;
-    
+
     /** @brief Gradient effects that finish at this layer.
      *
      *  If an action is k-shot, then any gradient effects it has finish
@@ -469,43 +469,43 @@ struct FactLayerEntry {
      *    ceases at this layer.
      */
     map<int,double> gradientFinishes;
-    
+
 #ifdef POPF3ANALYSIS
-    
+
     list<int> literalGoalsWeMustHaveByNow;
     list<int> numericGoalsWeMustHaveByNow;
-    
+
     list<int> preferenceUnreachableIfNotSatisfiedByNow;
-    
+
 #endif
 
-    
+
     //@{
     /** @brief Internal representation of abstract TIL timelines */
     list<int> abstractFactBecomesFalse;
     list<int> abstractFactBecomesTrue;
     //@}
-    
-    
+
+
     /** @brief  Default constructor - all the member variables are initialised to empty. */
     FactLayerEntry() : endOfJustApplied(0) {};
 };
 
 class FactLayerMap {
-    
+
 protected:
     map<EpsilonResolutionTimestamp, FactLayerEntry> internal;
 public:
-    
-    FactLayerMap() {    
+
+    FactLayerMap() {
     }
-    
+
     typedef map<EpsilonResolutionTimestamp, FactLayerEntry>::iterator iterator;
     typedef map<EpsilonResolutionTimestamp, FactLayerEntry>::const_iterator const_iterator;
-    
+
     typedef map<EpsilonResolutionTimestamp, FactLayerEntry>::reverse_iterator reverse_iterator;
     typedef map<EpsilonResolutionTimestamp, FactLayerEntry>::const_reverse_iterator const_reverse_iterator;
-    
+
     FactLayerEntry & operator[](const EpsilonResolutionTimestamp & t) {
         #ifndef NDEBUG
         if (t < EpsilonResolutionTimestamp::zero()) {
@@ -518,45 +518,45 @@ public:
         }
         return internal[t];
     }
-    
+
     bool empty() const {
         return internal.empty();
     }
-    
+
     reverse_iterator rbegin() {
         return internal.rbegin();
     }
-    
+
     reverse_iterator rend() {
         return internal.rend();
     }
 
     iterator begin() {
         return internal.begin();
-    }   
-    
+    }
+
     const_iterator begin() const {
         return internal.begin();
-    }   
-    
+    }
+
     iterator end() {
         return internal.end();
     }
-    
+
     const_iterator end() const {
         return internal.end();
     }
-    
+
     void erase(const EpsilonResolutionTimestamp & t) {
         internal.erase(t);
     }
-    
+
     void erase(const iterator & t) {
         internal.erase(t);
     }
-    
+
     void write(ostream & o) const {
-        
+
     }
 };
 
@@ -570,22 +570,22 @@ ostream & operator<<(ostream & o, const FactLayerMap &  flm) {
 class FluentLayers {
 
 public:
-    
+
     /** @brief A record of the assignment effect giving the maximum value of a variable in a layer.
      *
-     *  During graph expansion, if the maximum value of a variable was attained through 
+     *  During graph expansion, if the maximum value of a variable was attained through
      *  an assignment effect, the details of that assignment are stored in an object of
      *  this type to allow them to be recalled and used, if necessary, during solution
      *  extraction.
      */
     struct RecordedAssignment {
-        
+
         /** @brief The snap-action with the assignment effect. */
         const ActionAndHowManyTimes * act;
-        
+
         /** @brief The effect itself, an index into <code>RPGBuilder::getNumericEff()</code>. */
         int eff;
-        
+
         /** @brief Whether the right-hand side of the effect should be maximised or minimised.
          *
          *  If this variable is set to <code>true</code>, the maximum fluent values from the preceding
@@ -594,12 +594,12 @@ public:
          *  should be used.
          */
         bool maximiseEffect;
-        
+
         /** @brief Default constructor - sets <code>eff=-1</code>. */
         RecordedAssignment()
             : act(0), eff(-1), maximiseEffect(true) {
         }
-        
+
         /** @brief Construct an object to represent an assignment effect.
          *
          *  @param a  The action with the effect
@@ -610,16 +610,16 @@ public:
             : act(a), eff(e), maximiseEffect(m) {
         }
     };
-    
+
     /** @brief A single fluent layer in the TRPG. @see FluentLayers */
     class FluentLayerEntry {
 
     protected:
-        
+
         /** @brief The number of PNEs defined in the problem, from <code>RPGBuilder::getPNECount()</code>. */
         static int pneCount;
         friend class FluentLayers;
-        
+
         /** @brief The layer should only be used to dictate input values to effects.
          *
          * When building the TRPG, the fluent layer epsilon before a new action layer needs
@@ -632,7 +632,7 @@ public:
          * - Otherwise, they are resized to contain one entry per variable.
          */
         bool onlyUseLayerForEffectMagnitudes;
-        
+
         /** @brief The maximum fluent values in the current layer.
          *
          *  - Entries <code>[0..pneCount]</code> store the maximum value of each PNE
@@ -642,18 +642,18 @@ public:
          *  @see RPGBuilder::ArtificialVariable
          */
         vector<double> internalValues;
-        
+
         /** @brief The maximum gradients acting on each fluent in the current layer. */
         vector<double> gradients;
-        
-        /** @brief The variables with non-zero entries in <code>gradients</code>. 
+
+        /** @brief The variables with non-zero entries in <code>gradients</code>.
          *
          *  The keys of the maps denote variables with non-zero entries.  For artificial
          *  variables, the corresponding values denote how many of the variables upon
          *  which the AV depends have non-zero entries.
          */
         map<int,int> nonZeroGradients;
-        
+
         /** @brief If the recorded value of a variable was due to an assignment effect, note this here.
           *
           * This vector is used during solution extraction: if a precondition became true based
@@ -661,22 +661,22 @@ public:
           * apply one assignment effect, rather than one or more increase effects.  An entry
           * of -1 denotes that the indexed variable wasn't assigned to; otherwise, an entry
           * <code>i</code> denotes that <code>RPGBuilder::getNumericEff()[i]</code> was used.
-          */         
+          */
         vector<RecordedAssignment*> assignmentEffectThatGaveThisValue;
-        
+
         /** @brief The effects immediately prior to this layer that increased the value of each variable. */
         vector<set<int>*> effectsThatIncreasedThisVariable;
-        
+
         list<set<int>* > setGC;
         list<RecordedAssignment*> assignmentGC;
-        
+
         /** @brief The instantaneous effects available directly before this layer.
          *
          *  - The keys are indices into <code>RPGBuilder::getNumericEff()</code>
          *  - The value corresponding to each key lists the available actions with this effect.
          */
         map<int, list<const ActionAndHowManyTimes*> > instantaneousEffectsDirectlyBeforeThisLayer;
-        
+
         /** @brief The integrated effects available directly before this layer.
          *
          *  The keys in the map are the variables upon which the integrated effects act, and are indices
@@ -685,7 +685,7 @@ public:
          *  - the second entry lists the actions with this effect.
          */
         map<int, map<double, list<const ActionAndHowManyTimes*> > > integratedEffectsDirectlyBeforeThisLayer;
-        
+
         /** @brief The gradient effects available directly before this layer.
          *
          *  The keys in the map are the variables upon which the gradient effects act, and are indices
@@ -696,7 +696,7 @@ public:
         map<int, map<double, list<const ActionAndHowManyTimes*> > > gradientEffectsDirectlyBeforeThisLayer;
 
         /** @brief The instantaneous effects to revisit in the action layer prior to this fact layer.
-         *         
+         *
          *  If an effect depends on a variable's value, then if that variable's value changes,
          *  the effect needs to be reconsidered, as new preconditions may becomes satisfied.
          *  Or, if an assignment effect changes the value of a variable, increase/decrease
@@ -707,22 +707,22 @@ public:
          *  <code>int</code> is an index into <code>RPGBuilder::getNumericEff()</code>.
          */
         set<int> instaneousEffectsToRevisitAfterThisLayer;
-        
+
         /** The variables upon which the integrated/gradient effects need to be reconsidered
          *  in the action layer prior to this layer.
          *
          *  If an assignment effect changes the value of a variable, increase/decrease
          *  effects upon it then need to be re-applied, to give the new upper/lower bounds
          *  after that point.  The entries in this set record variables on which assignment
-         *  effects have added, leading to the variable bounds needing to be recalculated.         
+         *  effects have added, leading to the variable bounds needing to be recalculated.
          */
         set<int> integratedOrGradientEffectsToRevisitAfterThisLayer;
-        
+
         /** @brief Protected constructor - only used for testing if a layer exists. */
-        FluentLayerEntry() {  
+        FluentLayerEntry() {
             onlyUseLayerForEffectMagnitudes = true;
         }
-        
+
         /** @brief Supply the details of a fluent layer.
          *
          *  If a new fluent layer needs to be created, this function is used to define
@@ -737,7 +737,7 @@ public:
         void supplyDetails(const FluentLayerEntry & f, const EpsilonResolutionTimestamp & timeDifference, const bool & doApplyGradients, const bool & ignorableLayer) {
             internalValues = f.internalValues;
             gradients = f.gradients;
-            
+
             if (ignorableLayer) {
                 onlyUseLayerForEffectMagnitudes = true;
             } else {
@@ -745,14 +745,14 @@ public:
                 assignmentEffectThatGaveThisValue.resize(internalValues.size(),0);
                 effectsThatIncreasedThisVariable.resize(internalValues.size(),0);
             }
-            
+
             if (timeDifference.isZero()) return;
-            
+
             if (doApplyGradients) {
                 applyGradients(timeDifference);
             }
         }
-        
+
         /** @brief Called when the sum gradient acting on a (non-artificial) variable becomes zero.
          *
          *  If the gradient on a non-artificial variable becomes zero, the gradients of the AVs
@@ -765,21 +765,21 @@ public:
             map<int,int>::iterator delItr = nonZeroGradients.find(var);
             assert(delItr != nonZeroGradients.end());
             nonZeroGradients.erase(delItr);
-            
+
             const list<int> & deps = RPGBuilder::getVariableDependencies(var);
-            
+
             list<int>::const_iterator depItr = deps.begin();
             const list<int>::const_iterator depEnd = deps.end();
-            
+
             for (; depItr != depEnd; ++depItr) {
                 delItr = nonZeroGradients.find(*depItr);
-                
+
                 if (!(--(delItr->second))) {
                     nonZeroGradients.erase(delItr);
                 }
-            }            
+            }
         }
-        
+
         /** @brief Called when the sum gradient acting on a (non-artificial) variable becomes non-zero.
          *
          *  If the gradient on a non-artificial variable becomes non-zero, the gradients of the AVs
@@ -787,28 +787,28 @@ public:
          *  if this is the first non-zero components.
          *
          *  @param  var  The variable whose gradient has become non-zero
-         */                
+         */
         void gradientBecomesNonZeroOn(const int & var) {
             static pair<int,int> pairWithZero(0,0);
             pair<map<int,int>::iterator,bool> insPair = nonZeroGradients.insert(make_pair(var,1));
-            
+
             assert(insPair.second);
-            
+
             map<int,int>::iterator insItr = nonZeroGradients.end();
-            
+
             const list<int> & deps = RPGBuilder::getVariableDependencies(var);
-            
+
             list<int>::const_iterator depItr = deps.begin();
             const list<int>::const_iterator depEnd = deps.end();
-            
+
             for (; depItr != depEnd; ++depItr) {
                 pairWithZero.first = *depItr;
                 insItr = nonZeroGradients.insert(insItr, pairWithZero);
                 ++(insItr->second);
-            }            
+            }
         }
-        
-                
+
+
         /** @brief Start a gradient effect on the given variable.
          *
          *  - If <code>val > 0</code>, then the gradient on the upper bound on <code>var</code> is increased.
@@ -840,55 +840,55 @@ public:
                 }
             }
         }
-        
+
     public:
 
         /** @brief Create a fluent layer, initialised with the given variable bounds. */
         FluentLayerEntry(const vector<double> & v)
-            : internalValues(v), gradients(v.size(), 0.0) {        
+            : internalValues(v), gradients(v.size(), 0.0) {
             pneCount = RPGBuilder::getPNECount();
             onlyUseLayerForEffectMagnitudes = false;
         }
-        
+
         /** @brief Create a fluent layer, offset with the given time from the fluent layer given. */
         FluentLayerEntry(const FluentLayerEntry & f, const EpsilonResolutionTimestamp & timeDifference, const bool & doApplyGradients, const bool & ignorableLayer) {
-            supplyDetails(f,timeDifference, doApplyGradients, ignorableLayer);            
+            supplyDetails(f,timeDifference, doApplyGradients, ignorableLayer);
         }
-        
+
         /** @brief Destructor - garbage-collects internal data. */
         ~FluentLayerEntry() {
-            
+
             if (onlyUseLayerForEffectMagnitudes) {
                 return;
             }
-            
+
             list<set<int>* >::const_iterator sgcItr = setGC.begin();
             const list<set<int>* >::const_iterator sgcEnd = setGC.end();
-            
+
             for (; sgcItr != sgcEnd; ++sgcItr) {
                 delete *sgcItr;
             }
-            
-            
+
+
             list<RecordedAssignment*>::const_iterator agcItr = assignmentGC.begin();
             const list<RecordedAssignment*>::const_iterator agcEnd = assignmentGC.end();
-            
+
             for (; agcItr != agcEnd; ++agcItr) {
                 delete *agcItr;
             }
         }
-        
+
         /** @brief Return a const reference to the variable values in this layer. */
         const vector<double> & values() const {
-            return internalValues;        
+            return internalValues;
         }
-        
+
         /** @brief Return a const reference to the variable gradients in this layer. */
         const vector<double> & getGradients() const {
-            return gradients;        
+            return gradients;
         }
-        
-        
+
+
         /** @brief Return a non-const reference to the variable values in this layer. */
         vector<double> & writeableValues() {
             return internalValues;
@@ -911,23 +911,23 @@ public:
          */
         void applyGradients(const EpsilonResolutionTimestamp & timeDifference) {
             const int size = internalValues.size();
-            
+
             for (int v = 0; v < size; ++v) {
                 internalValues[v] += gradients[v] * timeDifference.toDouble();
-            }            
+            }
         }
-        
+
         void keepAssignmentIfBetter(const ActionAndHowManyTimes* act, const int & effID, const bool & maxEffect, const int & var, const double & val, set<int> & varChanged) {
             if (val > internalValues[var]) {
                 internalValues[var] = val;
                 varChanged.insert(var);
-                
+
                 RecordedAssignment *& ra = assignmentEffectThatGaveThisValue[var];
                 if (ra) {
                     ra->act = act;
                     ra->eff = effID;
                     ra->maximiseEffect = maxEffect;
-                } else {                   
+                } else {
                     ra = new RecordedAssignment(act, effID, maxEffect);
                     assignmentGC.push_back(ra);
                 }
@@ -936,11 +936,11 @@ public:
                     sa->clear();
                 }
             }
-            
+
             if (-val > internalValues[var + pneCount]) {
                 internalValues[var + pneCount] = -val;
                 varChanged.insert(var + pneCount);
-                
+
                 RecordedAssignment *& ra = assignmentEffectThatGaveThisValue[var + pneCount];
                 if (ra) {
                     ra->act = act;
@@ -956,8 +956,8 @@ public:
                 }
             }
         }
-        
-        void applyIncrease(const int & effID, const int & var, const double & minVal, const double & maxVal, const int & howManyTimes, set<int> & varChanged) {            
+
+        void applyIncrease(const int & effID, const int & var, const double & minVal, const double & maxVal, const int & howManyTimes, set<int> & varChanged) {
             if (minVal > 0 || maxVal > 0) {
                 double val = maxVal;
                 if (minVal > val) {
@@ -970,7 +970,7 @@ public:
                         internalValues[var] += val * howManyTimes;
                     }
                     varChanged.insert(var);
-                    
+
                     if (effID != -1) {
                         assert(var >= 0 && (size_t) var < effectsThatIncreasedThisVariable.size());
                         set<int> *& sa = effectsThatIncreasedThisVariable[var];
@@ -981,7 +981,7 @@ public:
                     }
                 }
             }
-            
+
             if (minVal < 0 || maxVal < 0) {
                 double val = minVal;
                 if (maxVal < val) {
@@ -994,7 +994,7 @@ public:
                         internalValues[var + pneCount] -= val * howManyTimes;
                     }
                     varChanged.insert(var + pneCount);
-                    
+
                     if (effID != -1) {
                         set<int> *& sa = effectsThatIncreasedThisVariable[var + pneCount];
                         if (!sa) {
@@ -1019,7 +1019,7 @@ public:
             gradients[var] -= val;
 
         }
-                
+
         /** @brief Recalculate the values of the artificial variables. */
         template <typename T>
         void recalculateAVs(T & itr, const T & itrEnd) {
@@ -1036,25 +1036,25 @@ public:
             }
         }
 
-        
+
         void markEffectsToRevisit(const set<int> & toRevisit, const vector<double> & maxNeeded) {
             set<int>::const_iterator effItr = toRevisit.begin();
             const set<int>::const_iterator effEnd = toRevisit.end();
-            
+
             for (; effItr != effEnd; ++effItr) {
                 if (instaneousEffectsToRevisitAfterThisLayer.find(*effItr) != instaneousEffectsToRevisitAfterThisLayer.end()) continue;
-                
+
                 const RPGBuilder::RPGNumericEffect & currEff = RPGBuilder::getNumericEff()[*effItr];
                 if (maxNeeded[currEff.fluentIndex] > internalValues[currEff.fluentIndex]) {
                     instaneousEffectsToRevisitAfterThisLayer.insert(*effItr);
                     continue;
                 }
-                
+
                 list<int> & dependencies = RPGBuilder::getVariableDependencies(currEff.fluentIndex);
-                
+
                 list<int>::const_iterator depItr = dependencies.begin();
                 const list<int>::const_iterator depEnd = dependencies.end();
-                
+
                 for (; depItr != depEnd; ++depItr) {
                     if (maxNeeded[*depItr] > internalValues[*depItr]) {
                         instaneousEffectsToRevisitAfterThisLayer.insert(*effItr);
@@ -1063,52 +1063,52 @@ public:
                 }
             }
         }
-        
+
         void markIntegratedOrGradientEffectVariableToRevisit(const int & toRevisit, const vector<double> & maxNeeded) {
             if (integratedOrGradientEffectsToRevisitAfterThisLayer.find(toRevisit) != integratedOrGradientEffectsToRevisitAfterThisLayer.end()) return;
-            
+
             if (maxNeeded[toRevisit] > internalValues[toRevisit]) {
                 integratedOrGradientEffectsToRevisitAfterThisLayer.insert(toRevisit);
                 return;
             }
-            
+
             list<int> & dependencies = RPGBuilder::getVariableDependencies(toRevisit);
-                
+
             list<int>::const_iterator depItr = dependencies.begin();
             const list<int>::const_iterator depEnd = dependencies.end();
-            
+
             for (; depItr != depEnd; ++depItr) {
                 if (maxNeeded[*depItr] > internalValues[*depItr]) {
                     integratedOrGradientEffectsToRevisitAfterThisLayer.insert(toRevisit);
                     return;
                 }
             }
-            
+
         }
-        
+
         map<int, list<const ActionAndHowManyTimes*> > & getInstantaneousEffectsDirectlyBeforeThisLayer() {
             return instantaneousEffectsDirectlyBeforeThisLayer;
         }
-        
+
         map<int, map<double, list<const ActionAndHowManyTimes*> > > & getIntegratedEffectsDirectlyBeforeThisLayer() {
             return integratedEffectsDirectlyBeforeThisLayer;
         }
-        
+
         map<int, map<double, list<const ActionAndHowManyTimes*> > > & getGradientEffectsDirectlyBeforeThisLayer() {
             return gradientEffectsDirectlyBeforeThisLayer;
         }
-                        
-        
+
+
         const set<int> & getInstantaneousEffectsToRevisitAfterThisLayer() const {
             return instaneousEffectsToRevisitAfterThisLayer;
         }
-        
+
         const set<int> & getIntegratedOrGradientEffectsToRevisitAfterThisLayer() const {
             return integratedOrGradientEffectsToRevisitAfterThisLayer;
         }
-        
-        
-        
+
+
+
         /** @brief Get the assignment effect used to give this value of v. */
         const RecordedAssignment * assignmentAppliedToVariable(const int & v) const {
             if (onlyUseLayerForEffectMagnitudes) {
@@ -1116,21 +1116,21 @@ public:
             }
             return assignmentEffectThatGaveThisValue[v];
         }
-        
+
         const set<int> * getInstantaneousEffectsThatIncreasedVariable(const int & v) const {
             if (onlyUseLayerForEffectMagnitudes) {
                 return 0;
             }
             return effectsThatIncreasedThisVariable[v];
         }
-        
+
         double willBecomeSatisfiedAfterDelay(const RPGBuilder::RPGNumericPrecondition & currPre) const {
-            
+
             static const bool debug = false;
-            
+
             const double currV = internalValues[currPre.LHSVariable];
             const double currG = gradients[currPre.LHSVariable];
-            
+
             if (currPre.op == VAL::E_GREATEQ) {
                 if (currV >= currPre.RHSConstant) {
                     // is true right now
@@ -1142,7 +1142,7 @@ public:
                 if (currG == 0) {
                     if (debug) {
                         cout << "No gradient, cannot become true yet\n";
-                    } 
+                    }
                     // no gradient, cannot become true
                     return DBL_MAX;
                 }
@@ -1150,67 +1150,67 @@ public:
                     cout << "Current LHS value is " << currV << ", RHS is " << currPre.RHSConstant << ", so with a gradient of " << currG << " that will mean a delay of " << ((currPre.RHSConstant - currV) / currG) << endl;
                 }
                 return (((currPre.RHSConstant + 0.00001 - currV) / currG) + EPSILON);
-                
+
             } else {
                 if (currV > currPre.RHSConstant) {
                     if (debug) {
                         cout << "Is true right now\n";
-                    }                    
+                    }
                     // is true right now
                     return 0.0;
                 }
                 if (currG == 0) {
                     if (debug) {
                         cout << "No gradient, cannot become true yet\n";
-                    }                                        
+                    }
                     // no gradient, cannot become true
                     return DBL_MAX;
                 }
                 if (debug) {
                     cout << "Current LHS value is " << currV << ", RHS is " << currPre.RHSConstant << ", so with a gradient of " << currG << " that will mean a delay of " << ((currPre.RHSConstant - currV) / currG) + EPSILON << endl;
-                }                                        
-                                                    
+                }
+
                 // as it's v > c, allow epsilon extra to make sure it definitely exceeds c
                 return (((currPre.RHSConstant + 0.00001) - currV) / currG) + EPSILON;
             }
         }
     };
-    
+
 protected:
 
     /** @brief Fluent layers, to be garbage collected upon destruction. */
     list<FluentLayerEntry*> layerGC;
-        
+
     /** @brief The type of the map used to hold the variable and gradient values at each point in time across the RPG. */
     typedef map<EpsilonResolutionTimestamp, FluentLayerEntry*> LayerMap;
-    
+
     /** @brief The values of the numeric variables, and the active gradients, at each point in time across the RPG. */
     LayerMap layers;
-    
+
     inline FluentLayerEntry * newFluentLayer() {
         static FluentLayerEntry * newLayer;
         newLayer = new FluentLayerEntry();
         layerGC.push_back(newLayer);
         return newLayer;
     }
-    
+
     inline FluentLayerEntry * newFluentLayer(const vector<double> & values) {
         static FluentLayerEntry * newLayer;
         newLayer = new FluentLayerEntry(values);
         layerGC.push_back(newLayer);
         return newLayer;
     }
-    
+
     inline FluentLayerEntry * newFluentLayerEntry(const FluentLayerEntry * const previousFL, const EpsilonResolutionTimestamp & timeDifference, const bool & applyGradients, const bool & ignorableLayer) {
         static FluentLayerEntry * newLayer;
         newLayer = new FluentLayerEntry(*previousFL, timeDifference, applyGradients, ignorableLayer);
         layerGC.push_back(newLayer);
         return newLayer;
     }
-    
+
     /** @brief Return the fluent layer the desired time after the seed layer given.
      *
-     *  If this is the first request for such a layer, the details of the supplied 
+     *  If this is the first request for such a layer, the details of the supplied
      *  layer are copied across, updating for any gradient effects.  Otherwise,
      *  the previous layer created for that time is used.
      *
@@ -1220,16 +1220,16 @@ protected:
      *  @return An iterator to <code>FluentLayers::layers</code>, pointing to the new layer.
      */
     LayerMap::iterator addLayer(LayerMap::const_iterator & startAt, const EpsilonResolutionTimestamp & timeDifference) {
-        
+
         EpsilonResolutionTimestamp newTime = startAt->first;
         newTime += timeDifference;
-        
+
         const pair<LayerMap::iterator,bool> insPair = layers.insert(make_pair(newTime, newFluentLayer()));
-        
+
         if (insPair.second) {
             insPair.first->second->supplyDetails(*(startAt->second), timeDifference, false, false);
         }
-        
+
         if (debug) {
             if (insPair.first->second->initialised()) {
                 cout << COLOUR_yellow << "Layer at " << newTime << " is initialised\n";
@@ -1237,10 +1237,10 @@ protected:
                 cout << COLOUR_light_magenta << "Layer at " << newTime << " is not initialised\n";
             }
         }
-        
+
         return insPair.first;
     }
-    
+
     /** @brief Record the effects of an action's execution.
      *
      *  When adding an action to the relaxed plan, it may have numeric effects other than those intended.
@@ -1255,34 +1255,34 @@ protected:
      */
     void recordSideEffects(const ActionAndHowManyTimes * const toUse, const int & howManyTimes,
                            const vector<double> & effectInputValues) {
-        
+
         /*const list<int> & numericEffs = (toUse->ts == Planner::E_AT_START ? RPGBuilder::getStartEffNumerics()[toUse->actID]
                                                                       : RPGBuilder::getEndEffNumerics()[toUse->actID]);
         list<int>::const_iterator effItr = numericEffs.begin();
         const list<int>::const_iterator effEnd = numericEffs.end();
-        
+
         for (; effItr != effEnd; ++effItr) {
             const RPGBuilder::RPGNumericEffect & currEff = RPGBuilder::getNumericEff()[*effItr];
-            
+
             const double maxRHS = currEff.evaluate(effectInputValues, toUse->minDur, toUse->maxDur);
             const double minRHS = currEff.evaluateMin(effectInputValues, toUse->minDur, toUse->maxDur);
-                        
+
             for (int pass = 0; pass < 2; ++pass) {
                 const int v = currEff.fluentIndex + (pass ? FluentLayerEntry::pneCount : 0);
-                
+
                 for (int rhsC = 0; rhsC < 2; ++rhsC) {
-                    
-                    double rhs = (rhsC ? maxRHS : minRHS);                                             
-                
+
+                    double rhs = (rhsC ? maxRHS : minRHS);
+
                     if (pass) {
                         if (rhs >= 0) continue;
                         rhs = -rhs;
                     } else {
                         if (rhs <= 0) continue;
                     }
-                    
+
                     const pair<map<int,double>::iterator,bool> insPair = alreadyAchieved.insert(make_pair(v,rhs));
-                    
+
                     if (!insPair.second) {
                         if (currEff.isAssignment) {
                             if (rhs > insPair.first->second) {
@@ -1299,45 +1299,45 @@ protected:
                         }
                     }
                 }
-            }            
+            }
         }*/
     }
-    
+
     /**
      *  If an effect depends on a variable's value, we need to revisit that effect
-     *  if that value changes.  Thus, for each variable, we store a set of which 
+     *  if that value changes.  Thus, for each variable, we store a set of which
      *  effect IDs depend upon it.
      */
     vector<set<int> > revisitInstantaneousEffectIfVariableValueChanges;
-    
+
     /**
     *  If a variable is assigned a new, better, value, we need to then reapply all suitable
     *  increase effects.  Thus, for each variable, we store a set of which
     *  increase effect IDs act upon it.
     */
     vector<set<int> > revisitInstantaneousEffectIfVariableIsAssignedTo;
-    
+
     /** For garbage collection */
     list<ActionAndHowManyTimes> gc;
-    
+
     /** @brief For each effect ID, the actions in the planning graph that have ever had that effect.
      */
     vector<list<ActionAndHowManyTimes*> > actionsThatHaveHadThisEffect;
-    
+
     /** @brief For each variable ID, the actions in the planning graph that have ever had an integrated effect of the magnitude given.
      */
     vector<map<double, list<ActionAndHowManyTimes*> > > actionsThatHaveHadThisIntegratedEffect;
-    
+
     /** @brief For each variable ID, the actions in the planning graph that have ever had a gradient effect of the magnitude given.
     */
     vector<map<double, list<ActionAndHowManyTimes*> > > actionsThatHaveHadThisGradientEffect;
-    
+
     /** @brief The set of facts true at the current layer, due to gradients having been started in the past.
      *
      *  Each entry is an index into <code>RPGBuilder::getNumericPreTable()</code>.
      */
     set<int> gradientsLeadToTheseFactsNowBeingTrue;
-    
+
     LayerMap::const_iterator effectInputs;
     LayerMap::iterator effectsAffectThisLayer;
     LayerMap::iterator layerWithEffectsToBeRevisited;
@@ -1345,7 +1345,7 @@ protected:
     map<int, list<const ActionAndHowManyTimes*> > * mostRecentInstantaneousEffects;
     map<int, map<double, list<const ActionAndHowManyTimes*> > > * mostRecentIntegratedEffects;
     map<int, map<double, list<const ActionAndHowManyTimes*> > > * mostRecentGradientEffects;
-    
+
     /** @brief The time at which preconditions become true, due to active gradients.
      *
      *  - the keys of the map are time-stamps
@@ -1353,8 +1353,8 @@ protected:
      *    (each being an index into <code>RPGBuilder::getNumericPreTable()</code>).
      */
     map<EpsilonResolutionTimestamp, set<int> > preconditionsBecomingTrueAtTime;
-    
-    
+
+
     /** @brief Typedef used to record precondition satisfaction forecasts.
     *
     *  For each precondition in <code>RPGBuilder::getNumericPreTable()</code>, objects of this type
@@ -1367,16 +1367,16 @@ protected:
     *     the precondition is not yet forecast to become true).
     */
     typedef pair<map<EpsilonResolutionTimestamp, set<int> >::iterator, set<int>::iterator> PreconditionToSatisfactionLayerPair;
-    
-    /** @brief The current layer at which a precondition has been forecast to become true.*/        
+
+    /** @brief The current layer at which a precondition has been forecast to become true.*/
     vector<PreconditionToSatisfactionLayerPair> layerAtWhichPreconditionBecomesTrue;
-    
+
     bool nowExtracting;
     LayerMap::iterator currentSubgoalLayer;
 
     // /** @brief Record effects of actions as they are added to the plan. */
     // map<int, double> alreadyAchieved;
-    
+
     /** @brief The earliest point at which an effect can act upon/a precondition can refer to a given variable.
      *
      *  This is a pointer to <code>RPGHeuristic::Private::earliestNumericPOTimes</code>.
@@ -1386,7 +1386,7 @@ protected:
     const vector<pair<double,double> > * const payloadDurationBounds;
 
     const bool debug;
-    
+
     /** @brief Common initialisation code when recording effects.
      *
      *  This function ensures that:
@@ -1398,10 +1398,10 @@ protected:
      */
     void aboutToRecordAnEffect(const EpsilonResolutionTimestamp & effectAppearsInLayer) {
         if (effectsAffectThisLayer == layers.end()) {
-            
+
             EpsilonResolutionTimestamp priorLayer = effectAppearsInLayer;
             priorLayer -= EpsilonResolutionTimestamp::epsilon();
-            
+
             effectInputs = layers.find(priorLayer);
             #ifndef NDEBUG
             if (effectInputs == layers.end()) {
@@ -1410,12 +1410,12 @@ protected:
                 exit(1);
             }
             #endif
-            
+
             effectsAffectThisLayer = addLayer(effectInputs, EpsilonResolutionTimestamp::epsilon() );
             mostRecentInstantaneousEffects = &(effectsAffectThisLayer->second->instantaneousEffectsDirectlyBeforeThisLayer);
             mostRecentIntegratedEffects = &(effectsAffectThisLayer->second->integratedEffectsDirectlyBeforeThisLayer);
             mostRecentGradientEffects = &(effectsAffectThisLayer->second->gradientEffectsDirectlyBeforeThisLayer);
-            
+
             if (debug) {
                 cout << "New effect layer " << effectAppearsInLayer << " created\n";
             }
@@ -1428,19 +1428,19 @@ protected:
             }
             #endif
         }
-        
+
     }
-    
+
 public:
 
     /** @brief Placeholder constructor.  The real initialisation is done in <code>setFactLayerZero()</code>.
      */
     FluentLayers(const vector<pair<double,double> > * const payloadIn) : payloadDurationBounds(payloadIn), debug(Globals::globalVerbosity & 64 || Globals::globalVerbosity & 128) {
         FluentLayerEntry::pneCount = RPGBuilder::getPNECount();
-        
+
         nowExtracting = false;
     }
-    
+
     ~FluentLayers() {
         list<FluentLayerEntry*>::const_iterator delItr = layerGC.begin();
         const list<FluentLayerEntry*>::const_iterator delEnd = layerGC.end();
@@ -1448,9 +1448,9 @@ public:
             delete *delItr;
         }
     }
-    
+
     /** @brief Specify the values of the variables in fact layer zero.
-     * 
+     *
      * Do not call this unless the object has not yet had any layers defined.
      *
      * @param values  The values of each variable (including negative and artificial variables)
@@ -1466,20 +1466,20 @@ public:
         actionsThatHaveHadThisGradientEffect.resize(FluentLayerEntry::pneCount);
         effectsAffectThisLayer = layers.end();
         layerWithEffectsToBeRevisited = layers.end();
-        
+
         const int lptSize = RPGBuilder::getNumericPreTable().size();
         layerAtWhichPreconditionBecomesTrue.resize(lptSize);
-        
+
         for (int p = 0; p < lptSize; ++p) {
             layerAtWhichPreconditionBecomesTrue[p].first = preconditionsBecomingTrueAtTime.end();
             // for now, the second entry of each pair is undefined - on the plus side
             // this means valgrind will scream if we try to use them
         }
-            
+
     }
-    
+
     /** @brief Function to access a writeable version of the fluents in fact layer zero.
-     * 
+     *
      *  This is used to update for the CTS effects of currently executing actions, and find which facts are
      *  true in the state being evaluated.  Otherwise, it probably shouldn't be used.
      *
@@ -1488,9 +1488,9 @@ public:
     vector<double> & borrowFactLayerZeroValues() {
         return layers.begin()->second->writeableValues();
     }
-    
+
     /** @brief Return the next layer that is worth visiting purely on the merits of active effects.
-     * 
+     *
      * This can be due to either continuous effects, or effects that need revisiting
      * as the values of the variables upon which they depend has changed.
      *
@@ -1503,9 +1503,9 @@ public:
      *             used to prevent rounding errors)
      */
     pair<EpsilonResolutionTimestamp,bool> nextLayerWouldBeAt(const EpsilonResolutionTimestamp & currTS, bool & isToRevisitEffects, bool & isDueToGradients) {
-        
+
         const map<EpsilonResolutionTimestamp,set<int> >::const_iterator ptItr = preconditionsBecomingTrueAtTime.begin();
-        
+
         // if we need to revisit effects whose input values have changed, do that right away
         if (layerWithEffectsToBeRevisited != layers.end()) {
             isToRevisitEffects = true;
@@ -1520,9 +1520,9 @@ public:
             }
             return make_pair(layerWithEffectsToBeRevisited->first, true);
         }
-        
+
         // otherwise, consider the next point at which a precondition will become satisfied
-        
+
         if (ptItr == preconditionsBecomingTrueAtTime.end()) {
             return make_pair(EpsilonResolutionTimestamp::infinite(),false);
         }
@@ -1531,13 +1531,13 @@ public:
 
         // set 'is epsilon later' flag (the second entry of the pair) to true if
         // it is near as makes no odds to epsilon in the future
-        
+
         EpsilonResolutionTimestamp toReturn = ptItr->first;
         toReturn -= EpsilonResolutionTimestamp::epsilon();
 
         const bool gapIsEpsilon = ((toReturn - currTS) == EpsilonResolutionTimestamp::epsilon());
         assert((toReturn - currTS) >= EpsilonResolutionTimestamp::epsilon());
-        
+
         if (debug) {
             if (gapIsEpsilon) {
                 cout << COLOUR_light_blue << "Numeric preconditions become true at " << ptItr->first << ", so returning (" << toReturn << ",true)\n" << COLOUR_default;
@@ -1545,37 +1545,37 @@ public:
                 cout << COLOUR_light_blue << "Numeric preconditions become true at " << ptItr->first << ", so returning (" << toReturn << ",false)\n" << COLOUR_default;
             }
         }
-        
-        
+
+
         return make_pair(toReturn, gapIsEpsilon);
-        
+
     }
 
     /** @brief Create a dummy fluent layer at the time given.
-     * 
+     *
      *  When advancing by more than epsilon, we need to create a dummy reference layer to provide input
      *  fluent values for the actions in the subsequent action layer in the RPG.
      *
      *  @param ts  The timestamp of the fact layer preceding the new actions to be added
      */
-    void createThenIgnore(const EpsilonResolutionTimestamp & ts) {        
+    void createThenIgnore(const EpsilonResolutionTimestamp & ts) {
         assert(layerWithEffectsToBeRevisited == layers.end() || (layerWithEffectsToBeRevisited->first == ts));
         assert(effectsAffectThisLayer == layers.end());
-        
+
         LayerMap::iterator lastEntry = layers.end();
         --lastEntry;
-        
+
         EpsilonResolutionTimestamp timeDifference = ts;
         timeDifference -= lastEntry->first;
-        
+
         if (debug) {
             cout << "Asked to create layer at " << ts << ", previous is at " << lastEntry->first << ", so advance beyond previous fluent layer is " << timeDifference << endl;
         }
-        if (!timeDifference.isZero()) {        
+        if (!timeDifference.isZero()) {
             if (debug) {
                 cout << "Made sure that fluent layer " << ts << " exists\n";
             }
-            layers.insert(lastEntry, make_pair(ts, newFluentLayerEntry(lastEntry->second, timeDifference, true, true)));        
+            layers.insert(lastEntry, make_pair(ts, newFluentLayerEntry(lastEntry->second, timeDifference, true, true)));
         } else {
             if (debug) {
                 cout << "A fluent layer at " << ts << " already exists\n";
@@ -1590,134 +1590,134 @@ public:
             }
             return;
         }
-        
+
         assert(effectsAffectThisLayer == layers.end());
 
         if (debug) {
             cout << "> Revisiting effects in layer " << layerWithEffectsToBeRevisited->first << ", so creating output layer epsilon later\n";
         }
-        
-        
-        effectInputs = layerWithEffectsToBeRevisited;        
+
+
+        effectInputs = layerWithEffectsToBeRevisited;
         effectsAffectThisLayer = addLayer(effectInputs, EpsilonResolutionTimestamp::epsilon() );
-        
+
         mostRecentInstantaneousEffects = &(effectsAffectThisLayer->second->getInstantaneousEffectsDirectlyBeforeThisLayer());
         mostRecentIntegratedEffects = &(effectsAffectThisLayer->second->getIntegratedEffectsDirectlyBeforeThisLayer());
         mostRecentGradientEffects = &(effectsAffectThisLayer->second->getGradientEffectsDirectlyBeforeThisLayer());
-        
+
         const set<int> & revisit = layerWithEffectsToBeRevisited->second->getInstantaneousEffectsToRevisitAfterThisLayer();
 
-        
+
         {
             set<int>::const_iterator rvItr = revisit.begin();
             const set<int>::const_iterator rvEnd = revisit.end();
-            
+
             for (; rvItr != rvEnd; ++rvItr) {
                 list<const ActionAndHowManyTimes*> & dest = (*mostRecentInstantaneousEffects)[*rvItr];
                 dest.insert(dest.end(), actionsThatHaveHadThisEffect[*rvItr].begin(), actionsThatHaveHadThisEffect[*rvItr].end());
             }
         }
-        
+
         const set<int> & revisit2 = layerWithEffectsToBeRevisited->second->getIntegratedOrGradientEffectsToRevisitAfterThisLayer();
-        
+
         {
             for (int pass = 0; pass < 2; ++pass) {
-                
+
                 set<int>::const_iterator rv2Itr = revisit2.begin();
                 const set<int>::const_iterator rv2End = revisit2.end();
-                
+
                 for (; rv2Itr != rv2End; ++rv2Itr) {
                     map<double, list<const ActionAndHowManyTimes*> > & outerdest
                         = (pass ? (*mostRecentGradientEffects)[*rv2Itr] : (*mostRecentIntegratedEffects)[*rv2Itr]);
 
                     map<double, list<ActionAndHowManyTimes*> > & src
                         = (pass ? actionsThatHaveHadThisGradientEffect[*rv2Itr] : actionsThatHaveHadThisIntegratedEffect[*rv2Itr]);
-                                        
-                        
+
+
                     map<double, list<ActionAndHowManyTimes*> >::iterator effItr = src.begin();
                     const map<double, list<ActionAndHowManyTimes*> >::iterator effEnd = src.end();
-                    
+
                     for (; effItr != effEnd; ++effItr) {
-                        
+
                         list<const ActionAndHowManyTimes*> & dest = outerdest[effItr->first];
-                        
+
                         list<ActionAndHowManyTimes*>::iterator actItr = effItr->second.begin();
-                        const list<ActionAndHowManyTimes*>::iterator actEnd = effItr->second.end();                                                
-                        
+                        const list<ActionAndHowManyTimes*>::iterator actEnd = effItr->second.end();
+
                         for (; actItr != actEnd; ++actItr) {
                             if (!pass) {
-                                
+
                                 // for instantaneous effects, copy them in
                                 dest.push_back(*actItr);
                             } else {
-                                
-                                                                
-                                
-                                if ((*actItr)->gradientsFinishAt == EpsilonResolutionTimestamp::infinite()) {                                    
+
+
+
+                                if ((*actItr)->gradientsFinishAt == EpsilonResolutionTimestamp::infinite()) {
                                     if ((*actItr)->gradientNeedsStarting) {
                                         gc.push_back(*(*actItr));
-                                        
-                                        ActionAndHowManyTimes & newEntry = gc.back();                                        
+
+                                        ActionAndHowManyTimes & newEntry = gc.back();
                                         newEntry.gradientNeedsStarting = false;
-                                        
+
                                         *actItr = &newEntry; // from now on, use this version which doesn't trigger an increase of the perpetual gradient
                                     }
-                                    
+
                                     dest.push_back(*actItr);
-                                    
+
                                 } else {
                                     gc.push_back(*(*actItr));
-                                                                        
+
                                     ActionAndHowManyTimes & newEntry = gc.back();
-                                    
+
                                     newEntry.gradientNeedsStarting = false;
-                                    
+
                                     EpsilonResolutionTimestamp extraTime((*actItr)->howManyTimes * ((*actItr)->maxDur), false);
-                                    
+
                                     EpsilonResolutionTimestamp endAt = effectsAffectThisLayer->first;
                                     endAt -= EpsilonResolutionTimestamp::epsilon();     // the time of the action layer in which the effect began
                                     endAt += extraTime;                                 // plus the maximum sequential time of applications of this action
-                                    
+
                                     if (factLayers.empty() || factLayers.begin()->first > (*actItr)->gradientsFinishAt) {
                                         // if the effect has already lapsed, start it again
-                                                                            
+
                                         newEntry.gradientNeedsStarting = true;
-                                        
-                                        if (effItr->first > 0) {        
+
+                                        if (effItr->first > 0) {
                                             factLayers[endAt].gradientFinishes.insert(make_pair(*rv2Itr,0.0)).first->second += effItr->first;
                                         } else {
                                             factLayers[endAt].gradientFinishes.insert(make_pair(*rv2Itr + FluentLayerEntry::pneCount,0.0)).first->second -= effItr->first;
                                         }
-                                        
+
                                         newEntry.gradientsFinishAt = endAt;
-                                        
+
                                     } else {
-                                        
+
                                         // otherwise, don't start it again; but do delay its end
-                                        
-                                        if (effItr->first > 0) {        
+
+                                        if (effItr->first > 0) {
                                             factLayers[(*actItr)->gradientsFinishAt].gradientFinishes.insert(make_pair(*rv2Itr,0.0)).first->second -= effItr->first;
                                             factLayers[endAt].gradientFinishes.insert(make_pair(*rv2Itr,0.0)).first->second += effItr->first;
                                         } else {
                                             factLayers[(*actItr)->gradientsFinishAt].gradientFinishes.insert(make_pair(*rv2Itr + FluentLayerEntry::pneCount,0.0)).first->second += effItr->first;
                                             factLayers[endAt].gradientFinishes.insert(make_pair(*rv2Itr + FluentLayerEntry::pneCount,0.0)).first->second -= effItr->first;
                                         }
-                                        
+
                                         newEntry.gradientsFinishAt = endAt;
                                     }
-                                    
-                                                                                                            
+
+
                                     *actItr = &newEntry; // from now on, use the version with the most recent endAt record
                                     dest.push_back(*actItr);
                                 }
                             }
                         }
-                        
-                    }                
+
+                    }
                 }
-            }    
+            }
         }
-                        
+
     }
 
     /** @brief Record consequences of active gradients, i.e. new facts becoming true at this time.
@@ -1729,28 +1729,28 @@ public:
      *                                 due to active gradients.
      */
     void recordConsequencesOfActiveGradients(const EpsilonResolutionTimestamp & newFactsAppearsInLayer) {
-        
+
         assert(!preconditionsBecomingTrueAtTime.empty());
-        
+
         const map<EpsilonResolutionTimestamp, set<int> >::iterator nextFacts = preconditionsBecomingTrueAtTime.begin();
-        
+
         assert(nextFacts->first == newFactsAppearsInLayer);
-        
-        
+
+
         assert(gradientsLeadToTheseFactsNowBeingTrue.empty());
-        
+
         gradientsLeadToTheseFactsNowBeingTrue.swap(nextFacts->second);
-        
-        
+
+
         preconditionsBecomingTrueAtTime.erase(nextFacts);
-        
+
         set<int>::const_iterator fItr = gradientsLeadToTheseFactsNowBeingTrue.begin();
         const set<int>::const_iterator fEnd = gradientsLeadToTheseFactsNowBeingTrue.end();
-        
+
         for (; fItr != fEnd; ++fItr) {
             layerAtWhichPreconditionBecomesTrue[*fItr].first = preconditionsBecomingTrueAtTime.end();
         }
-        
+
         aboutToRecordAnEffect(newFactsAppearsInLayer);
     }
 
@@ -1761,7 +1761,7 @@ public:
      * @param effID                 The ID of the effect (an index into <code>RPGBuilder::getNumericEff()</code>)
      */
     void recordIntegratedNumericEffect(const ActionAndHowManyTimes & action, const EpsilonResolutionTimestamp & effectAppearsInLayer, const pair<int,double> & effID) {
-                
+
         if (debug) {
             cout << "Recording integrated effect " << *(RPGBuilder::getPNE(effID.first));
             if (effID.second > 0) {
@@ -1776,15 +1776,15 @@ public:
             }
             cout << "affecting fact layer " << effectAppearsInLayer << endl;
         }
-        
+
         aboutToRecordAnEffect(effectAppearsInLayer);
-        
+
         gc.push_back(action);
-        
+
         actionsThatHaveHadThisIntegratedEffect[effID.first][effID.second].push_back(&(gc.back()));
-        
+
         (*mostRecentIntegratedEffects)[effID.first][effID.second].push_back(&(gc.back()));
-        
+
         if (debug) {
             cout << COLOUR_light_green << "Added integrated effect: " << *(RPGBuilder::getPNE(effID.first));
             if (effID.second > 0) {
@@ -1793,12 +1793,12 @@ public:
                 cout << " -= " << -effID.second << COLOUR_default << endl;
             }
         }
-        
+
         assert(gc.back().howManyTimes > 0);
     }
 
     /** @brief Record that a given gradient continuous numeric effect can be applied a number of times, on behalf of the specified action.
-     * 
+     *
      * If the action can only be applied finitely often, the fact that the effect has to finish is recorded in
      * <code>factLayers</code>.
      *
@@ -1809,7 +1809,7 @@ public:
      */
     void recordGradientNumericEffect(const ActionAndHowManyTimes & action, const EpsilonResolutionTimestamp & effectAppearsInLayer,
                                      const pair<int,double> & effID, FactLayerMap & factLayers) {
-                
+
         if (debug) {
             cout << "Recording gradient effect d" << *(RPGBuilder::getPNE(effID.first));
             if (effID.second > 0) {
@@ -1826,13 +1826,13 @@ public:
         }
 
         aboutToRecordAnEffect(effectAppearsInLayer);
-        
+
         gc.push_back(action);
-        
+
         actionsThatHaveHadThisGradientEffect[effID.first][effID.second].push_back(&(gc.back()));
 
         (*mostRecentGradientEffects)[effID.first][effID.second].push_back(&(gc.back()));
-        
+
         if (debug) {
             cout << COLOUR_light_green << "Added gradient effect: d" << *(RPGBuilder::getPNE(effID.first));
             if (effID.second > 0) {
@@ -1841,29 +1841,29 @@ public:
                 cout << "/dt -= " << -effID.second << COLOUR_default << endl;
             }
         }
-        
+
         assert(gc.back().howManyTimes > 0);
 
         gc.back().gradientNeedsStarting = true;
-        
+
         if (action.howManyTimes == INT_MAX) return;
         if (action.maxDur == DBL_MAX) return;
-        
+
         EpsilonResolutionTimestamp endAt = effectAppearsInLayer;
         endAt -= EpsilonResolutionTimestamp::epsilon(); // the time of the action layer in which the effect began
         endAt += EpsilonResolutionTimestamp(action.howManyTimes * action.maxDur, false); // plus the maximum sequential time of applications of this action, rounded up
-        
+
         gc.back().gradientsFinishAt = endAt;
-        
-        if (effID.second > 0) {        
+
+        if (effID.second > 0) {
             factLayers[endAt].gradientFinishes.insert(make_pair(effID.first,0.0)).first->second += effID.second;
         } else {
             factLayers[endAt].gradientFinishes.insert(make_pair(effID.first + FluentLayerEntry::pneCount,0.0)).first->second -= effID.second;
         }
-        
+
     }
-        
-    
+
+
     /** @brief Record that a given numeric effect can be applied a number of times, on behalf of the specified action.
      *
      * @param action                Details on the action, including how many times it can be applied
@@ -1871,16 +1871,16 @@ public:
      * @param effID                 The ID of the effect (an index into <code>RPGBuilder::getNumericEff()</code>)
      */
     void recordInstantaneousNumericEffect(const ActionAndHowManyTimes & action, const EpsilonResolutionTimestamp & effectAppearsInLayer, const int & effID) {
-        
-        
+
+
         if (debug) {
             cout << "Recording effect " << effID << " affecting fact layer " << effectAppearsInLayer << endl;
         }
-            
-            
+
+
         aboutToRecordAnEffect(effectAppearsInLayer);
-                        
-        
+
+
         if (actionsThatHaveHadThisEffect[effID].empty()) {
             RPGBuilder::RPGNumericEffect & currEff = RPGBuilder::getNumericEff()[effID];
             for (int s = 0; s < currEff.size; ++s) {
@@ -1889,16 +1889,16 @@ public:
                 }
             }
         }
-        
+
         if (debug) {
             cout << COLOUR_light_blue << "Added effect: " << RPGBuilder::getNumericEff()[effID] << COLOUR_default << endl;
         }
         gc.push_back(action);
-        
+
         actionsThatHaveHadThisEffect[effID].push_back(&(gc.back()));
-        (*mostRecentInstantaneousEffects)[effID].push_back(&(gc.back()));        
+        (*mostRecentInstantaneousEffects)[effID].push_back(&(gc.back()));
     }
-                                                           
+
    /** @brief Apply any effects recorded in the most recent action layer, supplied via calls to <code>recordInstantaneousNumericEffect()</code>.
     *
     * If no such effects exist, this function does nothing.
@@ -1910,18 +1910,18 @@ public:
     void applyRecentlyRecordedEffects(vector<EpsilonResolutionTimestamp> & achievedInLayer, list<int> & newNumericPreconditions,
                                       const vector<double> & maxNeeded) {
         if (effectsAffectThisLayer == layers.end()) return;
-        
+
         assert(effectsAffectThisLayer->second->initialised());
-        
+
         if (debug) {
             cout << "Applying the numeric effects noted in this layer; effects affect " << effectsAffectThisLayer->first << endl;
         }
-        
-        set<int> variableChanged;        
+
+        set<int> variableChanged;
         set<int> variableAssignedTo;
 
         {
-            
+
             map<int, map<double, list<const ActionAndHowManyTimes*> > >::const_iterator effItr = mostRecentGradientEffects->begin();
             const map<int, map<double, list<const ActionAndHowManyTimes*> > >::const_iterator effEnd = mostRecentGradientEffects->end();
 
@@ -1931,15 +1931,15 @@ public:
                 }
                 map<double, list<const ActionAndHowManyTimes*> >::const_iterator magItr = effItr->second.begin();
                 const map<double, list<const ActionAndHowManyTimes*> >::const_iterator magEnd = effItr->second.end();
-                
+
                 for (; magItr != magEnd; ++magItr) {
                     if (debug) {
                         cout << " " << magItr->first;
                     }
-                    
+
                     list<const ActionAndHowManyTimes*>::const_iterator actItr = magItr->second.begin();
                     const list<const ActionAndHowManyTimes*>::const_iterator actEnd = magItr->second.end();
-                    
+
                     for (; actItr != actEnd; ++actItr) {
                         if ((*actItr)->gradientNeedsStarting) {
                             assert((*actItr)->howManyTimes);
@@ -1960,37 +1960,37 @@ public:
             }
 
             set<int> avsToRecalculate;
-        
+
             set<int>::const_iterator vcItr = variableChanged.begin();
             const set<int>::const_iterator vcEnd = variableChanged.end();
-            
+
             for (; vcItr != vcEnd; ++vcItr) {
                 avsToRecalculate.insert(RPGBuilder::getVariableDependencies(*vcItr).begin(), RPGBuilder::getVariableDependencies(*vcItr).end());
             }
 
             {
                 set<int>::const_iterator avItr = avsToRecalculate.begin();
-                const set<int>::const_iterator avEnd = avsToRecalculate.end();            
-                
+                const set<int>::const_iterator avEnd = avsToRecalculate.end();
+
                 effectsAffectThisLayer->second->recalculateAVGradients(avItr, avEnd);
             }
-            
+
             if (debug) {
-                
+
                 set<int>::const_iterator avItr = avsToRecalculate.begin();
-                const set<int>::const_iterator avEnd = avsToRecalculate.end(); 
-                
+                const set<int>::const_iterator avEnd = avsToRecalculate.end();
+
                 for (; avItr != avEnd; ++avItr) {
                     cout << "Gradients of AV " << RPGBuilder::getArtificialVariable(*avItr) << " is now " << effectsAffectThisLayer->second->getGradients()[*avItr] << endl;
                 }
             }
-            
-            
+
+
             // Now give us epsilon's worth of the gradient effects
-            
+
             LayerMap::iterator previousLayer = effectsAffectThisLayer;
             --previousLayer;
-            
+
             #ifndef NDEBUG
             EpsilonResolutionTimestamp check = effectsAffectThisLayer->first;
             check -= previousLayer->first;
@@ -1999,27 +1999,27 @@ public:
             #endif
             effectsAffectThisLayer->second->applyGradients(EpsilonResolutionTimestamp::epsilon());
         }
-        
+
         {
             // integrated CTS effects
-            
+
             map<int, map<double, list<const ActionAndHowManyTimes*> > >::const_iterator effItr = mostRecentIntegratedEffects->begin();
             const map<int, map<double, list<const ActionAndHowManyTimes*> > >::const_iterator effEnd = mostRecentIntegratedEffects->end();
-            
+
             for (; effItr != effEnd; ++effItr) {
                 if (debug) {
                     cout << "Integrated effects on " << *(RPGBuilder::getPNE(effItr->first)) << ":";
                 }
                 map<double, list<const ActionAndHowManyTimes*> >::const_iterator magItr = effItr->second.begin();
                 const map<double, list<const ActionAndHowManyTimes*> >::const_iterator magEnd = effItr->second.end();
-                
+
                 for (; magItr != magEnd; ++magItr) {
                     if (debug) {
                         cout << " " << magItr->first << " (";
                     }
                     list<const ActionAndHowManyTimes*>::const_iterator actItr = magItr->second.begin();
                     const list<const ActionAndHowManyTimes*>::const_iterator actEnd = magItr->second.end();
-                    
+
                     for (; actItr != actEnd; ++actItr) {
                         if (debug) {
                             cout << " " << (*actItr)->howManyTimes;
@@ -2040,7 +2040,7 @@ public:
                     } else {
                         cout << -effectsAffectThisLayer->second->values()[affectedVar + FluentLayerEntry::pneCount] << ",";
                     }
-                    
+
                     if (effectsAffectThisLayer->second->values()[affectedVar] == DBL_MAX) {
                         cout << "inf]\n";
                     } else {
@@ -2049,29 +2049,29 @@ public:
                 }
             }
         }
-        
+
         for (int pass = 0; pass < 2; ++pass) {
-            
+
             // pass 0 - increase/decrease effects
             // pass 1 - assignments
-            
+
             map<int, list<const ActionAndHowManyTimes*> >::const_iterator effItr = mostRecentInstantaneousEffects->begin();
             const map<int, list<const ActionAndHowManyTimes*> >::const_iterator effEnd = mostRecentInstantaneousEffects->end();
-            
+
             for (; effItr != effEnd; ++effItr) {
                 RPGBuilder::RPGNumericEffect & currEff = RPGBuilder::getNumericEff()[effItr->first];
                 if (currEff.isAssignment != (pass == 1)) continue;
                 const int affectedVar = currEff.fluentIndex;
-                
+
                 list<const ActionAndHowManyTimes*>::const_iterator actItr = effItr->second.begin();
                 const list<const ActionAndHowManyTimes*>::const_iterator actEnd = effItr->second.end();
-                
+
                 for (; actItr != actEnd; ++actItr) {
                     const double maxVal = currEff.evaluate(effectInputs->second->values(), (*actItr)->minDur, (*actItr)->maxDur);
                     const double minVal = currEff.evaluateMin(effectInputs->second->values(), (*actItr)->minDur, (*actItr)->maxDur);
-                    if (currEff.isAssignment) { 
+                    if (currEff.isAssignment) {
                          if (debug) {
-                            cout << "Bounds were [";                            
+                            cout << "Bounds were [";
                             if (effectsAffectThisLayer->second->values()[affectedVar + FluentLayerEntry::pneCount] == DBL_MAX) {
                                 cout << "-inf,";
                             } else if (effectsAffectThisLayer->second->values()[affectedVar + FluentLayerEntry::pneCount] == -DBL_MAX) {
@@ -2088,9 +2088,9 @@ public:
                             }
                             cout << "Effect bounds: [" << minVal << "," << maxVal <<" ]" << endl;
                         }
-                        
+
                         effectsAffectThisLayer->second->keepAssignmentIfBetter(*actItr, effItr->first, true, affectedVar, maxVal, variableAssignedTo);
-                        effectsAffectThisLayer->second->keepAssignmentIfBetter(*actItr, effItr->first, false, affectedVar, minVal, variableAssignedTo);                    
+                        effectsAffectThisLayer->second->keepAssignmentIfBetter(*actItr, effItr->first, false, affectedVar, minVal, variableAssignedTo);
                          if (debug) {
                             cout << "Bounds are now [";
                             if (effectsAffectThisLayer->second->values()[affectedVar + FluentLayerEntry::pneCount] == DBL_MAX) {
@@ -2103,15 +2103,15 @@ public:
                             } else {
                                 cout << effectsAffectThisLayer->second->values()[affectedVar] << "]\n";
                             }
-                            
+
                         }
                     } else {
                         if (debug) {
                             cout << currEff << " gives us " << minVal << "," << maxVal << " of " << *(RPGBuilder::getPNE(currEff.fluentIndex)) << endl;
-                            
+
                         }
                         effectsAffectThisLayer->second->applyIncrease(effItr->first, affectedVar, minVal, maxVal, (*actItr)->howManyTimes, variableChanged);
-                        //effectsAffectThisLayer->second->applyIncrease(effItr->first, affectedVar, minVal, (*actItr)->howManyTimes, variableChanged);                    
+                        //effectsAffectThisLayer->second->applyIncrease(effItr->first, affectedVar, minVal, (*actItr)->howManyTimes, variableChanged);
 
                         if (debug) {
                             cout << "Bounds are now [";
@@ -2125,44 +2125,44 @@ public:
                             } else {
                                 cout << effectsAffectThisLayer->second->values()[affectedVar] << "]\n";
                             }
-                            
+
                         }
                     }
                 }
             }
-            
+
         }
-        
+
         // mark assigned-to variables as having changed, too
         variableChanged.insert(variableAssignedTo.begin(), variableAssignedTo.end());
-        
+
         set<int> avsToRecalculate;
-            
+
         {
-            
+
             set<int>::const_iterator vcItr = variableChanged.begin();
             const set<int>::const_iterator vcEnd = variableChanged.end();
-            
+
             for (; vcItr != vcEnd; ++vcItr) {
                 avsToRecalculate.insert(RPGBuilder::getVariableDependencies(*vcItr).begin(), RPGBuilder::getVariableDependencies(*vcItr).end());
             }
-            
+
             {
                 set<int>::const_iterator avItr = avsToRecalculate.begin();
                 const set<int>::const_iterator avEnd = avsToRecalculate.end();
-                
+
                 effectsAffectThisLayer->second->recalculateAVs(avItr, avEnd);
             }
-            
+
             if (debug) {
                 set<int>::const_iterator avItr = avsToRecalculate.begin();
                 const set<int>::const_iterator avEnd = avsToRecalculate.end();
-                
+
                 for (; avItr != avEnd; ++avItr) {
                     cout << "Lower bound of " << RPGBuilder::getArtificialVariable(*avItr) << " is now ";
                     if (effectsAffectThisLayer->second->values()[*avItr] == DBL_MAX) {
                         cout << "inf\n";
-                    } else { 
+                    } else {
                         cout << effectsAffectThisLayer->second->values()[*avItr] << endl;
                     }
 
@@ -2171,184 +2171,184 @@ public:
         }
 
         set<int> presToRecalculate;
-        
+
         // pull in preconditions that gradients have satisfied, but double-check this is definitely the case
         presToRecalculate.swap(gradientsLeadToTheseFactsNowBeingTrue);
-        
+
         for (int pass = 0; pass < 2; ++pass) {
             const set<int> & variableSet = (pass ? avsToRecalculate : variableChanged);
-            
+
             set<int>::const_iterator varItr = variableSet.begin();
             const set<int>::const_iterator varEnd = variableSet.end();
-            
+
             for (; varItr != varEnd; ++varItr) {
                 const list<int> & recalc = RPGBuilder::affectsRPGNumericPreconditions(*varItr);
                 presToRecalculate.insert(recalc.begin(), recalc.end());
             }
         }
-        
-        {            
+
+        {
             set<int>::const_iterator preItr = presToRecalculate.begin();
             const set<int>::const_iterator preEnd = presToRecalculate.end();
-            
+
             double satisfactionDelay;
-            
+
             for (; preItr != preEnd; ++preItr) {
                 if (achievedInLayer[*preItr] != EpsilonResolutionTimestamp::undefined() ) continue;
-                
+
                 PreconditionToSatisfactionLayerPair & forecastPair = layerAtWhichPreconditionBecomesTrue[*preItr];
-                
+
                 const RPGBuilder::RPGNumericPrecondition & currPre = RPGBuilder::getNumericPreTable()[*preItr];
-                
+
                 satisfactionDelay = effectsAffectThisLayer->second->willBecomeSatisfiedAfterDelay(currPre);
-                
+
                 if (satisfactionDelay == 0.0) {
                     achievedInLayer[*preItr] = effectsAffectThisLayer->first;
                     newNumericPreconditions.push_back(*preItr);
                     if (debug) {
                         cout << COLOUR_yellow << "Precondition " << *preItr << ", " << currPre << ", becomes true in layer " << effectsAffectThisLayer->first << COLOUR_default << endl;
                     }
-                    
+
                     // Now it's satisfied, note that it isn't forecast to become true at a future point
                     if (forecastPair.first != preconditionsBecomingTrueAtTime.end()) {
                         forecastPair.first->second.erase(forecastPair.second);
                         if (forecastPair.first->second.empty()) {
                             preconditionsBecomingTrueAtTime.erase(forecastPair.first);
                         }
-                                                            
+
                         forecastPair.first = preconditionsBecomingTrueAtTime.end();
                     }
-                    
+
                 } else if (satisfactionDelay < DBL_MAX) {
-                    
+
                     EpsilonResolutionTimestamp delayRoundedUp(satisfactionDelay, false);
                     EpsilonResolutionTimestamp futureLayer = effectsAffectThisLayer->first;
                     futureLayer += delayRoundedUp;
-                    
+
                     const EpsilonResolutionTimestamp earliestPOPoint = earliestPointForNumericPrecondition(currPre, earliestNumericPOTimes);
-                    
+
                     if (futureLayer < earliestPOPoint) {
                         futureLayer = earliestPOPoint;
                     }
-                    
-                    if (forecastPair.first == preconditionsBecomingTrueAtTime.end()) {   
+
+                    if (forecastPair.first == preconditionsBecomingTrueAtTime.end()) {
                         // never been forecast before
                         forecastPair.first = preconditionsBecomingTrueAtTime.insert(make_pair(futureLayer, set<int>())).first;
                         forecastPair.second = forecastPair.first->second.insert(*preItr).first;
-                        
+
                         if (debug) {
                             cout << COLOUR_blue << "Precondition " << *preItr << ", " << currPre << ", becomes true in layer " << futureLayer << COLOUR_default << endl;
                         }
-                        
-                    } else {                    
+
+                    } else {
                         map<EpsilonResolutionTimestamp, set<int> >::iterator newForecastItr = preconditionsBecomingTrueAtTime.find(futureLayer);
                         if (newForecastItr != forecastPair.first) {
                             // forecast was previously at a different time
-                            
+
                             forecastPair.first->second.erase(forecastPair.second);
                             if (forecastPair.first->second.empty()) {
                                 preconditionsBecomingTrueAtTime.erase(forecastPair.first);
                             }
-                            
+
                             forecastPair.first = preconditionsBecomingTrueAtTime.insert(make_pair(futureLayer, set<int>())).first;
                             forecastPair.second = forecastPair.first->second.insert(*preItr).first;
-                            
+
                             if (debug) {
                                 cout << COLOUR_blue << "Revised: precondition " << *preItr << ", " << currPre << ", becomes true in layer " << futureLayer << COLOUR_default << endl;
                             }
-                            
+
                         }
                     }
-                    
-                    
+
+
                 } else if (forecastPair.first != preconditionsBecomingTrueAtTime.end()) {
                     // was forecast to become true, but isn't any longer - a gradient in its favour has expired
-                    
+
                     forecastPair.first->second.erase(forecastPair.second);
                     if (forecastPair.first->second.empty()) {
                         preconditionsBecomingTrueAtTime.erase(forecastPair.first);
                     }
-                    
+
                     forecastPair.first = preconditionsBecomingTrueAtTime.end();
                 }
             }
-                
+
         }
 
 
         {
             set<int>::const_iterator vcItr = variableChanged.begin();
             const set<int>::const_iterator vcEnd = variableChanged.end();
-            
+
             for (; vcItr != vcEnd; ++vcItr) {
                 effectsAffectThisLayer->second->markEffectsToRevisit(revisitInstantaneousEffectIfVariableValueChanges[*vcItr], maxNeeded);
             }
         }
-        
+
         {
             set<int>::const_iterator atItr = variableAssignedTo.begin();
             const set<int>::const_iterator atEnd = variableAssignedTo.end();
-            
+
             for (; atItr != atEnd; ++atItr) {
 
                 effectsAffectThisLayer->second->markEffectsToRevisit(revisitInstantaneousEffectIfVariableIsAssignedTo[*atItr], maxNeeded);
-                
+
                 if (*atItr >= RPGBuilder::getPNECount()) {
                     if (!actionsThatHaveHadThisIntegratedEffect[*atItr - RPGBuilder::getPNECount()].empty()) {
                         effectsAffectThisLayer->second->markIntegratedOrGradientEffectVariableToRevisit(*atItr - RPGBuilder::getPNECount(), maxNeeded);
                     }
-                    
-                } else {                
+
+                } else {
                     if (!actionsThatHaveHadThisIntegratedEffect[*atItr].empty()) {
                         effectsAffectThisLayer->second->markIntegratedOrGradientEffectVariableToRevisit(*atItr, maxNeeded);
                     }
                 }
             }
         }
-        
+
         layerWithEffectsToBeRevisited = layers.end();
-        
+
         // As all effects have now been applied, we do two things:
-        
+
         // i) If there are effects to revisit, we note that this is the case
         if (   !effectsAffectThisLayer->second->getInstantaneousEffectsToRevisitAfterThisLayer().empty()
             || !effectsAffectThisLayer->second->getIntegratedOrGradientEffectsToRevisitAfterThisLayer().empty()    ) {
-            
+
             layerWithEffectsToBeRevisited = effectsAffectThisLayer;
             if (debug) {
                 cout << "Noting that " << layerWithEffectsToBeRevisited->first << " has effects that should be revisited\n";
             }
-          
+
         } else {
             if (debug) {
                 cout << "Noting that " << effectsAffectThisLayer->first << " has no effects that should be revisited\n";
             }
-                        
+
         }
-        
+
         // ii) We clear these variables, so that adding a new fluent layer is not blocked
         effectsAffectThisLayer = layers.end();
         mostRecentInstantaneousEffects = 0;
-        
+
         if (debug) {
             cout << "Returning, having allowed the possibility of adding a new fluent layer\n";
         }
     }
-    
+
     /** @brief Signal that the RPG has been built, and a plan is now to be extracted. */
     void prepareForExtraction() {
         assert(!nowExtracting);
-        
+
         nowExtracting = true;
         currentSubgoalLayer = layers.end();
         --currentSubgoalLayer;
-        
+
         if (debug) {
             cout << COLOUR_light_red << "Now extracting\n" << COLOUR_default << endl;
             cout << "Current subgoal layer is at time " << currentSubgoalLayer->first << endl;
         }
     }
-    
+
     /** @brief Request a precondition to support an action, during solution extraction.
      *
      *  This function takes the desired numeric precondition, and ensures it is
@@ -2365,7 +2365,7 @@ public:
     void requestNumericPrecondition(const int & pre, const EpsilonResolutionTimestamp & achievedAt,
                                     const EpsilonResolutionTimestamp & forActionLayer, RPGRegressionMap & goalsAtLayer,
                                     const EpsilonResolutionTimestamp & tilR) {
-        
+
         if (debug) {
             if (((forActionLayer - EpsilonResolutionTimestamp::epsilon()) - currentSubgoalLayer->first) > EpsilonResolutionTimestamp::zero()) {
                 cout << "It appears there is a cycle in the RPG solution extraction\n";
@@ -2375,31 +2375,31 @@ public:
         }
         // check we are definitely going backwards through the RPG
         assert((-currentSubgoalLayer->first + (forActionLayer - EpsilonResolutionTimestamp::epsilon() )) <= EpsilonResolutionTimestamp::zero());
-        
+
         while ((currentSubgoalLayer->first - forActionLayer) > EpsilonResolutionTimestamp::zero()) {
             --currentSubgoalLayer;
             if (debug) {
                 cout << "Current subgoal layer is now at time " << currentSubgoalLayer->first << endl;
             }
         }
-        
+
         LayerMap::iterator appearedIn = layers.find(achievedAt);
-        
+
         if (debug) {
             if (appearedIn == layers.end()) {
                 cout << "Asking for a precondition, " << pre << ", that became true at time " << achievedAt << ", but there is no fluent layer recorded for that time\n";
             }
         }
         assert(appearedIn != layers.end());
-        
+
         const RPGBuilder::RPGNumericPrecondition & currPre = RPGBuilder::getNumericPreTable()[pre];
-        
+
         const double threshold = (currPre.op == VAL::E_GREATER ? currPre.RHSConstant + 0.00001 : currPre.RHSConstant);
-        
+
         RPGRegress & addTo = goalsAtLayer[achievedAt];
-        
+
         addTo.requestNumericThreshold(currPre.LHSVariable, threshold, tilR);
-        
+
         if (debug) {
             cout << "\t\t\t - Translated to a threshold " << currPre.LHSVariable << " >= " << threshold << endl;
         }
@@ -2417,21 +2417,21 @@ public:
      */
     void requestGoal(const int & pre, const EpsilonResolutionTimestamp & achievedAt,
                      RPGRegressionMap & goalsAtLayer) {
-        
+
         LayerMap::iterator appearedIn = layers.find(achievedAt);
         assert(appearedIn != layers.end());
-        
+
         const RPGBuilder::RPGNumericPrecondition & currPre = RPGBuilder::getNumericPreTable()[pre];
-        
+
         const double threshold = (currPre.op == VAL::E_GREATER ? currPre.RHSConstant + 0.001 : currPre.RHSConstant);
-        
+
         RPGRegress & addTo = goalsAtLayer[achievedAt];
-        
+
         if (debug) {
             cout << " - Requesting " << currPre.LHSVariable << " >= " << threshold << " at time " << achievedAt << endl;
         }
         addTo.requestNumericThreshold(currPre.LHSVariable, threshold, EpsilonResolutionTimestamp::infinite());
-        
+
     }
 
 
@@ -2441,23 +2441,23 @@ public:
      *  as well as an effect upon the intended fact.  This function records these side-effects,
      *  in case they are beneficial.
      *
-     * 
+     *
      */
     void recordSideEffects(const int & act, const Planner::time_spec & ts, const EpsilonResolutionTimestamp & actLayer) {
-        
+
         LayerMap::const_iterator rollback = layers.end();
         --rollback;
-        
+
         while (rollback->first > actLayer) {
             --rollback;
         }
-        
+
         ActionAndHowManyTimes tmp(act, ts, 1, (*payloadDurationBounds)[act].first, (*payloadDurationBounds)[act].second);
-        
+
         recordSideEffects(&tmp, 1, rollback->second->values());
     }
-    
-    
+
+
     /** @brief Satisfy all the numeric preconditions at the given layer, by adding supporting actions.
      *
      *  This action takes the numeric preconditions to be achieved in the given fact layer (recorded
@@ -2465,7 +2465,7 @@ public:
      *  prior to this layer until the residual precondition is sufficiently small as to be
      *  satisfiable in an earlier fluent layer.
      *
-     *  @param currentLayer  The layer containing the numeric preconditions to be satisfied. 
+     *  @param currentLayer  The layer containing the numeric preconditions to be satisfied.
      *  @param goalsAtLayer  The record of goals kept during solution extraction, to be updated
      *                       by this function to contain those to be achieved at an earlier layer.
      *  @param actionsUsed   Each action used in this function is added to this list, along with its
@@ -2474,31 +2474,31 @@ public:
     void satisfyNumericPreconditionsAtLayer(RPGRegressionMap::const_iterator & currentLayer,
                                             RPGRegressionMap & goalsAtLayer,
                                             list<pair<EpsilonResolutionTimestamp, SupportingAction> > & actionsUsed) {
-        
+
         if (currentLayer->second.numericValueGreaterThan.empty()) return;
         if (currentLayer->first <= EpsilonResolutionTimestamp::zero()) return;
-        
+
         if (debug) {
             cout << COLOUR_light_blue << "Satisfying numeric preconditions in layer " << currentLayer->first << COLOUR_default << endl;
         }
-        
+
         const LayerMap::iterator preconditionsIn = layers.find(currentLayer->first);
-        
+
         LayerMap::const_iterator previousFluentLayer = preconditionsIn;
         --previousFluentLayer;
-        
-        
+
+
 
         map<int, pair<double,EpsilonResolutionTimestamp> >::const_iterator thresholdItr = currentLayer->second.numericValueGreaterThan.begin();
         const map<int, pair<double,EpsilonResolutionTimestamp> >::const_iterator thresholdEnd = currentLayer->second.numericValueGreaterThan.end();
-        
+
         for (; thresholdItr != thresholdEnd; ++thresholdItr) {
             double needToAchieve = thresholdItr->second.first;
-            
+
             if (debug) {
                 cout << ": variable " << thresholdItr->first << " >= " << needToAchieve << endl;
             }
-            
+
             /*{
                 map<int,double>::const_iterator aaItr = alreadyAchieved.find(thresholdItr->first);
                 if (aaItr != alreadyAchieved.end()) {
@@ -2508,7 +2508,7 @@ public:
                     }
                 }
             }*/
-            
+
             if (needToAchieve < borrowFactLayerZeroValues()[thresholdItr->first]) {
                 // have already satisfied this when satisfying something else
                 if (debug) {
@@ -2518,57 +2518,57 @@ public:
             }
 
             const double valueInPreviousLayer = previousFluentLayer->second->values()[thresholdItr->first];
-                        
+
             // if we can push it back to an earlier layer, then do so
             if (needToAchieve <= valueInPreviousLayer) {
                 if (debug) {
                     cout << "- Could have " << needToAchieve << " of " << thresholdItr->first << " in the previous layer, " << previousFluentLayer->first << endl;
                 }
-                
+
                 LayerMap::const_iterator rollback = previousFluentLayer;
                 while (rollback->second->values()[thresholdItr->first] > needToAchieve) {
                     --rollback;
                 }
                 ++rollback;
-                
+
                 if (debug) {
                     cout << "  * Earliest possible point with sufficient is layer " << rollback->first << endl;
                 }
-                
+
                 if (rollback->first > EpsilonResolutionTimestamp::zero() ) {
                     goalsAtLayer[rollback->first].requestNumericThreshold(thresholdItr->first, needToAchieve, thresholdItr->second.second);
                 }
                 continue;
             }
-            
+
             // otherwise, we need to put some effort in
-            
+
             assert(preconditionsIn->second->values()[thresholdItr->first] >= thresholdItr->second.first);
-            
+
             bool assignmentMatched = false;
-            
+
             {
-            
+
                 const RecordedAssignment * const assignmentUsed = preconditionsIn->second->assignmentAppliedToVariable(thresholdItr->first);
-                
+
                 // if it was done with assignment...
                 if (assignmentUsed && assignmentUsed->act) {
-                    
+
                     const RPGBuilder::RPGNumericEffect & currEff = RPGBuilder::getNumericEff()[assignmentUsed->eff];
-                    
+
                     const ActionAndHowManyTimes * const toUse = assignmentUsed->act;
-                    
+
                     actionsUsed.push_back(make_pair(currentLayer->first,SupportingAction(toUse->actID, toUse->ts, 1, thresholdItr->second.second)));
 
                     if (debug) {
                         cout << "  * Using assignment by " << *(RPGBuilder::getInstantiatedOp(toUse->actID)) << endl;
                     }
-                    
+
                     assignmentMatched = true;
-                    
+
                     recordSideEffects(toUse, 1, previousFluentLayer->second->values());
-                    
-                    
+
+
                     double contributionToIncreaseFromDur = 0.0;
                     if (assignmentUsed->maximiseEffect) {
                         for (int s = 0; s < currEff.size; ++s) {
@@ -2587,7 +2587,7 @@ public:
                             }
                         }
                     }
-                    
+
                     if (currEff.size) {
                         // if assigning a value derived from other variables, we need to make sure
                         // they hold values sufficient for the desired result
@@ -2598,10 +2598,10 @@ public:
 
                         if (!subTerms.empty()) {// duration dependent variables don't induce subterms
                             RPGRegress & prev = goalsAtLayer[previousFluentLayer->first];
-                            
+
                             list<pair<int,double> >::const_iterator tItr = subTerms.begin();
                             const list<pair<int,double> >::const_iterator tEnd = subTerms.end();
-                            
+
                             for (; tItr != tEnd; ++tItr) {
                                 prev.requestNumericThreshold(tItr->first, tItr->second, thresholdItr->second.second);
                             }
@@ -2609,38 +2609,38 @@ public:
                     }
                 }
             }
-            
+
             if (!assignmentMatched) {
-                
+
                 if (debug) {
                     cout << "  * Not using assignment" << endl;
                 }
-                
+
                 list<pair<int,double> > subTerms;
-                
+
                 if (thresholdItr->first < 2 * FluentLayerEntry::pneCount) {
                     subTerms.push_back(make_pair(thresholdItr->first, thresholdItr->second.first));
                 } else {
                     const RPGBuilder::ArtificialVariable & currAV = RPGBuilder::getArtificialVariable(thresholdItr->first);
                     double avRemaining = thresholdItr->second.first;
-                    
+
                     /*for (int s = 0; s < currAV.size; ++s) {
                         const map<int,double>::const_iterator aaItr = alreadyAchieved.find(currAV.fluents[s]);
                         if (aaItr != alreadyAchieved.end()) {
                             avRemaining -= aaItr->second * currAV.weights[s];
                         }
                     }*/
-                    
+
                     breakApart(currAV.fluents, currAV.weights, currAV.size, currAV.constant,
                                true, avRemaining,
                                preconditionsIn, EPSILON, DBL_MAX, subTerms);
                 }
-                
+
                 list<pair<int,double> >::const_iterator tItr = subTerms.begin();
                 const list<pair<int,double> >::const_iterator tEnd = subTerms.end();
-                
+
                 for (; tItr != tEnd; ++tItr) {
-                    
+
                     double residual = tItr->second;
                     const double acceptableMinimum = previousFluentLayer->second->values()[tItr->first];
 
@@ -2650,33 +2650,33 @@ public:
                             cout << "increasing " << *(RPGBuilder::getPNE(tItr->first)) << ": must have " << residual << " by now, given " << acceptableMinimum << " previously\n";
                         } else {
                             cout << "decreasing " << *(RPGBuilder::getPNE(tItr->first - FluentLayerEntry::pneCount))  << ": must have " << -residual << " by now, given " << -acceptableMinimum << " previously\n";
-                        }                                                
+                        }
                     }
-                                        
-                                        
+
+
                     bool localAssignmentMatched = false;
-                    
+
                     {
                         const RecordedAssignment * const assignmentUsed = preconditionsIn->second->assignmentAppliedToVariable(tItr->first);
-                
+
                         // if it was done with assignment...
                         if (assignmentUsed && assignmentUsed->act) {
-                            
+
                             const RPGBuilder::RPGNumericEffect & currEff = RPGBuilder::getNumericEff()[assignmentUsed->eff];
-                            
+
                             const ActionAndHowManyTimes * const toUse = assignmentUsed->act;
-                            
+
                             actionsUsed.push_back(make_pair(currentLayer->first,SupportingAction(toUse->actID, toUse->ts, 1, thresholdItr->second.second)));
 
                             if (debug) {
                                 cout << "  * Using assignment by " << *(RPGBuilder::getInstantiatedOp(toUse->actID)) << endl;
                             }
-                            
+
                             localAssignmentMatched = true;
-                            
+
                             recordSideEffects(toUse, 1, previousFluentLayer->second->values());
-                            
-                            
+
+
                             double contributionToIncreaseFromDur = 0.0;
                             if (assignmentUsed->maximiseEffect) {
                                 for (int s = 0; s < currEff.size; ++s) {
@@ -2695,7 +2695,7 @@ public:
                                     }
                                 }
                             }
-                            
+
                             if (currEff.size) {
                                 // if assigning a value derived from other variables, we need to make sure
                                 // they hold values sufficient for the desired result
@@ -2706,22 +2706,22 @@ public:
 
                                 if (!subTerms.empty()) {// duration dependent variables don't induce subterms
                                     RPGRegress & prev = goalsAtLayer[previousFluentLayer->first];
-                                    
+
                                     list<pair<int,double> >::const_iterator tItr = subTerms.begin();
                                     const list<pair<int,double> >::const_iterator tEnd = subTerms.end();
-                                    
+
                                     for (; tItr != tEnd; ++tItr) {
                                         prev.requestNumericThreshold(tItr->first, tItr->second, thresholdItr->second.second);
                                     }
                                 }
                             }
                         }
-                    }                    
-                    
+                    }
+
                     if (!localAssignmentMatched) {
-                    
+
                         const set<int> * const instantaneousEffs = preconditionsIn->second->getInstantaneousEffectsThatIncreasedVariable(tItr->first);
-                        
+
                         if (debug) {
                             if (instantaneousEffs && !instantaneousEffs->empty()) {
                                 cout << "  * Considering instantaneous effects\n";
@@ -2729,50 +2729,50 @@ public:
                                 cout << "  * No suitable instantaneous effects\n";
                             }
                         }
-                        
-                        
+
+
                         if (instantaneousEffs) {
                             set<int>::const_iterator effItr = instantaneousEffs->begin();
                             const set<int>::const_iterator effEnd = instantaneousEffs->end();
-                            
+
                             for (; effItr != effEnd && residual > acceptableMinimum; ++effItr) {
-                                
+
                                 const RPGBuilder::RPGNumericEffect & currEff = RPGBuilder::getNumericEff()[*effItr];
-                                
+
                                 if (debug) {
                                     cout << "      - One potential effect: " << currEff << endl;
                                 }
-                                
+
                                 const list<const ActionAndHowManyTimes*> & actions = preconditionsIn->second->getInstantaneousEffectsDirectlyBeforeThisLayer()[*effItr];
-                                
+
                                 bool minUsed = false;
                                 double minimumEffectMagnitudeNeeded;
                                 bool maxUsed = false;
                                 double maximumEffectMagnitudeNeeded;
-                                
+
                                 list<const ActionAndHowManyTimes*>::const_iterator aItr = actions.begin();
                                 const list<const ActionAndHowManyTimes*>::const_iterator aEnd = actions.end();
-                                
+
                                 for (; aItr != aEnd && residual > acceptableMinimum; ++aItr) {
-                                    
+
                                     if (debug) {
                                         cout << "          > Residual: " << residual << ", Acceptable Minimum: " << acceptableMinimum << endl;
                                     }
-                                    
+
                                     //for (int pass = 0; pass < 2 && residual > acceptableMinimum; ++pass) {
-                                    
+
                                     {
-                                        
+
                                         const double minEff = currEff.evaluateMin(previousFluentLayer->second->values(), (*aItr)->minDur, (*aItr)->maxDur);
                                         const double maxEff = currEff.evaluate(previousFluentLayer->second->values(), (*aItr)->minDur, (*aItr)->maxDur);
-                                        
+
                                         if (tItr->first >= FluentLayerEntry::pneCount ? (minEff < 0 || maxEff < 0) : (minEff > 0 || maxEff > 0)) {
 
                                             double localEff;
                                             bool * used = 0;
                                             double * magnitudeUpdate = 0;
                                             bool minRatherThanMax = false;
-                                            
+
                                             if (tItr->first >= FluentLayerEntry::pneCount) {
                                                 if (minEff < maxEff) {
                                                     localEff = minEff;
@@ -2796,9 +2796,9 @@ public:
                                                     used = &(maxUsed);
                                                 }
                                             }
-                                            
+
                                             double contributionToIncreaseFromDur = 0.0;
-                                            
+
                                             if (minRatherThanMax) {
                                                 for (int s = 0; s < currEff.size; ++s) {
                                                     if (currEff.variables[s] == -3) {
@@ -2816,11 +2816,11 @@ public:
                                                     }
                                                 }
                                             }
-                                            
-                                            
+
+
                                             int applyTimes = (*aItr)->howManyTimes;
-                                            
-                                            
+
+
                                             if (debug) {
                                                 cout << "          + Effect can be obtained " << applyTimes << " time(s) using ";
                                                 if ((*aItr)->ts == Planner::E_AT_START) {
@@ -2833,7 +2833,7 @@ public:
                                             if (tItr->first >= FluentLayerEntry::pneCount) {
                                                 if (localEff == -DBL_MAX) {
                                                     applyTimes = 1;
-                                                    residual = -DBL_MAX;                                        
+                                                    residual = -DBL_MAX;
                                                 } else if (applyTimes == INT_MAX) {
                                                     const double at = (-(residual - acceptableMinimum)) / localEff;
                                                     applyTimes = at;
@@ -2854,7 +2854,7 @@ public:
                                             } else {
                                                 if (localEff == DBL_MAX) {
                                                     applyTimes = 1;
-                                                    residual = -DBL_MAX;                                        
+                                                    residual = -DBL_MAX;
                                                 } else if (applyTimes == INT_MAX) {
                                                     const double at = (residual - acceptableMinimum) / localEff;
                                                     applyTimes = at;
@@ -2907,110 +2907,110 @@ public:
                                                     *magnitudeUpdate = localEff - contributionToIncreaseFromDur;
                                                 }
                                             }
-                                            
-                                            
+
+
                                             actionsUsed.push_back(make_pair(currentLayer->first,SupportingAction((*aItr)->actID, (*aItr)->ts, applyTimes, thresholdItr->second.second)));
-                                            
+
                                             recordSideEffects(*aItr, applyTimes, previousFluentLayer->second->values());
-                                            
+
                                             *used = true;
-                                        }                                
+                                        }
                                     }
                                 }
-                                
+
                                 if (maxUsed) {
-                                    
+
                                     list<pair<int,double> > inputSubTerms;
                                     breakApart(currEff.variables, currEff.weights, currEff.size, currEff.constant,
                                                true, maximumEffectMagnitudeNeeded,
                                                previousFluentLayer, 0.001, DBL_MAX, inputSubTerms);
-                                               
+
                                    if (!inputSubTerms.empty()) {// duration dependent variables don't induce subterms
                                        RPGRegress & prev = goalsAtLayer[previousFluentLayer->first];
-                                       
+
                                        list<pair<int,double> >::const_iterator t2Itr = inputSubTerms.begin();
                                        const list<pair<int,double> >::const_iterator t2End = inputSubTerms.end();
-                                       
+
                                        for (; t2Itr != t2End; ++t2Itr) {
                                            prev.requestNumericThreshold(t2Itr->first, t2Itr->second, thresholdItr->second.second);
                                        }
                                     }
                                 }
-                                
-                                    
+
+
                                 if (minUsed) {
                                     list<pair<int,double> > inputSubTerms;
                                     breakApart(currEff.variables, currEff.weights, currEff.size, currEff.constant,
                                                false, -minimumEffectMagnitudeNeeded,
                                                previousFluentLayer, 0.001, DBL_MAX, inputSubTerms);
-                                               
+
                                    if (!inputSubTerms.empty()) {// duration dependent variables don't induce subterms
                                        RPGRegress & prev = goalsAtLayer[previousFluentLayer->first];
-                                       
+
                                        list<pair<int,double> >::const_iterator t2Itr = inputSubTerms.begin();
                                        const list<pair<int,double> >::const_iterator t2End = inputSubTerms.end();
-                                       
+
                                        for (; t2Itr != t2End; ++t2Itr) {
                                            prev.requestNumericThreshold(t2Itr->first, t2Itr->second, thresholdItr->second.second);
                                        }
                                     }
                                 }
                             }
-                            
+
                         }
-                        
+
                         if (residual > acceptableMinimum) {
                             if (debug) {
                                 cout << "Residual = " << residual << ", acceptable minimum = " << acceptableMinimum << endl;
                             }
                             // must need some integrated effects, too
-                            
+
                             map<int, map<double, list<const ActionAndHowManyTimes*> > > & ieffs = preconditionsIn->second->getIntegratedEffectsDirectlyBeforeThisLayer();
-                            
+
                             map<int, map<double, list<const ActionAndHowManyTimes*> > >::const_iterator ieItr;
-                            
+
                             const bool keepPositive = tItr->first < FluentLayerEntry::pneCount;
-                            
+
                             if (keepPositive) {
                                 ieItr = ieffs.find(tItr->first);
                             } else {
                                 ieItr = ieffs.find(tItr->first - FluentLayerEntry::pneCount);
                             }
-                            
-                            
-                                        
+
+
+
                             if (ieItr == ieffs.end()) {
                                 if (debug) {
                                     cout << "  * No suitable integrated effects\n";
-                                }                        
+                                }
                             } else {
                                 if (debug) {
                                     cout << "  * Considering integrated effects\n";
                                 }
-                                
+
                                 map<double, list<const ActionAndHowManyTimes*> >::const_iterator effItr = ieItr->second.begin();
                                 const map<double, list<const ActionAndHowManyTimes*> >::const_iterator effEnd = ieItr->second.end();
-                                
+
                                 for (; effItr != effEnd && residual > acceptableMinimum; ++effItr) {
                                     if (keepPositive) {
                                         if (effItr->first < 0) continue;
                                     } else {
                                         if (effItr->first > 0) continue;
                                     }
-                                    
+
                                     const double eff = fabs(effItr->first);
-                                    
+
                                     list<const ActionAndHowManyTimes*>::const_iterator aItr = effItr->second.begin();
                                     const list<const ActionAndHowManyTimes*>::const_iterator aEnd = effItr->second.end();
-                                    
+
                                     for (; aItr != aEnd && residual > acceptableMinimum; ++aItr) {
                                         double needed = (residual - acceptableMinimum) / eff;
-                                        
+
                                         int nInt = needed;
                                         if (needed > nInt) { // round up
                                             ++nInt;
                                         }
-                                        
+
                                         if (nInt > (*aItr)->howManyTimes) {
                                             residual -= (*aItr)->howManyTimes * eff;
                                             actionsUsed.push_back(make_pair(currentLayer->first,SupportingAction((*aItr)->actID, (*aItr)->ts, (*aItr)->howManyTimes, thresholdItr->second.second)));
@@ -3022,22 +3022,22 @@ public:
                                         }
                                     }
                                 }
-                                
+
                             }
                         }
-                        
+
                         if (residual > acceptableMinimum) {
-                            
+
                             if (debug) {
                                 cout << "  * Needs gradient effects\n";
                             }
                             // must need some gradient effects too
                             LayerMap::iterator layerWithGradientOnThisVar = preconditionsIn;
-                            
+
                             const bool keepPositive = (tItr->first < FluentLayerEntry::pneCount);
-                            
+
                             map<int, map<double, list<const ActionAndHowManyTimes*> > >::const_iterator geItr;
-                            
+
                             while (layerWithGradientOnThisVar != layers.begin()) {
                                 map<int, map<double, list<const ActionAndHowManyTimes*> > > & geffs = layerWithGradientOnThisVar->second->getGradientEffectsDirectlyBeforeThisLayer();
                                 if (keepPositive) {
@@ -3049,7 +3049,7 @@ public:
                                 if (geItr != geffs.end()) {
                                     map<double, list<const ActionAndHowManyTimes*> >::const_iterator effItr = geItr->second.begin();
                                     const map<double, list<const ActionAndHowManyTimes*> >::const_iterator effEnd = geItr->second.end();
-                                    
+
                                     for (; effItr != effEnd && residual > acceptableMinimum; ++effItr) {
                                         if (keepPositive) {
                                             if (effItr->first > 0) {
@@ -3064,31 +3064,31 @@ public:
                                         }
                                     }
                                 }
-                                
+
                                 if (rightWay) {
                                     if (debug) {
                                         cout << "    + Suitable gradient effects in layer " << layerWithGradientOnThisVar->first << endl;
-                                    }                                                               
+                                    }
                                     break;
                                 } else {
                                     if (debug) {
                                         cout << "    + No suitable gradient effects in layer " << layerWithGradientOnThisVar->first << endl;
                                     }
-                                    
+
                                     --layerWithGradientOnThisVar;
                                 }
                             }
-                            
+
                             // there are no active gradients in fact layer 0.0, so if this happens,
                             // there's an unexplained shortfall
                             assert(layerWithGradientOnThisVar != layers.begin());
-                            
+
                             LayerMap::iterator layerBeforeGradientOnThisVar = layerWithGradientOnThisVar;
                             --layerBeforeGradientOnThisVar;
-                            
+
                             map<double, list<const ActionAndHowManyTimes*> >::const_iterator effItr = geItr->second.begin();
                             const map<double, list<const ActionAndHowManyTimes*> >::const_iterator effEnd = geItr->second.end();
-                            
+
                             for (; effItr != effEnd && residual > acceptableMinimum; ++effItr) {
                                 if (keepPositive) {
                                     if (effItr->first < 0) {
@@ -3096,7 +3096,7 @@ public:
                                             cout << "    * Ignoring decrease with gradient " << effItr->first << endl;
                                         } else {
                                             cout << "    * Keeping increase with gradient " << effItr->first << endl;
-                                        } 
+                                        }
                                         continue;
                                     }
                                 } else {
@@ -3105,71 +3105,71 @@ public:
                                             cout << "    * Ignoring increase with gradient " << effItr->first << endl;
                                         } else {
                                             cout << "    * Keeping decrease with gradient " << effItr->first << endl;
-                                        } 
-                                        
+                                        }
+
                                         continue;
                                     }
                                 }
-                                                                
+
                                 const double eff = fabs(effItr->first);
-                            
-                                
+
+
                                 list<const ActionAndHowManyTimes*>::const_iterator aItr = effItr->second.begin();
                                 const list<const ActionAndHowManyTimes*>::const_iterator aEnd = effItr->second.end();
-                                
+
                                 for (; aItr != aEnd && residual > acceptableMinimum; ++aItr) {
-                                    
+
                                     const EpsilonResolutionTimestamp durationOfEffect = ((*aItr)->gradientsFinishAt < preconditionsIn->first ? (*aItr)->gradientsFinishAt : preconditionsIn->first) - layerWithGradientOnThisVar->first;
-                                    
+
                                     const double overThatTime = durationOfEffect.toDouble() * eff;
-                                    
+
                                     const double needed = ceil(durationOfEffect.toDouble() / ((*aItr)->maxDur));
-                                    
+
                                     if (debug) {
                                         cout << "       - Using " << needed << " of " << *(RPGBuilder::getInstantiatedOp((*aItr)->actID)) << endl;
                                     }
-                                                                        
+
                                     residual -= overThatTime;
-                                    
+
                                     if (!(*aItr)->alreadyInThePlan) {
                                         actionsUsed.push_back(make_pair(layerWithGradientOnThisVar->first,SupportingAction((*aItr)->actID, (*aItr)->ts, needed, thresholdItr->second.second)));
                                         recordSideEffects(*aItr, needed, layerBeforeGradientOnThisVar->second->values());
                                     }
                                 }
                             }
-                            
-                        
+
+
                         }
-                        
+
                         if (residual > borrowFactLayerZeroValues()[tItr->first]) {
                             LayerMap::const_iterator rollback = previousFluentLayer;
                             while (rollback->second->values()[tItr->first] > residual) {
                                 --rollback;
                             }
                             ++rollback;
-                            goalsAtLayer[rollback->first].requestNumericThreshold(tItr->first, residual, thresholdItr->second.second);                                        
+                            goalsAtLayer[rollback->first].requestNumericThreshold(tItr->first, residual, thresholdItr->second.second);
                         }
                     }
                 }
             }
-        }        
-        
+        }
+
         if (debug) {
             cout << " > Actions used: " << actionsUsed.size() << endl;
         }
     }
-    
+
     void breakApart(const vector<int> & variables, const vector<double> & weights, const int & size, const double & constant,
                     const bool & useMaxVariables, double threshold,
                     const LayerMap::const_iterator & reachableValues, const double & minDur, const double & maxDur,
                     list<pair<int,double> > & subTerms) {
-        
+
         if (debug) {
             cout << "Breaking apart ";
             if (!size) {
                 cout << "<empty>";
             }
-            for (int s = 0; s < size; ++s) {        
+            for (int s = 0; s < size; ++s) {
                 if (s) cout << " + ";
                 cout << weights[s] << ".";
                 if (variables[s] < 0) {
@@ -3178,22 +3178,22 @@ public:
                     cout << *(RPGBuilder::getPNE(variables[s]));
                 } else {
                     cout << "-" << *(RPGBuilder::getPNE(variables[s] - FluentLayerEntry::pneCount));
-                }                
+                }
             }
             cout << " >= " << threshold - constant << endl;
         }
 
         threshold -= constant;
-                
-        const vector<double> & initValues = layers.begin()->second->values();        
+
+        const vector<double> & initValues = layers.begin()->second->values();
         const vector<double> & values = reachableValues->second->values();
-        
+
         double accumulatedLHS = 0.0;
-        
+
         for (int s = 0; s < size; ++s) {
             int v = variables[s];
             double w = weights[s];
-            
+
             if (w < 0.0) {
                 w = -w;
                 if (v < 0) {
@@ -3213,7 +3213,7 @@ public:
                     }
                 }
             }
-            
+
             if (!useMaxVariables) {
                 if (v < 0) {
                     if (v == -3) {
@@ -3232,36 +3232,36 @@ public:
                     }
                 }
             }
-                        
+
             if (v == -3) {
                 accumulatedLHS += w * maxDur;
             } else if (v == -19) {
                 accumulatedLHS += w * minDur;
             } else {
-                
+
                 assert(v >= 0);
                 assert(v < 2 * FluentLayerEntry::pneCount);
-            
+
                 accumulatedLHS += w * initValues[v];
             }
         }
-        
+
         if (debug) {
             cout << "Working upwards from LHS = " << accumulatedLHS << endl;
         }
-        
+
         for (int s = 0; s < size && accumulatedLHS < threshold; ++s) {
-                        
+
             int v = variables[s];
             double w = weights[s];
-            
+
             if (v < 0) {
                 if (debug) {
                     cout << "Skipping over special variable "<< v << endl;
                 }
                 continue;
             }
-            
+
             if (w < 0.0) {
                 w = -w;
                 if (v < FluentLayerEntry::pneCount) {
@@ -3270,7 +3270,7 @@ public:
                     v -= FluentLayerEntry::pneCount;
                 }
             }
-            
+
             if (!useMaxVariables) {
                 if (v < FluentLayerEntry::pneCount) {
                     v += FluentLayerEntry::pneCount;
@@ -3278,21 +3278,21 @@ public:
                     v -= FluentLayerEntry::pneCount;
                 }
             }
-            
+
             if (initValues[v] == values[v]) {
                 if (debug) {
                     cout << "Skipping over unchanged variable\n";
                 }
                 continue;
             }
-                
-            
+
+
             accumulatedLHS -= w * initValues[v];
-                                    
+
             if (debug) {
                 cout << "Losing " << w * initValues[v] << ", gaining " << (values[v] * w) << endl;
             }
-            
+
             if ( accumulatedLHS + (values[v] * w) >= threshold) {
                 if (debug) {
                     cout << "That does the rest: asking for " << v << " >= " << ((threshold - accumulatedLHS) / w) << endl;
@@ -3307,31 +3307,31 @@ public:
                 accumulatedLHS += w * values[v];
             }
         }
-        
+
     }
-                                       
+
 };
 
 
 int FluentLayers::FluentLayerEntry::pneCount;
 
 struct NextFactLayer {
-    
+
     EpsilonResolutionTimestamp timestamp;
-    
+
     map<EpsilonResolutionTimestamp, list<pair<int,bool> > >::iterator endActionsAppearingAtThisTime;
-    map<EpsilonResolutionTimestamp, FactLayerEntry>::iterator newFactsAtThisTime;    
+    map<EpsilonResolutionTimestamp, FactLayerEntry>::iterator newFactsAtThisTime;
     bool revisitInstantaneousNumericEffects;
     bool gradientsCauseFactsToBecomeTrue;
-    
+
     NextFactLayer() : timestamp(EpsilonResolutionTimestamp::infinite()) {
         reset();
-    } 
-                
+    }
+
     bool empty() const {
         return (timestamp == EpsilonResolutionTimestamp::infinite());
     }
-    
+
     void reset() {
         timestamp = EpsilonResolutionTimestamp::infinite();
         revisitInstantaneousNumericEffects = false;
@@ -3340,27 +3340,27 @@ struct NextFactLayer {
 };
 
 struct DotDetails {
-    
+
     struct ClusterDef {
         map<string,string> nodes;
     };
     map<double, ClusterDef > factLayerNodes;
     map<double, ClusterDef > actionLayerNodes;
-    
+
     list<string> endActionsToStarts;
     list<string> factsToActions;
     map<int, string> achieverForFact;
-    
+
     set<int> haveAnOpenEnd;
-    
+
     set<int> highlightedEnd;
     set<int> highlightedStart;
-    
+
     bool rawHighlight(const string & s, const bool failureOkay=false) {
         bool found = false;
         map<double, ClusterDef >::iterator alItr = actionLayerNodes.begin();
         const map<double, ClusterDef >::iterator alEnd = actionLayerNodes.end();
-        
+
         for (; alItr != alEnd; ++alItr) {
             map<string,string>::iterator nItr = alItr->second.nodes.find(s);
             if (nItr != alItr->second.nodes.end()) {
@@ -3374,7 +3374,7 @@ struct DotDetails {
         }
         return found;
     }
-    
+
     void highlightAction(const int & act, const Planner::time_spec & ts) {
         switch (ts) {
             case Planner::E_AT_START: {
@@ -3394,21 +3394,21 @@ struct DotDetails {
                 {
                     ostringstream c1;
                     c1 << "act" << act << "e";
-                    found = rawHighlight(c1.str(),true);                    
+                    found = rawHighlight(c1.str(),true);
                 }
                 {
                     ostringstream c1;
                     c1 << "act" << act << "ne";
-                    rawHighlight(c1.str(),found);                    
+                    rawHighlight(c1.str(),found);
                 }
                 break;
             }
             default: {
             }
         }
-        
+
     }
-    
+
     void actionMeetsFactInRP(const int & act, const Planner::time_spec & ts, const int & fact) {
         switch (ts) {
             case Planner::E_AT_START: {
@@ -3434,7 +3434,7 @@ struct DotDetails {
             }
         }
     };
-    
+
     void addFactNode(const double & t, const int & fact, const bool inState=false) {
         if (RPGBuilder::isStatic(RPGBuilder::getLiteral(fact)).first) {
             return;
@@ -3446,9 +3446,9 @@ struct DotDetails {
             c2 << "color=red, ";
         }
         c2 << "label=\"" << *(RPGBuilder::getLiteral(fact)) << "\"";
-        
+
         const string nn = c1.str();
-        
+
         factLayerNodes[t].nodes[nn] = c2.str();
     }
 
@@ -3456,12 +3456,12 @@ struct DotDetails {
         ostringstream c1;
         c1 << "numfact" << pre;
         const string nn = c1.str();
-        
+
         ostringstream c;
         if (inState) {
             c << "color=red, ";
         }
-        
+
         c << "label=\"";
         const RPGBuilder::RPGNumericPrecondition & currPre = RPGBuilder::getNumericPreTable()[pre];
         const int pneCount = RPGBuilder::getPNECount();
@@ -3486,11 +3486,11 @@ struct DotDetails {
                 c << -currPre.RHSConstant;
             }
         } else {
-            
+
             const RPGBuilder::ArtificialVariable & currAV = RPGBuilder::getArtificialVariable(currPre.LHSVariable);
-            
+
             double localRHS = currPre.RHSConstant - currAV.constant;
-            
+
             if (currAV.size == 1 && (currAV.fluents[0] >= pneCount) && (currAV.fluents[0] < (2 * pneCount))) {
                 c << *(RPGBuilder::getPNE(currAV.fluents[0] - pneCount));
                 if (currPre.op == VAL::E_GREATER) {
@@ -3504,7 +3504,7 @@ struct DotDetails {
                     c << -localRHS;
                 }
             } else {
-                
+
                 for (int s = 0; s < currAV.size; ++s) {
                     if (currAV.fluents[s] < pneCount) {
                         if (currAV.weights[s] != 1.0) {
@@ -3512,11 +3512,11 @@ struct DotDetails {
                                 c << " + " << currAV.weights[s] << "*";
                             } else {
                                 c << " - " << -currAV.weights[s] << "*";
-                            }                            
+                            }
                         } else {
                             if (s) {
                                 c << " + ";
-                            }                                                                                                       
+                            }
                         }
                         c << *(RPGBuilder::getPNE(currAV.fluents[s]));
                     } else {
@@ -3525,16 +3525,16 @@ struct DotDetails {
                                 c << " - " << currAV.weights[s] << "*";
                             } else {
                                 c << " + " << -currAV.weights[s] << "*";
-                            }                            
+                            }
                         } else {
                             if (s) {
                                 c << " - ";
-                            }                                                                                                       
+                            }
                         }
                         c << *(RPGBuilder::getPNE(currAV.fluents[s] - pneCount));
                     }
                 }
-                
+
                 if (currPre.op == VAL::E_GREATER) {
                     c << " > ";
                 } else {
@@ -3542,13 +3542,13 @@ struct DotDetails {
                 }
                 c << localRHS;
             }
-            
+
         }
-        
+
         c << "\"";
         factLayerNodes[t].nodes[nn] = c.str();
     }
-        
+
     void addActionNode(const double & t, const int & act, const Planner::time_spec & ts) {
         {
             ostringstream c1;
@@ -3580,27 +3580,27 @@ struct DotDetails {
                     exit(1);
                 }
             }
-            
+
             const string nn = c1.str();
             actionLayerNodes[t].nodes[nn] = c2.str();
         }
-        
+
         if (ts == Planner::E_AT_END) {
             ostringstream c2;
             c2 << "act" << act << "s -> act" << act << "e;\n";
             endActionsToStarts.push_back(c2.str());
         }
-        
+
         if (ts == Planner::E_AT) {
             return;
         }
-        
+
         {
             const list<Literal*> & pres = (ts == Planner::E_AT_START ? RPGBuilder::getProcessedStartPropositionalPreconditions()[act] : RPGBuilder::getEndPropositionalPreconditions()[act]);
-        
+
             list<Literal*>::const_iterator pItr = pres.begin();
             const list<Literal*>::const_iterator pEnd = pres.end();
-            
+
             for (; pItr != pEnd; ++pItr) {
                 if (RPGBuilder::isStatic(*pItr).first) {
                     continue;
@@ -3608,19 +3608,19 @@ struct DotDetails {
                 addFactToActionEdge((*pItr)->getStateID(), act, ts);
             }
         }
-        
+
         {
             const list<int> & numPres = (ts == Planner::E_AT_START ? RPGBuilder::getProcessedStartRPGNumericPreconditions()[act] : RPGBuilder::getEndRPGNumericPreconditions()[act]);
-            
+
             list<int>::const_iterator pItr = numPres.begin();
             const list<int>::const_iterator pEnd = numPres.end();
-            
+
             for (; pItr != pEnd; ++pItr) {
                 addNumFactToActionEdge(*pItr, act, ts);
             }
         }
     }
-    
+
     void addNeededEnd(const double & t, const int & act) {
         haveAnOpenEnd.insert(act);
         {
@@ -3628,21 +3628,21 @@ struct DotDetails {
             ostringstream c2;
             c1 << "act" << act << "ne";
             c2 << "label=\"" << *(RPGBuilder::getInstantiatedOp(act)) << " n-end\"";
-            
+
             const string nn = c1.str();
             actionLayerNodes[t].nodes[nn] = c2.str();
         }
-        
+
         const list<Literal*> & pres = RPGBuilder::getEndPropositionalPreconditions()[act];
-        
+
         list<Literal*>::const_iterator pItr = pres.begin();
         const list<Literal*>::const_iterator pEnd = pres.end();
-        
+
         for (; pItr != pEnd; ++pItr) {
             if (RPGBuilder::isStatic(*pItr).first) {
                 continue;
             }
-            
+
             ostringstream c;
             c << "fact" << (*pItr)->getStateID() << " -> act" << act << "ne;\n";
             factsToActions.push_back(c.str());
@@ -3659,7 +3659,7 @@ struct DotDetails {
         }
         factsToActions.push_back(c.str());
     }
-    
+
     void addNumFactToActionEdge(const int & num, const int & act, const Planner::time_spec & ts) {
         ostringstream c;
         c << "numfact" << num << " -> act" << act;
@@ -3670,7 +3670,7 @@ struct DotDetails {
         }
         factsToActions.push_back(c.str());
     }
-    
+
     void addActionToFactEdge(const int & act, const Planner::time_spec & ts, const int & fact) {
         ostringstream c;
         switch (ts) {
@@ -3678,7 +3678,7 @@ struct DotDetails {
                 c << "TIL" << act;
                 break;
             }
-            case Planner::E_AT_END: {      
+            case Planner::E_AT_END: {
                 if (haveAnOpenEnd.find(act) != haveAnOpenEnd.end()) {
                     c << "act" << act << "ne";
                 } else {
@@ -3686,7 +3686,7 @@ struct DotDetails {
                 }
                 break;
             }
-            case Planner::E_AT_START: {                
+            case Planner::E_AT_START: {
                 c << "act" << act << "s";
                 break;
             }
@@ -3699,7 +3699,7 @@ struct DotDetails {
         achieverForFact[fact] = c.str();
     }
 
-    
+
     void printLayerDef(ostream & o, const bool & factLayer, const double & atTime, const int & idx, const ClusterDef & def) const {
         o << "\tsubgraph cluster_" << idx << " {\n";
         if (factLayer) {
@@ -3710,35 +3710,35 @@ struct DotDetails {
             o << "\t\tc" << idx << " [label = \"fl(" << atTime << ")\"];\n";
         } else {
             o << "\t\tnode [style=filled];\n";
-            o << "\t\tcolor=blue;\n";            
+            o << "\t\tcolor=blue;\n";
             o << "\t\tlabel = \"\";\n";
             o << "\t\tc" << idx << " [label = \"al(" << atTime << ")\"];\n";
         }
-        
+
         map<string,string>::const_iterator nItr = def.nodes.begin();
         const map<string,string>::const_iterator nEnd = def.nodes.end();
-        
+
         for (; nItr != nEnd; ++nItr) {
             o << "\t" << nItr->first << " [" << nItr->second << "];\n";
         }
-        
+
         o << "\t}\n\n";
     };
-        
+
 };
-    
-    
+
+
 ostream & operator <<(ostream & o, const DotDetails & d) {
     o << "digraph RPG {\n";
     o << "\trankdir = LR;\n";
     int cluster = 0;
-    
+
     map<double, DotDetails::ClusterDef >::const_iterator flItr = d.factLayerNodes.begin();
     const map<double, DotDetails::ClusterDef >::const_iterator flEnd = d.factLayerNodes.end();
-    
+
     map<double, DotDetails::ClusterDef >::const_iterator alItr = d.actionLayerNodes.begin();
     const map<double, DotDetails::ClusterDef >::const_iterator alEnd = d.actionLayerNodes.end();
-    
+
     while (flItr != flEnd && alItr != alEnd) {
         if (alItr->first - flItr->first > 0.0005) {
             d.printLayerDef(o, true, flItr->first, cluster, flItr->second);
@@ -3750,7 +3750,7 @@ ostream & operator <<(ostream & o, const DotDetails & d) {
             d.printLayerDef(o, false, alItr->first, cluster, alItr->second);
             if (cluster) {
                 o << "\tc" << cluster - 1 << " -> c" << cluster << " [ltail=cluster_" << cluster-1 << ", lhead=cluster_" << cluster << "];\n";
-            }                        
+            }
             ++alItr;
         } else {
             d.printLayerDef(o, true, flItr->first, cluster, flItr->second);
@@ -3760,62 +3760,62 @@ ostream & operator <<(ostream & o, const DotDetails & d) {
             }
             ++cluster;
             d.printLayerDef(o, false, alItr->first, cluster, alItr->second);
-            ++alItr;                
+            ++alItr;
             if (cluster) {
                 o << "\tc" << cluster - 1 << " -> c" << cluster << " [ltail=cluster_" << cluster-1 << ", lhead=cluster_" << cluster << "];\n";
             }
         }
-        
+
         ++cluster;
     }
-    
+
     for (; flItr != flEnd; ++flItr, ++cluster) {
         d.printLayerDef(o, true, flItr->first, cluster, flItr->second);
         if (cluster) {
             o << "\tc" << cluster - 1 << " -> c" << cluster << " [ltail=cluster_" << cluster-1 << ", lhead=cluster_" << cluster << "];\n";
         }
-        
+
     }
-    
+
     for (; alItr != alEnd; ++alItr, ++cluster) {
         d.printLayerDef(o, false, alItr->first, cluster, alItr->second);
         if (cluster) {
             o << "\tc" << cluster - 1 << " -> c" << cluster << " [ltail=cluster_" << cluster-1 << ", lhead=cluster_" << cluster << "];\n";
         }
-        
+
     };
-   
+
     {
         list<string>::const_iterator nItr = d.endActionsToStarts.begin();
         const list<string>::const_iterator nEnd = d.endActionsToStarts.end();
-        
-        for (; nItr != nEnd; ++nItr) {
-            o << "\t" << *nItr;
-        }
-        
-        o << "\n";
-    }
-    
-    {
-        list<string>::const_iterator nItr = d.factsToActions.begin();
-        const list<string>::const_iterator nEnd = d.factsToActions.end();
-        
+
         for (; nItr != nEnd; ++nItr) {
             o << "\t" << *nItr;
         }
 
         o << "\n";
     }
-    
-    map<int, string>::const_iterator aItr = d.achieverForFact.begin();        
+
+    {
+        list<string>::const_iterator nItr = d.factsToActions.begin();
+        const list<string>::const_iterator nEnd = d.factsToActions.end();
+
+        for (; nItr != nEnd; ++nItr) {
+            o << "\t" << *nItr;
+        }
+
+        o << "\n";
+    }
+
+    map<int, string>::const_iterator aItr = d.achieverForFact.begin();
     const map<int, string>::const_iterator aEnd = d.achieverForFact.end();
-    
+
     for (; aItr != aEnd; ++aItr) {
         o << "\t" << aItr->second;
     }
-            
+
     o << "}\n\n";
-                    
+
     return o;
 }
 
@@ -3824,7 +3824,7 @@ class RPGHeuristic::Private
 {
 
 public:
-    
+
     Private(const bool & b,
             vector<list<Literal*> > * atse,
             vector<list<Literal*> > * atee,
@@ -3854,7 +3854,7 @@ public:
             vector<EpsilonResolutionTimestamp> * negail,
             vector<EpsilonResolutionTimestamp> * negailr,
             vector<pair<int, Planner::time_spec> > * negab,
-            vector<pair<int, Planner::time_spec> > * negabr,                    
+            vector<pair<int, Planner::time_spec> > * negabr,
             vector<EpsilonResolutionTimestamp> * nail,
             vector<EpsilonResolutionTimestamp> * nailr,
             vector<ActionFluentModification*> * nab,
@@ -3923,11 +3923,11 @@ public:
             onlyNumericPreconditionActions(onpa),
             deleteArrays(b), expandFully(false), doneIntegration(false), evaluateDebug(false) {
 
-            
+
         earliestPropositionPOTimes = vector<EpsilonResolutionTimestamp>(ail->size(), EpsilonResolutionTimestamp::undefined());
         earliestNumericPOTimes = vector<EpsilonResolutionTimestamp>(RPGBuilder::getPNECount(), EpsilonResolutionTimestamp::undefined());
 //            earliestNumericPrePOTimes = vector<double>(numericAchievedInLayer->size());
-        
+
         numericIsTrueInState.resize(numericAchievedInLayer->size(), false);
 
     }
@@ -3954,54 +3954,54 @@ public:
 
     };
 
-    
+
     class BuildingPayload
     {
 
     public:
 
         DotDetails dot;
-        
+
         const MinimalState & startState;
         const list<StartEvent> * startEventQueue;
-        
+
         vector<pair<double,double> > actionDurations;
-        
+
         vector<int> startPreconditionCounts;
         vector<int> endPreconditionCounts;
         vector<int> numericStartPreconditionCounts;
         vector<int> numericEndPreconditionCounts;
-        
+
         vector<vector<NNF_Flat*> > initialUnsatisfiedPreferenceConditions;
         map<EpsilonResolutionTimestamp, list<int> > becomesUnreachableAtLayer;
-        
+
         /** @brief This contains the layer in which the goal/trigger (0/1) of the indexed preference became true. */
         vector<vector<EpsilonResolutionTimestamp> > preferencePartTrueAtLayer;
-        
+
         /** @brief Preferences violated by each start action.  First part of pair: preconditions.  Second part of pair: itself. */
         vector<ActionViolationData> startActionCosts;
-        
+
         /** @brief Preferences violated by each end action.  First part of pair: preconditions.  Second part of pair: itself. */
         vector<ActionViolationData> endActionCosts;
-        
+
         /** @brief Preferences violated by each TIL. */
         vector<ActionViolationData> tilCosts;
-        
+
         /** @brief Status of each preference. If it's unsatisfied in the RPG, it has to be unsatisfied in the LP, too. */
         vector<AutomatonPosition::Position> optimisticPrefStatus;
-        
+
         #ifdef POPF3ANALYSIS
         /* The actions waiting for the costs of their preconditions to be reduced, before they're considered applicable. */
-        set<pair<int,Planner::time_spec> > actionsWaitingForForLowerCostPreconditions;        
+        set<pair<int,Planner::time_spec> > actionsWaitingForForLowerCostPreconditions;
         #endif
 
         /** @brief Garbage collection for <code>FactLayer::endOfJustApplied</code>. */
         list<pair<set<int>, set<int> > > setsToForbid;
-        
+
         FactLayerMap factLayers;
         FluentLayers fluentLayers;
         map<double, map<int, list<ActionFluentModification> >, EpsilonComp> fluentModifications;
-        
+
         /** @brief Actions that end at the given time.
          *
          * Each entry on the list pairs an action ID with <code>true</code> if it's not appeared in the RPG before, or <code>false</code> otherwise.
@@ -4009,7 +4009,7 @@ public:
         map<EpsilonResolutionTimestamp, list<pair<int,bool> > > endActionsAtTime;
 
         /** @brief Find the timestamp of the next fact layer to visit.
-         * 
+         *
          * This is based on the earliest interesting point out of:
          *  - new propositional facts/numeric preconditions just added by actions
          *  - the ends of actions which have been scheduled to appear
@@ -4022,21 +4022,21 @@ public:
          *                 to contain the iterators and timestamp for the next layer to visit.
          */
         void nextThingToVisit(const EpsilonResolutionTimestamp & currTS, NextFactLayer & next) {
-           
+
             const bool debug = (Globals::globalVerbosity & 64);
             next.reset();
             next.endActionsAppearingAtThisTime = endActionsAtTime.end();
             next.newFactsAtThisTime = factLayers.end();
-            
+
             if (debug) {
                 cout << "Working out when the next thing to happen is, based on a current time of " << currTS << endl;
             }
-            
+
             const map<EpsilonResolutionTimestamp, list<pair<int,bool> > >::iterator eaItr = endActionsAtTime.begin();
             if (eaItr != endActionsAtTime.end()) {
                 next.endActionsAppearingAtThisTime = eaItr;
                 next.timestamp = eaItr->first;
-                                                               
+
                 if (debug) {
                     cout << "Next action layer could occur alongside actions applicable due to fact layer " << next.timestamp << endl;
                 }
@@ -4044,13 +4044,13 @@ public:
                     if (debug) {
                         cout << " - i.e. epsilon ahead of now\n";
                     }
-                }                
+                }
             }
-            
+
             const FactLayerMap::iterator flItr = factLayers.begin();
             if (flItr != factLayers.end()) {
                 const bool isEpsilonLater = flItr->first.isEpsilonAhead(currTS);
-                if (debug) {                    
+                if (debug) {
                     if (isEpsilonLater) {
                         cout << " -> Next fact layer is at " << flItr->first << ": epsilon later\n";
                     } else {
@@ -4064,10 +4064,10 @@ public:
                     next.newFactsAtThisTime = flItr;
                     if (!next.timestamp.isEpsilonAhead(currTS)) {
                         // if the next thing to visit wasn't epsilon in the future
-                        // then it's later than this - make sure the iterator is wiped                        
+                        // then it's later than this - make sure the iterator is wiped
                         next.endActionsAppearingAtThisTime = endActionsAtTime.end();
                         next.timestamp = flItr->first;
-                    }                    
+                    }
                 } else { // if the facts are greater than epsilon ahead, and so is the other option so far (if any)
                     if (next.timestamp == flItr->first) {
                         // the same time point
@@ -4075,13 +4075,13 @@ public:
                         if (debug) {
                             cout << "Next fact layer would be at " << flItr->first << ", i.e. the same time as the end actions\n";
                         }
-                        
+
                     } else if (flItr->first < next.timestamp) {
                         // this is sooner than the point at which ends of actions appear
                         if (debug) {
                             cout << "Next fact layer would be at " << flItr->first << ", i.e. sooner than the end actions, so not visiting those for now\n";
                         }
-                                                                        
+
                         next.endActionsAppearingAtThisTime = endActionsAtTime.end();
                         next.newFactsAtThisTime = flItr;
                         next.timestamp = flItr->first;
@@ -4092,18 +4092,18 @@ public:
                     }
                 }
             }
-            
+
             bool isToRecalculate = false;
             bool isDueToGradients = false;
             const pair<EpsilonResolutionTimestamp,bool> fluentLayersWantToRevisit = fluentLayers.nextLayerWouldBeAt(currTS, isToRecalculate, isDueToGradients);
-            
+
             if (fluentLayersWantToRevisit.first != EpsilonResolutionTimestamp::infinite() ) {
 
                 if (fluentLayersWantToRevisit.second) {
-                    
+
                     next.revisitInstantaneousNumericEffects = isToRecalculate;
                     next.gradientsCauseFactsToBecomeTrue = isDueToGradients;
-                    
+
                     if (next.timestamp.isEpsilonAhead(currTS)) {
                         if (debug) {
                             if (next.revisitInstantaneousNumericEffects) {
@@ -4125,14 +4125,14 @@ public:
                         next.timestamp = fluentLayersWantToRevisit.first;
                     }
                 } else {
-                    
+
                     if (next.timestamp.isEpsilonAhead(currTS)) {
                         if (debug) {
                             cout << "Ignoring fluent-layer update at " << fluentLayersWantToRevisit.first << ", is later than the other options that are only epsilon ahead\n";
                         }
                         assert(next.timestamp < fluentLayersWantToRevisit.first);
                     } else {
-                        
+
                         if (fluentLayersWantToRevisit.first > next.timestamp) {
                             if (debug) {
                                 cout << "Ignoring fluent-layer update at " << fluentLayersWantToRevisit.first << ", is later than the other options\n";
@@ -4142,12 +4142,12 @@ public:
                             next.gradientsCauseFactsToBecomeTrue = isDueToGradients;
                             if (debug) {
                                 cout << "Fluent-layer update at " << fluentLayersWantToRevisit.first << ", alongside the other options\n";
-                            }                            
+                            }
                         } else {
                             next.endActionsAppearingAtThisTime = endActionsAtTime.end();
                             next.newFactsAtThisTime = factLayers.end();
                             next.timestamp = fluentLayersWantToRevisit.first;
-                            
+
                             next.revisitInstantaneousNumericEffects = isToRecalculate;
                             next.gradientsCauseFactsToBecomeTrue = isDueToGradients;
                             if (debug) {
@@ -4157,12 +4157,12 @@ public:
                     }
                 }
             }
-            
+
             if (debug) {
                 cout << "After that: timestamp of next layer is " << next.timestamp << endl;
             }
         }
-        
+
         vector<EpsilonResolutionTimestamp> startActionSchedule;
         vector<EpsilonResolutionTimestamp> endActionSchedule;
         vector<EpsilonResolutionTimestamp> openEndActionSchedule;
@@ -4189,7 +4189,7 @@ public:
             }
         }
         #endif
-        
+
         int fakeGoalCount;
         bool tooExpensive;
         #ifdef POPF3ANALYSIS
@@ -4203,7 +4203,7 @@ public:
 
         const vector<double> & minTimestamps;
         const EpsilonResolutionTimestamp stateTS;
-        
+
         list<ActionSegment> & helpfulActions;
 
         map<int, double> earliestStartOf;
@@ -4215,13 +4215,13 @@ public:
         /** @brief The cost of deleting a fact (from always constraints).  Set details which prefs would be broken.
          */
         map<int, set<int> > prefCostOfDeletingFact;
-        
+
         /** @brief The cost of adding a fact (from sometime before/after constraints).
         */
         map<int, AddingConstraints > prefCostOfAddingFact;
 
         /** @brief The cost of changing a numeric value (from always constraints).
-         * 
+         *
          *  The set details which prefs would be broken by a change of the key to the second map.
          */
         map<int, map<double, set<int> > > prefCostOfChangingNumberA;
@@ -4229,29 +4229,29 @@ public:
         /** @brief The cost of changing a numeric value (from sometime before/after constraints).
          */
         map<int, map<double, AddingConstraints > > prefCostOfChangingNumberB;
-        
+
         /** @brief A map from preferences to which (applicable) actions would violate them, were they to be applied.
          */
         map<int, set<pair<int, Planner::time_spec> > > preferenceWouldBeViolatedByAction;
-        
+
         /** @brief A map from actions to which preferences to satisfy before applying them.
          */
         map<pair<int, Planner::time_spec>, list<pair<int,bool> > > preferencePartsToSatisfyBeforeAction;
-        
+
         double rpgGoalPrefViolation;
         double goalPrefViolationAtLastLayer;
 
         /** @brief The first layer at which all goals appeared. */
         EpsilonResolutionTimestamp admissibleMakespanEstimate;
-        
+
         /** @brief The maximum cost any remaining action can have.
-         * 
+         *
          * Right now this is only used to set min/max action durations on actions with duration-dependent costs.
          */
         double remainingCostLimit;
-        
+
         vector<bool> abstractFactCurrentlyTrue;
-        
+
         BuildingPayload(const MinimalState & theState, const list<StartEvent> * seq,
                         vector<int> & spc, vector<int> & epc, vector<int> & nspc, vector<int> & nepc,
                         const int & easSize, const int goalCount,
@@ -4260,7 +4260,7 @@ public:
                        )
                 : startState(theState), startEventQueue(seq),
                 startPreconditionCounts(spc), endPreconditionCounts(epc),
-                numericStartPreconditionCounts(nspc), numericEndPreconditionCounts(nepc),                
+                numericStartPreconditionCounts(nspc), numericEndPreconditionCounts(nepc),
                 fluentLayers(&actionDurations),
                 startActionSchedule(easSize, EpsilonResolutionTimestamp::undefined()),
                 endActionSchedule(easSize, EpsilonResolutionTimestamp::undefined()),
@@ -4288,7 +4288,7 @@ public:
             }
 
             TemporalAnalysis::doDurationLimitingEffectAnalysis(remainingCostLimit, actionDurations);
-            
+
             const int actCount = startPreconditionCounts.size();
 
             for (int act = 0; act < actCount; ++act) {
@@ -4615,7 +4615,7 @@ public:
     vector<list<double> > gradientCTSEffectChange;
 
     list<int> backgroundProcesses;
-    
+
     vector<list<int> > * const actionsToRPGNumericStartEffects;
     vector<list<int> > * const actionsToRPGNumericEndEffects;
 
@@ -4631,20 +4631,20 @@ public:
     #ifdef POPF3ANALYSIS
     vector<list<CostedAchieverDetails> > achieverDetails;
     vector<bool> isAGoalFactWithIndependentAchivementCosts;
-    vector<double> nullCosts;                  
+    vector<double> nullCosts;
     vector<double> currentCosts;
-    #else 
+    #else
     vector<EpsilonResolutionTimestamp> * const achievedInLayer;
     vector<EpsilonResolutionTimestamp> * const achievedInLayerReset;
     vector<pair<int, Planner::time_spec> > * const achievedBy;
     vector<pair<int, Planner::time_spec> > * const achievedByReset;
     #endif
-    
+
     vector<EpsilonResolutionTimestamp> * const negativeAchievedInLayer;
     vector<EpsilonResolutionTimestamp> * const negativeAchievedInLayerReset;
     vector<pair<int, Planner::time_spec> > * const negativeAchievedBy;
     vector<pair<int, Planner::time_spec> > * const negativeAchievedByReset;
-    
+
     vector<EpsilonResolutionTimestamp> * const numericAchievedInLayer;
     vector<EpsilonResolutionTimestamp> * const numericAchievedInLayerReset;
     vector<bool> numericIsTrueInState;
@@ -4697,7 +4697,7 @@ public:
     static vector<vector<double> > endEffectsOnResourceLimits;
     static vector<vector<double> > dynamicEndEffectsOnResourceLimits;
     static vector<bool> costsAreIndependentGoalCosts;
-    
+
     /** @brief The maximum possible useful cost of a given literal.
      *
      *  If all the actions needing a fact have an effect on a limited resource, then the maximum
@@ -4706,44 +4706,44 @@ public:
      */
     static vector<vector<double> > maxPermissibleCostOfAFact;
     static double metricWeightOfMakespan;
-    
+
     #endif
 
 
     // variables to support preferences
     vector<double> prefCosts;
-    
+
     const bool deleteArrays;
     bool expandFully;
     bool doneIntegration;
     bool evaluateDebug;
 
     // For convenience, we keep pointers to the information provided by the PreferenceHandler class
-    
+
     /** @brief Pointer to the result of PreferenceHandler::getPreconditionsToPrefs();
      */
     const vector<list<LiteralCellDependency<pair<int,bool> > > >  * preconditionsToPrefs;
 
     /** @brief Pointer to the result of PreferenceHandler::getNegativePreconditionsToPrefs();
-    */        
+    */
     const vector<list<LiteralCellDependency<pair<int,bool> > > >  * negativePreconditionsToPrefs;
-    
+
     /** @brief Pointer to the result of PreferenceHandler::getNumericPreconditionsToPrefs();
-     */    
+     */
     const vector<list<LiteralCellDependency<pair<int,bool> > > >  * numericPreconditionsToPrefs;
 
-    
-    
+
+
     #ifdef POPF3ANALYSIS
     EpsilonResolutionTimestamp getEarliestAchievedAt(const int & factID) {
         EpsilonResolutionTimestamp toReturn(EpsilonResolutionTimestamp::undefined());
-        
-        if (!achieverDetails[factID].empty()) {                        
+
+        if (!achieverDetails[factID].empty()) {
             toReturn = achieverDetails[factID].front().getLayer();
         } else {
             cerr << "Warning: asking for the earliest achiever for " << *(RPGBuilder::getLiteral(factID)) << ", which never appeared in the RPG\n";
         }
-        
+
         return toReturn;
     }
     #else
@@ -4751,7 +4751,7 @@ public:
         return (*achievedInLayer)[factID];
     }
     #endif
-    
+
     /** @brief Find which action achieved a given fact, and when.
      *
      * This function is used during solution extraction to find which action to use to achieve a given fact.
@@ -4763,7 +4763,7 @@ public:
      */
     void getAchieverDetails(const int & factID, const EpsilonResolutionTimestamp & layerTS,
                             EpsilonResolutionTimestamp & returnAchievedIn, pair<int, Planner::time_spec> & returnAchiever) {
-        
+
         #ifdef POPF3ANALYSIS
         if (Globals::globalVerbosity & 16) {
             cout << achieverDetails[factID].size() << " achievers, from " << achieverDetails[factID].front().getLayer() << " to " <<  achieverDetails[factID].back().getLayer() << ",";
@@ -4779,7 +4779,7 @@ public:
                 cerr << "Internal error evaluating state no. " << RPGHeuristic::statesEvaluated << ": asking for precondition " << factID << ", " << *(RPGBuilder::getLiteral(factID)) << ", at time " << layerTS << ", but the achievers were:\n";
                 list<CostedAchieverDetails>::const_iterator abfItr = achieverDetails[factID].begin();
                 const list<CostedAchieverDetails>::const_iterator abfEnd = achieverDetails[factID].end();
-                
+
                 for (; abfItr != abfEnd; ++abfItr) {
                     cout << "- at " << abfItr->getLayer() << " - ";
                     if (abfItr->getAchiever().second == Planner::E_AT) {
@@ -4794,52 +4794,52 @@ public:
             }
             #endif
         }
-        //cout << "Using achiever that adds fact in layer " << abItr->layer << " to support a need in " << layerTS << endl;        
+        //cout << "Using achiever that adds fact in layer " << abItr->layer << " to support a need in " << layerTS << endl;
         returnAchievedIn = abItr->getLayer();
         returnAchiever = abItr->getAchiever();
         //++abItr;
         //if (abItr != achieverDetails[factID].rend()) {
         //    cout << "Previous achiever was in layer " << abItr->layer << endl;
         //}
-        #else 
+        #else
         returnAchievedIn = (*achievedInLayer)[factID];
         returnAchiever = (*achievedBy)[factID];
         #endif
-        
+
     }
-    
+
     #ifdef POPF3ANALYSIS
-    void computeDynamicCost(const int & actID, const Planner::time_spec & ts, 
+    void computeDynamicCost(const int & actID, const Planner::time_spec & ts,
                             const EpsilonResolutionTimestamp & cTime) {
 
         static const bool localDebug = false;
-        
+
         const vector<NumericAnalysis::NumericLimitDescriptor> & limits = NumericAnalysis::getGoalNumericUsageLimits();
-        
+
         static const int ulCount = limits.size();
-        
+
         const vector<list<NumericAnalysis::CostAtTime*>* > & dynamicCosts
             = (ts == Planner::E_AT_END ? NumericAnalysis::getTimeDependentEndCosts()
                                    : NumericAnalysis::getTimeDependentStartCosts());
-            
+
         if (!dynamicCosts[actID] || dynamicCosts[actID]->empty()) {
             return;
         }
-                        
+
         if (localDebug) {
             cout << "Computing dynamic costs on " << *(RPGBuilder::getInstantiatedOp(actID)) << " at " << cTime << endl;
         }
-        
+
         vector<double> & toUpdate = (ts == Planner::E_AT_END ? dynamicEndEffectsOnResourceLimits[actID]
                                                          : dynamicStartEffectsOnResourceLimits[actID]);
-            
+
         for (int i = 0; i < ulCount; ++i) {
             toUpdate[i] = 0.0;
         }
-        
+
         list<NumericAnalysis::CostAtTime*>::const_iterator costItr = dynamicCosts[actID]->begin();
         const list<NumericAnalysis::CostAtTime*>::const_iterator costEnd = dynamicCosts[actID]->end();
-        
+
         for (; costItr != costEnd; ++costItr) {
             if ((*costItr)->start > cTime) {
                 if (localDebug) {
@@ -4853,14 +4853,14 @@ public:
                 }
                 continue;
             }
-            
+
             list<NumericAnalysis::EffectDeterminedByTime*>::const_iterator deltaItr = (*costItr)->limitCosts.begin();
             const list<NumericAnalysis::EffectDeterminedByTime*>::const_iterator deltaEnd = (*costItr)->limitCosts.end();
-            
+
             for (; deltaItr != deltaEnd; ++deltaItr) {
                 if ((*deltaItr)->m == 0.0) {
                     toUpdate[(*deltaItr)->y] += (*deltaItr)->c;
-                    if (localDebug) {                        
+                    if (localDebug) {
                         cout << "Increases limit " << (*deltaItr)->y << " by " << (*deltaItr)->c << " towards cap of " << NumericAnalysis::getGoalNumericUsageLimits()[(*deltaItr)->y].limit << endl;
                     }
                 } else {
@@ -4871,56 +4871,56 @@ public:
                 }
             }
         }
-        
+
     }
     #endif
-    
+
     void addPreconditionCost(ActionViolationData & costData, const int & currAct, const Planner::time_spec & currTS, const EpsilonResolutionTimestamp & factLayerTS, BuildingPayload * payload) {
-    
+
         costData.precViolationCost = 0.0;
         costData.preconditionsMeanViolating.clear();
-        
+
         if (currTS != Planner::E_AT) {
-        
+
             const list<Literal*> & actionPreconditionlist = (currTS == Planner::E_AT_START ? (*actionsToProcessedStartPreconditions)[currAct] : (*actionsToEndPreconditions)[currAct]);
             list<Literal*>::const_iterator aplItr = actionPreconditionlist.begin();
             const list<Literal*>::const_iterator aplEnd = actionPreconditionlist.end();
-            
+
             for (; aplItr != aplEnd; ++aplItr) {
-                
+
                 if (TemporalAnalysis::getFactIsAbstract()[(*aplItr)->getStateID()]) {
                     continue;
                 }
-                
+
                 list<CostedAchieverDetails> & currPreData = achieverDetails[(*aplItr)->getStateID()];
-                
+
                 list<CostedAchieverDetails>::const_reverse_iterator abItr = currPreData.rbegin();
                 assert(abItr != achieverDetails[(*aplItr)->getStateID()].rend());
                 while (abItr->getLayer() > factLayerTS) {
                     ++abItr;
                     assert(abItr != achieverDetails[(*aplItr)->getStateID()].rend());
                 }
-                
+
                 set<int>::const_iterator viItr = abItr->preferenceCosts.needsToViolate.begin();
                 const set<int>::const_iterator viEnd = abItr->preferenceCosts.needsToViolate.end();
-                
+
                 for (; viItr != viEnd; ++viItr) {
                     if (costData.preconditionsMeanViolating.insert(*viItr).second) {
                         costData.precViolationCost += prefCosts[*viItr];
                     }
                 }
             }
-            
+
             if (!RPGBuilder::getPreferences().empty()) {
                 const vector<int> & actPrefs = (currTS == Planner::E_AT_START ? RPGBuilder::getStartPreferences()[currAct] : RPGBuilder::getEndPreferences()[currAct]);
-                
+
                 static int ppCount;
-                
+
                 ppCount = actPrefs.size();
-                
+
                 for (int p = 0; p < ppCount; ++p) {
-                    const NNF_Flat* const f = payload->initialUnsatisfiedPreferenceConditions[actPrefs[p]][0];        
-                    
+                    const NNF_Flat* const f = payload->initialUnsatisfiedPreferenceConditions[actPrefs[p]][0];
+
                     if (f) {
                         if (!f->isSatisfied()) {
                             costData.precViolationCost += prefCosts[actPrefs[p]];
@@ -4936,22 +4936,22 @@ public:
                     }
                 }
             }
-        }        
-                        
+        }
+
     }
 
     void addEffectCost(ActionViolationData & costData, const int & currAct, const Planner::time_spec & currTS, BuildingPayload * payload) {
-    
+
         if (RPGBuilder::getPreferences().empty()) {
             costData.precViolationCost = 0.0;
             costData.effViolationCost = 0.0;
             costData.overallViolationCost = 0.0;
             return;
-            
+
         }
-        
+
         set<int> allViols;
-        
+
         {
             list<Literal*> & addEffects = (currTS == Planner::E_AT
                                             ? RPGBuilder::getNonAbstractedTILVec()[currAct]->addEffects
@@ -4959,32 +4959,32 @@ public:
 
             list<Literal*>::iterator addEffItr = addEffects.begin();
             const list<Literal*>::iterator addEffEnd = addEffects.end();
-            
+
             for (; addEffItr != addEffEnd; ++addEffItr) {
                 const int currEff = (*addEffItr)->getStateID();
-                
+
                 map<int, AddingConstraints >::const_iterator addConsItr = payload->prefCostOfAddingFact.find(currEff);
                 if (addConsItr == payload->prefCostOfAddingFact.end()) continue;
-                
+
                 allViols.insert(addConsItr->second.addingWillViolate.begin(), addConsItr->second.addingWillViolate.end());
-        
+
                 set<int>::const_iterator vItr = addConsItr->second.addingWillViolate.begin();
                 const set<int>::const_iterator vEnd = addConsItr->second.addingWillViolate.end();
-                
+
                 for (; vItr != vEnd; ++vItr) {
                     payload->preferenceWouldBeViolatedByAction[*vItr].insert(make_pair(currAct, currTS));
                 }
-                
+
                 if (Globals::globalVerbosity & 32768) {
-                    
-                    
+
+
                     for (; vItr != vEnd; ++vItr) {
                         cout << "Add effect " << *(*addEffItr) << " Would violate " << RPGBuilder::getPreferences()[*vItr].name << ":" << *vItr << endl;
                     }
                 }
             }
         }
-        
+
         {
             list<Literal*> & delEffects = (currTS == Planner::E_AT
                                             ? RPGBuilder::getNonAbstractedTILVec()[currAct]->delEffects
@@ -4992,56 +4992,56 @@ public:
 
             list<Literal*>::iterator delEffItr = delEffects.begin();
             const list<Literal*>::iterator delEffEnd = delEffects.end();
-            
+
             for (; delEffItr != delEffEnd; ++delEffItr) {
                 const int currEff = (*delEffItr)->getStateID();
-                
+
                 map<int, set<int> >::const_iterator delConsItr = payload->prefCostOfDeletingFact.find(currEff);
                 if (delConsItr == payload->prefCostOfDeletingFact.end()) continue;
-                
+
                 allViols.insert(delConsItr->second.begin(), delConsItr->second.end());
-                
+
                 set<int>::const_iterator vItr = delConsItr->second.begin();
                 const set<int>::const_iterator vEnd = delConsItr->second.end();
-                
+
                 for (; vItr != vEnd; ++vItr) {
                     payload->preferenceWouldBeViolatedByAction[*vItr].insert(make_pair(currAct, currTS));
                 }
-                
+
                 if (Globals::globalVerbosity & 32768) {
                     set<int>::const_iterator vItr = delConsItr->second.begin();
                     const set<int>::const_iterator vEnd = delConsItr->second.end();
-                    
+
                     for (; vItr != vEnd; ++vItr) {
                         cout << "Delete effect " << *(*delEffItr) << " Would violate " << RPGBuilder::getPreferences()[*vItr].name << ":" << *vItr << endl;
                     }
                 }
-                
+
             }
-        }            
-        
+        }
+
         costData.effectsMeanViolating.clear();
-        
+
         std::set_difference(allViols.begin(), allViols.end(),
                             costData.preconditionsMeanViolating.begin(), costData.preconditionsMeanViolating.end(),
                             insert_iterator<set<int> >(costData.effectsMeanViolating, costData.effectsMeanViolating.begin()));
-        
+
         double & toIncrease = costData.effViolationCost = 0.0;
-        
+
         set<int>::const_iterator vItr = costData.effectsMeanViolating.begin();
         const set<int>::const_iterator vEnd = costData.effectsMeanViolating.end();
-        
+
         for (; vItr != vEnd; ++vItr) {
             toIncrease += prefCosts[*vItr];
         }
-        
+
         costData.overallViolationCost = costData.effViolationCost + costData.precViolationCost;
         costData.overallViolations = costData.preconditionsMeanViolating;
         costData.overallViolations.insert(costData.effectsMeanViolating.begin(), costData.effectsMeanViolating.end());
-        
+
     }
 
-    
+
     CostedAchieverDetails::AchieverProposalResult proposeNewAchiever(const int & factID,
                                                                      const int & actID, const Planner::time_spec & ts, const ActionViolationData & prefCosts,
                                                                      const bool & openEnd,
@@ -5057,23 +5057,23 @@ public:
             return (achieverDetails[factID].size() > 1 ? CostedAchieverDetails::replaced_existing_achiever : CostedAchieverDetails::first_achiever);
         }
         const vector<NumericAnalysis::NumericLimitDescriptor> & limits = NumericAnalysis::getGoalNumericUsageLimits();
-        
+
         const int ulCount = limits.size();
-        
+
         vector<double> actCosts(currentCosts);
-        
+
         bool costFree = prefCosts.isCostFree();
-        
+
         for (int pPass = (openEnd ? 1 : 0); pPass < 2; ++pPass) {
-            
+
             if (pPass == 1 && ts == Planner::E_AT_START) {
                 break;
             }
-            
+
             const list<Literal*> & pres = (pPass == 1 ? (*actionsToEndPreconditions)[actID] : (*actionsToProcessedStartPreconditions)[actID]);
             list<Literal*>::const_iterator pItr = pres.begin();
             const list<Literal*>::const_iterator pEnd = pres.end();
-            
+
             for (; pItr != pEnd; ++pItr) {
                 list<CostedAchieverDetails>::const_reverse_iterator cItr = achieverDetails[(*pItr)->getStateID()].rbegin();
                 while (cTime <= cItr->getLayer()) {
@@ -5083,48 +5083,48 @@ public:
                 }
                 for (int ul = 0; ul < ulCount; ++ul) {
                     if (cItr->costs[ul] > 0.0) {
-                        if (actCosts[ul] < cItr->costs[ul]) {                        
-                            actCosts[ul] = cItr->costs[ul];                        
+                        if (actCosts[ul] < cItr->costs[ul]) {
+                            actCosts[ul] = cItr->costs[ul];
                         }
                     } else if (cItr->costs[ul] < 0.0) {
-                        if (actCosts[ul] > cItr->costs[ul]) {                        
-                            actCosts[ul] = cItr->costs[ul];                        
+                        if (actCosts[ul] > cItr->costs[ul]) {
+                            actCosts[ul] = cItr->costs[ul];
                         }
                     }
                 }
             }
-            
+
             if (pPass == 0 && ts == Planner::E_AT_END) {
                 // equivalent to an imaginary fact that the action has started: max of its preconditions, + the cost of the action itself
-                
+
                 {
                     const vector<double> & addOn = startEffectsOnResourceLimits[actID];
-                
+
                     for (int ul = 0; ul < ulCount; ++ul) {
-                        actCosts[ul] += addOn[ul];           
+                        actCosts[ul] += addOn[ul];
                         if (fabs(actCosts[ul] - currentCosts[ul]) > 0.0000001)  {
                             costFree = false;
-                        }                    
+                        }
                     }
                 }
                 {
                     const vector<double> & addOn = dynamicStartEffectsOnResourceLimits[actID];
-                    
+
                     for (int ul = 0; ul < ulCount; ++ul) {
-                        actCosts[ul] += addOn[ul];           
+                        actCosts[ul] += addOn[ul];
                         if (fabs(actCosts[ul] - currentCosts[ul]) > 0.0000001)  {
                             costFree = false;
-                        }                    
+                        }
                     }
                 }
             }
         }
-        
+
         {
             const vector<double> & addOn = (ts == Planner::E_AT_END ? endEffectsOnResourceLimits[actID] : startEffectsOnResourceLimits[actID]);
-            
+
             for (int ul = 0; ul < ulCount; ++ul) {
-                actCosts[ul] += addOn[ul];               
+                actCosts[ul] += addOn[ul];
                 if (fabs(actCosts[ul] - currentCosts[ul]) > 0.0000001)  {
                     costFree = false;
                 }
@@ -5133,22 +5133,22 @@ public:
 
         {
             const vector<double> & addOn = (ts == Planner::E_AT_END ? dynamicEndEffectsOnResourceLimits[actID] : dynamicStartEffectsOnResourceLimits[actID]);
-            
+
             for (int ul = 0; ul < ulCount; ++ul) {
-                actCosts[ul] += addOn[ul];               
+                actCosts[ul] += addOn[ul];
                 if (fabs(actCosts[ul] - currentCosts[ul]) > 0.0000001)  {
                     costFree = false;
                 }
             }
         }
-        
-        
+
+
         if (costFree) {
             // short-circuit the rest of the code: have a zero-cost achiever, which is great
             achieverDetails[factID].push_back(CostedAchieverDetails(cTime, make_pair(actID, ts), currentCosts, PreferenceSetAndCost(true), true));
             return (achieverDetails[factID].size() > 1 ? CostedAchieverDetails::replaced_existing_achiever : CostedAchieverDetails::first_achiever);
         }
-                      
+
         for (int ul = 0; ul < ulCount; ++ul) {
             double offset = (NumericAnalysis::getGoalNumericUsageLimits()[ul].optimisationLimit ? prefCosts.overallViolationCost : 0.0);
             switch (limits[ul].op) {
@@ -5168,7 +5168,7 @@ public:
                     }
                     break;
                 }
-                
+
                 default:
                 {
                     cerr << "Internal error: limits should be defined in terms of > or >=\n";
@@ -5176,21 +5176,21 @@ public:
                 }
             }
         }
-        
-        
+
+
         // if we get this far it's a plausible achiever
-        
+
         if (achieverDetails[factID].empty()) {
             // first achiever - keep it
             achieverDetails[factID].push_back(CostedAchieverDetails(cTime, make_pair(actID, ts), actCosts, PreferenceSetAndCost(prefCosts.overallViolationCost, prefCosts.overallViolations), false));
             return CostedAchieverDetails::first_achiever;
         }
-        
+
         // otherwise, do an admissible intersection approximation of the costs compared to the best recorded achiever
-        
+
         bool anyImprovement = false;
         vector<double> admissibleCosts(achieverDetails[factID].back().costs);
-        
+
         for (int ul = 0; ul < ulCount; ++ul) {
             if (admissibleCosts[ul] == currentCosts[ul]) {
                 continue;
@@ -5200,7 +5200,7 @@ public:
                 anyImprovement = true;
                 continue;
             }
-            
+
             // now, both costs are non-zero
             if (actCosts[ul] > 0.0) {
                 // for increases (towards upper bounds) keep the lowest increase
@@ -5214,34 +5214,34 @@ public:
                     admissibleCosts[ul] = actCosts[ul];
                     anyImprovement = true;
                 }
-            }                
+            }
         }
-        
+
         anyImprovement = (anyImprovement || (achieverDetails[factID].back().preferenceCosts.cost > prefCosts.overallViolationCost));
-        
+
         if (!anyImprovement) {
             // better off in all ways to use the previous achiever
             return CostedAchieverDetails::not_added;
         }
-        
+
         costFree = prefCosts.isCostFree();
-        
+
         for (int ul = 0; ul < ulCount; ++ul) {
             if (fabs(admissibleCosts[ul] - currentCosts[ul]) > 0.0000001) {
                 costFree = false;
                 break;
             }
         }
-        
+
         if (cTime == achieverDetails[factID].back().getLayer()) {
             achieverDetails[factID].push_back(CostedAchieverDetails(cTime, achieverDetails[factID].back().getAchiever(), admissibleCosts, PreferenceSetAndCost(prefCosts.overallViolationCost, prefCosts.overallViolations), costFree));
             return CostedAchieverDetails::same_time_as_first_achiever;
         }
-        
+
         achieverDetails[factID].push_back(CostedAchieverDetails(cTime, achieverDetails[factID].back().getAchiever(), admissibleCosts, PreferenceSetAndCost(prefCosts.overallViolationCost, prefCosts.overallViolations), costFree));
         return CostedAchieverDetails::replaced_existing_achiever;
 
-        
+
         #else
         double & currAIL = (*(achievedInLayer))[factID];
         if (currAIL == -1.0) { // this is new
@@ -5252,7 +5252,7 @@ public:
         return 0;
         #endif
     }
-    
+
     void setDebugFlag(const bool & b) {
         evaluateDebug = b;
     }
@@ -5275,7 +5275,7 @@ public:
 
         const int actCount = actionsToNumericStartPreconditions->size();
         const int varCount = RPGBuilder::getPNECount();
-        
+
         const vector<RPGBuilder::RPGNumericPrecondition> & preTable = RPGBuilder::getNumericPreTable();
         const vector<RPGBuilder::RPGNumericEffect> & effTable = RPGBuilder::getNumericEff();
 
@@ -5316,8 +5316,8 @@ public:
             }
         }
 
-        
-         
+
+
         for (int pass = 0; pass < 2; ++pass) {
             const vector<list<int> > * const nowOn = (pass ? actionsToRPGNumericEndEffects : actionsToRPGNumericStartEffects);
 
@@ -5332,9 +5332,9 @@ public:
                 for (; eItr != eEnd; ++eItr) {
                     const RPGBuilder::RPGNumericEffect & currEff = effTable[*eItr];
                     assert(!RPGBuilder::rogueActions[a]);
-                    
-                    
-                    
+
+
+
                     actionsAffectedByFluent[currEff.fluentIndex][pass].insert(a);
 
                     for (int i = 0; i < currEff.size; ++i) {
@@ -5344,8 +5344,8 @@ public:
                         actionsAffectedByFluent[var][pass].insert(a);
                     }
                 }
-                
-                
+
+
             }
         }
 
@@ -5398,77 +5398,77 @@ public:
             }
 
         }
-        
+
         #ifdef POPF3ANALYSIS
-        
+
         metricHasChanged();
-                
+
         #endif
     }
-    
+
     #ifdef POPF3ANALYSIS
-    
+
     void metricHasChanged() {
-        
+
         static const bool dumpActCosts = false;
-        
+
         const int actCount = actionsToNumericStartPreconditions->size();
-                        
+
         const vector<RPGBuilder::RPGNumericEffect> & effTable = RPGBuilder::getNumericEff();
-         
-        
+
+
         const vector<NumericAnalysis::NumericLimitDescriptor> & limits = NumericAnalysis::getGoalNumericUsageLimits();
-        
+
         const int ulCount = limits.size();
-        
+
         nullCosts.resize(ulCount);
-        
+
         for (int l = 0; l < ulCount; ++l) {
             nullCosts[l] = 0.0;
         }
-                                                                
-        TemporalAnalysis::doGlobalDurationLimitingEffectAnalysis();                                                             
-        
+
+        TemporalAnalysis::doGlobalDurationLimitingEffectAnalysis();
+
         startEffectsOnResourceLimits.clear();
         startEffectsOnResourceLimits.resize(actCount, nullCosts);
         endEffectsOnResourceLimits.clear();
-        endEffectsOnResourceLimits.resize(actCount, nullCosts);        
-        
+        endEffectsOnResourceLimits.resize(actCount, nullCosts);
+
         dynamicStartEffectsOnResourceLimits.clear();
         dynamicStartEffectsOnResourceLimits.resize(actCount, nullCosts);
         dynamicEndEffectsOnResourceLimits.clear();
-        dynamicEndEffectsOnResourceLimits.resize(actCount, nullCosts);        
-        
+        dynamicEndEffectsOnResourceLimits.resize(actCount, nullCosts);
+
         costsAreIndependentGoalCosts.clear();
         costsAreIndependentGoalCosts.resize(actCount, false);
-        
+
         metricWeightOfMakespan = 0.0;
-        
+
         if (RPGBuilder::getMetric()) {
-            
+
             list<int>::const_iterator vItr = RPGBuilder::getMetric()->variables.begin();
             const list<int>::const_iterator vEnd = RPGBuilder::getMetric()->variables.end();
-            
+
             list<double>::const_iterator wItr = RPGBuilder::getMetric()->weights.begin();
-            
+
             for (; vItr != vEnd; ++vItr, ++wItr) {
                 if (*vItr == -4) {
                     metricWeightOfMakespan = *wItr;
                     break;
                 }
             }
-        }        
-        
-        
-        {            
-            
+        }
+
+
+        {
+
             vector<double> nanCosts(ulCount);
             for (int l = 0; l < ulCount; ++l) {
                 nanCosts[l] = std::numeric_limits< double >::signaling_NaN();
             }
             maxPermissibleCostOfAFact.clear();
-            maxPermissibleCostOfAFact.resize(achieverDetails.size(), nanCosts);                                
-            
+            maxPermissibleCostOfAFact.resize(achieverDetails.size(), nanCosts);
+
             if (dumpActCosts) {
                 cout << "Created space for cost details of " << maxPermissibleCostOfAFact.size() << " facts, and " << nanCosts.size() << " costs\n";
             }
@@ -5479,13 +5479,13 @@ public:
                     hardLimits[l] = Globals::bestSolutionQuality;
                 }
             }
-            
+
             set<int>::const_iterator goalItr = goals.begin();
             const set<int>::const_iterator goalEnd = goals.end();
             for (; goalItr != goalEnd; ++goalItr) {
                 maxPermissibleCostOfAFact[*goalItr] = hardLimits;
             }
-        
+
             if (!RPGBuilder::getPreferences().empty()) {
                 const vector<list<LiteralCellDependency<pair<int,bool> > > > * const pToP = PreferenceHandler::getPreconditionsToPrefs();
                 const int fCount = pToP->size();
@@ -5495,26 +5495,26 @@ public:
                     }
                 }
             }
-            
-        
+
+
         }
-            
-        
-        // Make some maps to quickly determine which variables are relevant to which limits        
+
+
+        // Make some maps to quickly determine which variables are relevant to which limits
         map<int,set<pair<int,double> > > varToLowerResourceLimitVariable;
-        
-        if (RPGHeuristic::estimateCosts) {          
+
+        if (RPGHeuristic::estimateCosts) {
             for (int l = 0; l < ulCount; ++l) {
                 switch (limits[l].op) {
                     case VAL::E_GREATEQ:
                     case VAL::E_GREATER:
                     {
                         map<int,double>::const_iterator vItr = limits[l].var.begin();
-                        const map<int,double>::const_iterator vEnd = limits[l].var.end();                        
-                        
+                        const map<int,double>::const_iterator vEnd = limits[l].var.end();
+
                         for (; vItr != vEnd; ++vItr) {
                             varToLowerResourceLimitVariable[vItr->first].insert(make_pair(l, vItr->second));
-                            
+
                         }
                         break;
                     }
@@ -5526,39 +5526,39 @@ public:
                 }
             }
         }
-        
+
         {
             const vector<map<int, list<int> > > & igc = NumericAnalysis::getIndependentGoalCosts();
-            
+
             const int igcSize = igc.size();
-            
+
             for (int gID = 0; gID < igcSize; ++gID) {
                 if (literalGoalVector[gID] && !igc[gID].empty()) {
-                    
+
                     isAGoalFactWithIndependentAchivementCosts[literalGoalVector[gID]->getStateID()] = true;
-                    
+
                     map<int, list<int> >::const_iterator lItr = igc[gID].begin();
                     const map<int, list<int> >::const_iterator lEnd = igc[gID].end();
-                    
+
                     for (; lItr != lEnd; ++lItr) {
                         list<int>::const_iterator alItr = lItr->second.begin();
                         const list<int>::const_iterator alEnd = lItr->second.end();
-                        
+
                         for (; alItr != alEnd; ++alItr) {
                             costsAreIndependentGoalCosts[*alItr] = true;
                         }
                     }
                 }
             }
-            
+
         }
-        
+
         for (int pass = 0; pass < 2; ++pass) {
             const vector<list<int> > * const nowOn = (pass ? actionsToRPGNumericEndEffects : actionsToRPGNumericStartEffects);
             vector<vector<double> > & costsGoIn = (pass ? endEffectsOnResourceLimits : startEffectsOnResourceLimits);
             const vector<list<NumericAnalysis::CostAtTime*>* > & dynamicCosts = (pass ? NumericAnalysis::getTimeDependentEndCosts()
                                                                      : NumericAnalysis::getTimeDependentStartCosts());
-                        
+
             for (int a = 0; a < actCount; ++a) {
                 if (RPGBuilder::rogueActions[a]) continue;
 
@@ -5570,69 +5570,69 @@ public:
                 for (; eItr != eEnd; ++eItr) {
                     const RPGBuilder::RPGNumericEffect & currEff = effTable[*eItr];
                     assert(!RPGBuilder::rogueActions[a]);
-                    
+
                     if (!currEff.isAssignment) {
                         // resource limits are only detectable from constant-valued increase/decrease effects
                         // or we can fake it with bounded durations
                         // so check that is the case first
-                        
+
                         bool evaluatesSafely = false;
-                        
+
                         // a lower-bound -- upper-bound pair
                         pair<double,double> evaluatesTo(0.0,0.0);
-                        
+
                         if (!currEff.size) {
                             evaluatesSafely = true;
                             evaluatesTo.first = evaluatesTo.second = currEff.constant;
-                            
+
                             if (dumpActCosts) {
                                 cout << "Simple constant effect: " << currEff << endl;
                             }
                         } else if (currEff.size == 1) {
                             // find bound on duration, evaluate costs
                             if (currEff.variables[0] == -3) {
-                                
+
                                 evaluatesTo.first = evaluatesTo.second = currEff.constant; // start with the constant offset
-                                                                
+
                                 assert(currEff.weights[0] >= 0.0);
                                 evaluatesTo.first += currEff.weights[0] * RPGBuilder::getOpMinDuration(a,-1);     // this is okay - is working at a global level
                                 evaluatesTo.second += currEff.weights[0] * RPGBuilder::getOpMaxDuration(a,-1);    // this is okay - is working at a global level
-                                
+
                                 evaluatesSafely = true;
-                             
+
                                 if (dumpActCosts) {
                                     cout << "Duration-dependent effect: " << currEff << " evaluates to " << evaluatesTo.first << ", " << evaluatesTo.second << endl;
                                 }
-                                
+
                             } else if (currEff.variables[0] == -19) {
-                                                                                                
+
                                 evaluatesTo.first = evaluatesTo.second = currEff.constant; // start with the constant offset
-                                                                
+
                                 assert(currEff.weights[0] >= 0.0);
                                 evaluatesTo.first += -currEff.weights[0] * RPGBuilder::getOpMaxDuration(a,-1);    // this is okay - is working at a global level
                                 evaluatesTo.second += -currEff.weights[0] * RPGBuilder::getOpMinDuration(a,-1);   // this is okay - is working at a global level
-                                
+
                                 if (dumpActCosts) {
                                     cout << "Duration-dependent effect: " << currEff << " evaluates to " << evaluatesTo.first << ", " << evaluatesTo.second << endl;
                                 }
-                                
+
                                 evaluatesSafely = true;
-                            }   
+                            }
                         } else {
                             if (dumpActCosts) {
                                 cout << "Ignoring effect " << currEff << endl;
                             }
                         }
-                            
-                            
-                        
+
+
+
                         if (evaluatesSafely) {
                             // does it act on a lower bound?
                             map<int,set<pair<int,double> > >::const_iterator lsItr = varToLowerResourceLimitVariable.find(currEff.fluentIndex);
                             if (lsItr != varToLowerResourceLimitVariable.end()) {
                                 set<pair<int,double> >::const_iterator lItr = lsItr->second.begin();
                                 const set<pair<int,double> >::const_iterator lEnd = lsItr->second.end();
-                                
+
                                 for (; lItr != lEnd; ++lItr) {
                                     if (lItr->second > 0) {
                                         costsGoIn[a][lItr->first] += evaluatesTo.second * lItr->second;
@@ -5642,7 +5642,7 @@ public:
                                         }
 
                                     } else if (lItr->second < 0) {
-                                        costsGoIn[a][lItr->first] += evaluatesTo.first * lItr->second;                                                        
+                                        costsGoIn[a][lItr->first] += evaluatesTo.first * lItr->second;
                                         costsChanged.insert(lItr->first);
                                         if (dumpActCosts) {
                                             cout << "Cost of " << *(RPGBuilder::getInstantiatedOp(a)) << " gone up by " << evaluatesTo.first * lItr->second << endl;
@@ -5658,24 +5658,24 @@ public:
                     }
                 }
 
-                
+
                 set<int>::const_iterator ccItr = costsChanged.begin();
                 const set<int>::const_iterator ccEnd = costsChanged.end();
-                
+
                 for (; ccItr != ccEnd; ++ccItr) {
                     for (int ipass = 0; ipass <= pass; ++ipass) {
                         const list<Literal*> & pres = (ipass ? RPGBuilder::getEndPropositionalPreconditions()[a]
                                                             : RPGBuilder::getProcessedStartPropositionalPreconditions()[a]);
-                            
-                                                            
+
+
                         double toUse = limits[*ccItr].limit;
-                        
+
                         if (Globals::bestSolutionQuality > -DBL_MAX && limits[*ccItr].optimisationLimit) {
                             if (Globals::bestSolutionQuality + 0.001 > toUse) {
                                 toUse = Globals::bestSolutionQuality + 0.001;
                             }
                         }
-                        
+
                         if (toUse > -DBL_MAX) {
                             const double newPreLimit = toUse - costsGoIn[a][*ccItr];
                             {
@@ -5693,7 +5693,7 @@ public:
                         }
                     }
                 }
-                
+
                 if (dynamicCosts[a]) {
                     costsGoIn[a] = nullCosts;
                 }
@@ -5709,7 +5709,7 @@ public:
             }
         }
     }
-    
+
     #endif
 
     void integrateContinuousEffects() {
@@ -5728,34 +5728,34 @@ public:
         integratedCTSEffectChange.resize(loopLim);
         gradientCTSEffectVar.resize(loopLim);
         gradientCTSEffectChange.resize(loopLim);
-        
+
 
         set<int> cannotUseAsGradients;
-        
+
         LiteralSet initialState;
         vector<double> initialFluents;
-        
+
         RPGBuilder::getInitialState(initialState, initialFluents);
-        
+
         MinimalState refState;
         refState.insertFacts(initialState.begin(), initialState.end(), StepAndBeforeOrAfter());
-        
+
         refState.secondMin = initialFluents;
         refState.secondMax = initialFluents;
-        
-        
-        
+
+
+
         if (!RPGHeuristic::makeCTSEffectsInstantaneous) {
-            
+
             const vector<RPGBuilder::RPGNumericEffect> & numEffs = RPGBuilder::getNumericEff();
-            
+
             const int lim = numEffs.size();
-            
+
             int s;
-            
+
             for (int e = 0; e < lim; ++e) {
                 const RPGBuilder::RPGNumericEffect & currEff = numEffs[e];
-                
+
                 if ((s = currEff.size)) {
                     for (int v = 0; v < s; ++v) {
                         if (currEff.variables[v] >= 0) {
@@ -5769,24 +5769,24 @@ public:
                 }
             }
         }
-        
-        
+
+
         for (int lda = 0; lda < loopLim; ++lda) {
             if (RPGBuilder::rogueActions[lda] == RPGBuilder::OT_INVALID_ACTION) {
                 continue;
             }
-            
+
             RPGBuilder::LinearEffects * const currLD = LD[lda];
             if (currLD) {
-                
+
                 bool mustIntegrate = RPGHeuristic::makeCTSEffectsInstantaneous;
                 if (!mustIntegrate) {
                     mustIntegrate = (RPGBuilder::rogueActions[lda] == RPGBuilder::OT_NORMAL_ACTION && !RPGBuilder::isSelfMutex(lda) && RPGBuilder::howManyTimesOptimistic(lda, refState) > 1);
                 }
-                
+
                 const double dur = (RPGBuilder::rogueActions[lda] == RPGBuilder::OT_PROCESS ? DBL_MAX : RPGBuilder::getOpMaxDuration(lda, -1));
                 const int effCount = currLD->vars.size();
-                
+
                 for (int eff = 0; eff < effCount; ++eff) {
                     if (mustIntegrate || cannotUseAsGradients.find(currLD->vars[eff]) != cannotUseAsGradients.end()) {
                         if (evaluateDebug) {
@@ -5798,27 +5798,27 @@ public:
                         }
                         integratedCTSEffectVar[lda].push_back(currLD->vars[eff]);
                         integratedCTSEffectChange[lda].push_back(currLD->effects[0][eff].constant * dur);
-                        if (evaluateDebug) {                            
+                        if (evaluateDebug) {
                             cout << " " << integratedCTSEffectChange[lda].back() << " of " << *(RPGBuilder::getPNE(integratedCTSEffectVar[lda].back())) << endl;
-                        } 
+                        }
                     } else {
                         if (evaluateDebug) {
                             cout << "Not integrating effect of " << *(RPGBuilder::getInstantiatedOp(lda)) << ":";
                         }
                         gradientCTSEffectVar[lda].push_back(currLD->vars[eff]);
                         gradientCTSEffectChange[lda].push_back(currLD->effects[0][eff].constant);
-                        if (evaluateDebug) {                            
+                        if (evaluateDebug) {
                             cout << "d" << *(RPGBuilder::getPNE(gradientCTSEffectVar[lda].back())) << "/dt = " << gradientCTSEffectChange[lda].back() << endl;
-                        } 
+                        }
                     }
                 }
-                
+
                 if (RPGBuilder::rogueActions[lda] == RPGBuilder::OT_PROCESS) {
                     backgroundProcesses.push_back(lda);
                 }
-                
+
             }
-            
+
         }
 
         doneIntegration = true;
@@ -5837,7 +5837,7 @@ public:
                                 easSize, goals.size() + goalFluents.size(),
                                 minTimestamps, stateTS, haIn, costLimit);
 
-        
+
         vector<double> maxFluentTable(toReturn->vCount * 2 + toReturn->avCount);
 
         {
@@ -5922,25 +5922,25 @@ public:
             assert(payload->startState.startedActions.empty());
             return;
         }
-        
+
         vector<double> * maxFluentTable = 0;
         vector<RPGBuilder::LinearEffects*> & LD = RPGBuilder::getLinearDiscretisation();
-                
+
         list<StartEvent>::const_iterator evItr = payload->startEventQueue->begin();
         const list<StartEvent>::const_iterator evEnd = payload->startEventQueue->end();
-        
+
         for (; evItr != evEnd; ++evItr) {
 
             const RPGBuilder::LinearEffects* currLD = LD[evItr->actID];
             if (!currLD) continue;
-                       
+
             const double multiplier = evItr->maxDuration - evItr->elapsed;
-            
+
             const vector<int> & varList = currLD->vars;
             const vector<RPGBuilder::LinearEffects::EffectExpression> & changeList = currLD->effects[0];
 
             const int effCount = varList.size();
-            
+
             for (int e = 0; e < effCount; ++e) {
                 if (timeAtWhichValueIsDefined.empty() || timeAtWhichValueIsDefined[varList[e]] < 0.0) {
                     const double change = changeList[e].constant * multiplier;
@@ -5964,10 +5964,10 @@ public:
                         cerr << "Error: making continuous effects instantaneous (as in the the Colin IJCAI paper) is incompatible with the revised approach to state variable bounds for heuristic purposes.\n";
                         exit(1);
                     }
-                    #endif      
-                    
+                    #endif
+
                     gradientsToStart[timeAtWhichValueIsDefined[varList[e]]].push_back(DelayedGradientDescriptor(evItr->actID, Planner::E_AT_START, multiplier, make_pair(varList[e], changeList[e].constant)));
-                                                      
+
                 }
             }
 
@@ -5980,25 +5980,25 @@ public:
     /** @brief Add delayed gradient effects as slope functions rather than using integration.
      */
     void addDelayedGradientEffects(BuildingPayload * const payload, const map<double, list<DelayedGradientDescriptor> > & delayedGradients) {
-        
+
         if (RPGBuilder::modifiedRPG) {
             // popf heuristic, so gradients might not start straight away
             cerr << "The -/ option is currently not implemented for the POPF heuristic - add -c or -T to the command line\n";
             exit(1);
         }
-        
+
         static const bool localDebug = false;
-        
+
         map<double, list<DelayedGradientDescriptor> >::const_iterator dgItr = delayedGradients.begin();
         const map<double, list<DelayedGradientDescriptor> >::const_iterator dgEnd = delayedGradients.end();
-        
+
         for (; dgItr != dgEnd; ++dgItr) {
             // ignore the first entry of the pair, as we start everything straight away
-            
+
             list<DelayedGradientDescriptor>::const_iterator gItr = dgItr->second.begin();
             const list<DelayedGradientDescriptor>::const_iterator gEnd = dgItr->second.end();
-            
-            for (; gItr != gEnd; ++gItr) {           
+
+            for (; gItr != gEnd; ++gItr) {
                 if (localDebug) {
                     cout << "-- Adding gradient effect from executing action, d" << *(RPGBuilder::getPNE(gItr->gradientEffect.first)) << "/dt = " << gItr->gradientEffect.second << " until " << gItr->maxDur;
                     cout << ", from initial bounds [" << payload->startState.secondMin[gItr->gradientEffect.first] << "," << payload->startState.secondMax[gItr->gradientEffect.first] << "]\n";
@@ -6010,11 +6010,11 @@ public:
 
     void initPrefCosts() {
         static bool initPrefCosts = false;
-    
-    
+
+
         if (!initPrefCosts) {
             initPrefCosts = true;
-            
+
             const vector<RPGBuilder::Constraint> & prefTable = RPGBuilder::getPreferences();
             const int pSize = prefTable.size();
             prefCosts.resize(pSize);
@@ -6029,45 +6029,45 @@ public:
         const int fCount = achieverDetails.size();
         for (int f = 0; f < fCount; ++f) {
             achieverDetails[f].clear();
-        }        
+        }
         #else
         *achievedBy = (*achievedByReset);
         *achievedInLayer = (*achievedInLayerReset);
         #endif
-        
+
         *negativeAchievedBy = (*negativeAchievedByReset);
         *negativeAchievedInLayer = (*negativeAchievedInLayerReset);
-        
+
         *numericAchievedBy = (*numericAchievedByReset);
         *numericAchievedInLayer = (*numericAchievedInLayerReset);
-        
+
         preconditionsToPrefs = PreferenceHandler::getPreconditionsToPrefs();
         negativePreconditionsToPrefs = PreferenceHandler::getNegativePreconditionsToPrefs();
-        
+
         numericPreconditionsToPrefs = PreferenceHandler::getNumericPreconditionsToPrefs();
 
         PreferenceHandler::getUnsatisfiedConditionCounts(payload->startState, payload->initialUnsatisfiedPreferenceConditions, payload->becomesUnreachableAtLayer);
         payload->preferencePartTrueAtLayer.resize(payload->initialUnsatisfiedPreferenceConditions.size(), vector<EpsilonResolutionTimestamp>(2,EpsilonResolutionTimestamp::infinite()));
-        
-        
+
+
         payload->startActionCosts.resize(initialUnsatisfiedStartPreconditions->size());
         payload->endActionCosts.resize(initialUnsatisfiedEndPreconditions->size());
         payload->tilCosts.resize(RPGBuilder::getNonAbstractedTILVec().size());
-        payload->optimisticPrefStatus = payload->startState.preferenceStatus;        
-        
+        payload->optimisticPrefStatus = payload->startState.preferenceStatus;
+
         PreferenceHandler::getCostsOfDeletion(payload->startState, payload->prefCostOfDeletingFact, payload->prefCostOfChangingNumberA);
         PreferenceHandler::getCostsOfAdding(payload->startState, payload->prefCostOfAddingFact, payload->prefCostOfChangingNumberB);
-        
+
         {
             StateFacts::const_iterator stateItr = payload->startState.first.begin();
             const StateFacts::const_iterator stateEnd = payload->startState.first.end();
-            
+
             for (; stateItr != stateEnd; ++stateItr) {
                 const int factID = FACTA(stateItr);
-                (*negativeAchievedInLayer)[factID] = EpsilonResolutionTimestamp::undefined();                
+                (*negativeAchievedInLayer)[factID] = EpsilonResolutionTimestamp::undefined();
             }
         }
-        
+
     }
 
     static EpsilonResolutionTimestamp localEarliestPointForNumericPrecondition(const RPGBuilder::RPGNumericPrecondition & p) {
@@ -6111,7 +6111,7 @@ public:
                     const int var = (*lItr)->variables[i];
                     #endif
                     if (earliestNumericPOTimes[var] > TS) TS = earliestNumericPOTimes[var];
-                    
+
                 }
             }
         }
@@ -6120,40 +6120,40 @@ public:
 
 #ifdef TOTALORDERSTATES
     void recordFactLayerZero(BuildingPayload * const payload) {
-        
+
         #ifdef POPF3ANALYSIS
-        
+
         const vector<NumericAnalysis::NumericLimitDescriptor> & limits = NumericAnalysis::getGoalNumericUsageLimits();
-        
+
         const int ulCount = limits.size();
-        
+
         currentCosts = vector<double>(ulCount,0.0);
-        
+
         for (int ul = 0; ul < ulCount; ++ul) {
             map<int,double>::const_iterator vItr = limits[ul].var.begin();
             const map<int,double>::const_iterator vEnd = limits[ul].var.end();
-            
+
             for (; vItr != vEnd; ++vItr) {
                 if (vItr->second >= 0.0) {
                     currentCosts[ul] += payload->startState.secondMax[vItr->first] * vItr->second;
                 } else {
                     currentCosts[ul] += payload->startState.secondMin[vItr->first] * vItr->second;
                 }
-            }                     
+            }
         }
-        
+
         #endif
-    
+
         assert(!RPGBuilder::modifiedRPG);
-        
+
         {
             StateFacts::const_iterator stateItr = payload->startState.first.begin();
             const StateFacts::const_iterator stateEnd = payload->startState.first.end();
-            
+
             for (; stateItr != stateEnd; ++stateItr) {
                 const int factID = FACTA(stateItr);
                 #ifdef POPF3ANALYSIS
-                achieverDetails[factID].push_back(CostedAchieverDetails(currentCosts,true));                
+                achieverDetails[factID].push_back(CostedAchieverDetails(currentCosts,true));
                 #else
                 (*achievedInLayer)[factID] = 0.0;
                 #endif
@@ -6161,11 +6161,11 @@ public:
             }
         }
 
-        
+
 
         {
             const int loopLim = earliestNumericPOTimes.size();
-            
+
             for (int i = 0; i < loopLim; ++i) {
                 earliestNumericPOTimes[i] = EpsilonResolutionTimestamp::zero();
             }
@@ -6205,19 +6205,19 @@ public:
 #else
 
     void recordFactLayerZero(BuildingPayload * const payload) {
-        
+
         #ifdef POPF3ANALYSIS
-        
+
         const vector<NumericAnalysis::NumericLimitDescriptor> & limits = NumericAnalysis::getGoalNumericUsageLimits();
-        
+
         const int ulCount = limits.size();
-        
+
         currentCosts = vector<double>(ulCount,0.0);
-        
+
         for (int ul = 0; ul < ulCount; ++ul) {
             map<int,double>::const_iterator vItr = limits[ul].var.begin();
             const map<int,double>::const_iterator vEnd = limits[ul].var.end();
-            
+
             for (; vItr != vEnd; ++vItr) {
                 if (vItr->first >= 0.0) {
                     if (vItr->second >= 0.0) {
@@ -6228,9 +6228,9 @@ public:
                 }
             }
         }
-        
+
         #endif
-        
+
         if (RPGBuilder::modifiedRPG) {
             StateFacts::const_iterator stateItr = payload->startState.first.begin();
             const StateFacts::const_iterator stateEnd = payload->startState.first.end();
@@ -6293,18 +6293,18 @@ public:
                         }
                     }
                 }
-                
+
             }
 
             //if (!expandFully) MaxDependentInfo::debug = true;
         } else {
             map<int, PropositionAnnotation>::const_iterator stateItr = payload->startState.first.begin();
             const map<int, PropositionAnnotation>::const_iterator stateEnd = payload->startState.first.end();
-            
+
             for (; stateItr != stateEnd; ++stateItr) {
                 const int factID = stateItr->first;
                 #ifdef POPF3ANALYSIS
-                achieverDetails[factID].push_back(CostedAchieverDetails(currentCosts,PreferenceSetAndCost(true),true));                
+                achieverDetails[factID].push_back(CostedAchieverDetails(currentCosts,PreferenceSetAndCost(true),true));
                 #else
                 (*achievedInLayer)[factID] = 0.0;
                 #endif
@@ -6349,10 +6349,10 @@ public:
         }
 
         if (RPGBuilder::modifiedRPG) {
-            
+
             /*{
                 const int mts = payload->minTimestamps.size();
-                
+
                 cout << "[ ";
                 for (int m = 0; m < mts; ++m) {
                     cout << " " << m << ":" << payload->minTimestamps[m];
@@ -6364,7 +6364,7 @@ public:
             const int loopLim = lastStepToTouchPNE.size();
 
             for (int i = 0; i < loopLim; ++i) {
-                const int stepID = lastStepToTouchPNE[i].lastInstantaneousEffect;                 
+                const int stepID = lastStepToTouchPNE[i].lastInstantaneousEffect;
                 if (stepID == -1) {
                     if (evaluateDebug) {
                         cout << *(RPGBuilder::getPNE(i)) << " never touched\n";
@@ -6390,7 +6390,7 @@ public:
             }
         } else {
             const int loopLim = earliestNumericPOTimes.size();
-            
+
             for (int i = 0; i < loopLim; ++i) {
                 earliestNumericPOTimes[i] = EpsilonResolutionTimestamp::zero();
             }
@@ -6435,13 +6435,13 @@ public:
                 const list<LiteralCellDependency<pair<int,bool> > > & dependents = (*negativePreconditionsToPrefs)[factID];
                 list<LiteralCellDependency<pair<int,bool> > >::const_iterator depItr = dependents.begin();
                 const list<LiteralCellDependency<pair<int,bool> > >::const_iterator depEnd = dependents.end();
-                
+
                 for (; depItr != depEnd; ++depItr) {
-                    
+
                     NNF_Flat* const toUpdate = payload->initialUnsatisfiedPreferenceConditions[depItr->dest.first][depItr->dest.second ? 1 : 0];
-                    
+
                     if (!toUpdate) continue;
-                    
+
                     toUpdate->unsatisfy(depItr->index);
                 }
             }
@@ -6469,7 +6469,7 @@ public:
     }
 
     bool seeWhatGoalsAreTrueToStartWith(BuildingPayload * const payload) {
-        
+
         {
             set<int>::iterator gsItr = goals.begin();
 
@@ -6516,14 +6516,14 @@ public:
         if (!RPGBuilder::modifiedRPG) {
             return;
         }
-        
+
         if (!payload->startEventQueue) {
             return;
         }
-        
+
         list<StartEvent>::const_iterator seqItr = payload->startEventQueue->begin();
         const list<StartEvent>::const_iterator seqEnd = payload->startEventQueue->end();
-        
+
         for (; seqItr != seqEnd; ++seqItr) {
             EpsilonResolutionTimestamp & eas = payload->openEndActionSchedule[seqItr->actID];
             const EpsilonResolutionTimestamp localTS(payload->minTimestamps[seqItr->stepID + 1],true);
@@ -6574,7 +6574,7 @@ public:
                                 ++(payload->forbiddenStart.insert(pair<int, int>(effItr->first, 0)).first->second);
                             }
                         } else {
-                            assert(effItr->second == Planner::E_AT_END); 
+                            assert(effItr->second == Planner::E_AT_END);
                             if (dest->second.insert(effItr->first).second) {
                                 ++(payload->forbiddenEnd.insert(pair<int, int>(effItr->first, 0)).first->second);
                             }
@@ -6649,8 +6649,8 @@ public:
 
         EpsilonResolutionTimestamp TILoffset((nextTIL < tilCount ? tilTimes[nextTIL] - tilFrom : 0.0),true);
 
-        list<pair<set<int>, set<int> > > & setsToForbid = payload->setsToForbid;        
-        
+        list<pair<set<int>, set<int> > > & setsToForbid = payload->setsToForbid;
+
 
         map<double, list<pair<int, int> > >::iterator jaItr = justApplied->begin();
         const map<double, list<pair<int, int> > >::iterator jaEnd = justApplied->end();
@@ -6943,7 +6943,7 @@ public:
                             }
                         }
                         #else
-                        double & currAIL = (*achievedInLayer)[currEff];                
+                        double & currAIL = (*achievedInLayer)[currEff];
                         if (currAIL == EpsilonResolutionTimestamp::undefined() && (*achievedBy)[currEff].first == -1) { // not in initial state
                             if (earlier.insert(currEff).second) {
                                 assert(thisTS >= EpsilonResolutionTimestamp::zero());
@@ -6989,25 +6989,25 @@ public:
 
             }
         }
-        
+
         // now deal with limits from abstracted TILs
-        
+
         if (RPGBuilder::modifiedRPG) {
-        
+
             static const double abstractTILDebug = (Globals::globalVerbosity & 64);
-            
+
             payload->abstractFactCurrentlyTrue.resize(RPGBuilder::getNegativeEffectsToActions().size(),false);
-            
+
             const map<int, TILTimeline> & timelines = TemporalAnalysis::getTILTimelines();
-            
+
             map<int, TILTimeline>::const_iterator factItr = timelines.begin();
             const map<int, TILTimeline>::const_iterator factEnd = timelines.end();
-            
+
             for (; factItr != factEnd; ++factItr) {
                 if (!TemporalAnalysis::getFactIsAbstract()[factItr->first]) {
                     continue;
                 }
-                
+
                 StateFacts::const_iterator presentItr = stateBeingEvaluated.first.find(factItr->first);
                 if (presentItr == stateBeingEvaluated.first.end()) {
                     if (abstractTILDebug) {
@@ -7015,59 +7015,59 @@ public:
                     }
                     continue;
                 }
-                
+
                 if (abstractTILDebug) {
                     cout << COLOUR_light_blue << "Abstract fact " << *(RPGBuilder::getLiteral(factItr->first)) << ":";
                     cout.flush();
                 }
-                
+
                 EpsilonResolutionTimestamp earliestPossibleOccurrence(EpsilonResolutionTimestamp::zero());
-                
-                if (presentItr->second.availableFrom.beforeOrAfter == StepAndBeforeOrAfter::AFTER) {                
+
+                if (presentItr->second.availableFrom.beforeOrAfter == StepAndBeforeOrAfter::AFTER) {
                     const double & earliestAsDouble = payload->minTimestamps[presentItr->second.availableFrom.stepID];
                     assert(earliestAsDouble >= 0.0); // initial state adds should have a 'BEFORE' label
-                    
+
                     // because TILs true initially need to have a 'zero' timestamp for their fact layer index,
                     // TIL facts that are (at x y) are actually put in fact layer x + epsilon
-                    
+
                     earliestPossibleOccurrence = EpsilonResolutionTimestamp(earliestAsDouble, true);
                     ++earliestPossibleOccurrence;
 
                 }
 
                 bool currentlyFalse = true;
-                
+
                 TILTimeline::const_iterator tItr = factItr->second.begin();
                 const TILTimeline::const_iterator tEnd = factItr->second.end();
-                
+
                 if (tItr->first < 0.0) {
                     // skip over initial-state adds for our sanity
                     assert(tItr->second.added);
                     currentlyFalse = false;
                     ++tItr;
                 }
-                
+
                 for (; tItr != tEnd; ++tItr) {
-                    
+
                     EpsilonResolutionTimestamp thisEvent(tItr->first, true);
                     ++thisEvent; // fact layer in which facts added by this TIL will appear
-                    
+
                     if (thisEvent < earliestPossibleOccurrence) {
-                    
+
                         if (tItr->second.deleted) {
                             currentlyFalse = true;
                         }
                         if (tItr->second.added) {
                             currentlyFalse = false;
                         }
-                        
+
                     } else {
                         break;
-                    }                
+                    }
                 }
-                
+
                 // tItr now points to the first TIL event on the timeline after the lower bound taken in
-                
+
                 if (!currentlyFalse) {
                     // if it's true at this point, add it to the TRPG to be come true then
                     factLayers[earliestPossibleOccurrence].abstractFactBecomesTrue.push_back(factItr->first);
@@ -7076,12 +7076,12 @@ public:
                         cout.flush();
                     }
                 }
-                
+
                 for (; tItr != tEnd; ++tItr) {
-                    
+
                     EpsilonResolutionTimestamp thisEvent(tItr->first, true);
                     ++thisEvent; // fact layer in which facts added by this TIL will appear
-                    
+
                     if (currentlyFalse) {
                         if (tItr->second.added) {
                             factLayers[thisEvent].abstractFactBecomesTrue.push_back(factItr->first);
@@ -7101,9 +7101,9 @@ public:
                             }
                         }
                     }
-                    
+
                 }
-                
+
                 if (abstractTILDebug) {
                     cout << endl << COLOUR_default;
                 }
@@ -7133,7 +7133,7 @@ public:
                 }
             }
         } else {
-        
+
             for (int a = 0; a < actCount; ++a) {
                 {
                     double firmUpper = TemporalAnalysis::getActionTSBounds()[a][0].second;
@@ -7197,26 +7197,26 @@ public:
     }
 
     void addGoalsForPreferences(BuildingPayload * const payload, RPGRegressionMap & goalsAtLayer) {
-        
-        
+
+
         list<list<Literal*> > desired;
         list<list<Literal*> > desiredNegative;
         list<list<int> > desiredNumeric;
-        
+
         PreferenceHandler::getDesiredGoals(desired, desiredNegative,
                                            &desiredNumeric,
                                            payload->startState, payload->initialUnsatisfiedPreferenceConditions, payload->optimisticPrefStatus,
                                            achieverDetails, *negativeAchievedInLayer, numericAchievedInLayer);
-        
+
         {
             list<list<Literal*> >::const_iterator dItr = desired.begin();
             const list<list<Literal*> >::const_iterator dEnd = desired.end();
-        
+
             for (; dItr != dEnd; ++dItr) {
-            
+
                 list<Literal*>::const_iterator fItr = (*dItr).begin();
                 const list<Literal*>::const_iterator fItrEnd = (*dItr).end();
-                
+
                 for (; fItr != fItrEnd; ++fItr) {
 
                     const int currGoal = (*fItr)->getStateID();
@@ -7235,16 +7235,16 @@ public:
                 }
             }
         }
-        
+
         {
             list<list<Literal*> >::const_iterator dItr = desiredNegative.begin();
             const list<list<Literal*> >::const_iterator dEnd = desiredNegative.end();
-        
+
             for (; dItr != dEnd; ++dItr) {
-            
+
                 list<Literal*>::const_iterator fItr = (*dItr).begin();
                 const list<Literal*>::const_iterator fItrEnd = (*dItr).end();
-                
+
                 for (; fItr != fItrEnd; ++fItr) {
 
                     const int currGoal = (*fItr)->getStateID();
@@ -7274,56 +7274,56 @@ public:
 
                     const int currGoal = *nItr;
                     const EpsilonResolutionTimestamp & insLayer = (*numericAchievedInLayer)[currGoal];
-                
+
                     if (numericIsTrueInState[currGoal]) {
-                        
+
                         if (evaluateDebug) cout << "Numeric goal achieved in state, not adding to RPG regression\n";
                         continue;
                     }
-                    
+
                     assert(insLayer > EpsilonResolutionTimestamp::zero());
-                        
-                    if (evaluateDebug) cout << "Numeric goal to be achieved in layer with TS " << insLayer << "\n";                    
+
+                    if (evaluateDebug) cout << "Numeric goal to be achieved in layer with TS " << insLayer << "\n";
                     payload->fluentLayers.requestGoal(currGoal, insLayer, goalsAtLayer);
                 }
             }
         }
-        
+
     }
 
     void addExtraPreconditionsForPreferences(BuildingPayload * const payload,
                                              const int & act, const Planner::time_spec & ts,
                                              const EpsilonResolutionTimestamp & currTS, const EpsilonResolutionTimestamp & tilR,
                                              RPGRegressionMap & goalsAtLayer) {
-        
+
         map<pair<int, Planner::time_spec>, list<pair<int,bool> > >::const_iterator extras =  payload->preferencePartsToSatisfyBeforeAction.find(make_pair(act,ts));
-        
+
         if (extras != payload->preferencePartsToSatisfyBeforeAction.end()) {
-        
+
             list<pair<int,bool> >::const_iterator prefPItr = extras->second.begin();
             const list<pair<int,bool> >::const_iterator prefPEnd = extras->second.end();
             for (; prefPItr != prefPEnd; ++prefPItr) {
-                
+
                 const EpsilonResolutionTimestamp & trueInLayer = payload->preferencePartTrueAtLayer[prefPItr->first][prefPItr->second ? 1 : 0];
-                
+
                 if (trueInLayer >= currTS) {
                     if (evaluateDebug) cout << COLOUR_yellow << "\t\tToo early to manage to satisfy preference " << prefPItr->first << COLOUR_default << endl;
                     continue;
                 } else {
                     if (evaluateDebug) cout << COLOUR_yellow << "\t\tPreference " << prefPItr->first << " was satisfied in layer " << trueInLayer << " - adding preconditions" << COLOUR_default << endl;
                 }
-                
-                
+
+
                 list<Literal*> extraPreconditionList;
                 list<Literal*> extraNegativePreconditionList;
                 list<int> extraNumericPreconditionList;
-                
+
                 PreferenceHandler::getPreconditionsToSatisfy(extraPreconditionList, extraNegativePreconditionList,
                                                              &extraNumericPreconditionList,
                                                              *prefPItr, currTS,
                                                              achieverDetails, *negativeAchievedInLayer,
                                                              numericAchievedInLayer);
-                
+
                 {
                     list<Literal*>::const_iterator aplItr = extraPreconditionList.begin();
                     const list<Literal*>::const_iterator aplEnd = extraPreconditionList.end();
@@ -7332,14 +7332,14 @@ public:
                         const int currPrec = (*aplItr)->getStateID();
                         EpsilonResolutionTimestamp acIn(EpsilonResolutionTimestamp::undefined());
                         pair<int, Planner::time_spec> acBy;
-                        
+
                         if (evaluateDebug) {
                             cout << "\t\tPreference precondition " << currPrec << " " << *(RPGBuilder::getLiteral(currPrec)) << ": ";
                             cout.flush();
                         }
-                        
+
                         getAchieverDetails(currPrec, currTS, acIn, acBy);
-                            
+
                         if (acIn > EpsilonResolutionTimestamp::zero()) {
                             if (acBy.first != -1) {
                                 map<int, EpsilonResolutionTimestamp>::iterator insItr = goalsAtLayer[acIn].propositionalGoals.insert(pair<int, EpsilonResolutionTimestamp>(currPrec, tilR)).first;
@@ -7356,7 +7356,7 @@ public:
 
                     }
                 }
-                
+
                 {
                     list<Literal*>::const_iterator aplItr = extraNegativePreconditionList.begin();
                     const list<Literal*>::const_iterator aplEnd = extraNegativePreconditionList.end();
@@ -7365,7 +7365,7 @@ public:
                         const int currPrec = (*aplItr)->getStateID();
                         const EpsilonResolutionTimestamp & acIn = (*negativeAchievedInLayer)[currPrec];
                         const pair<int, Planner::time_spec> acBy = (*negativeAchievedBy)[currPrec];
-                        
+
                         if (evaluateDebug) {
                             cout << "\t\tPreference precondition " << currPrec << " ¬" << *(RPGBuilder::getLiteral(currPrec)) << ": ";
                             cout.flush();
@@ -7386,18 +7386,18 @@ public:
 
                     }
                 }
-                
+
                 {
                     list<int>::const_iterator aplItr = extraNumericPreconditionList.begin();
                     const list<int>::const_iterator aplEnd = extraNumericPreconditionList.end();
-                    
+
                     for (; aplItr != aplEnd; ++aplItr) {
 
                         const int currPrec = (*aplItr);
                         const EpsilonResolutionTimestamp & acIn = (*numericAchievedInLayer)[currPrec];
                         if (acIn > EpsilonResolutionTimestamp::zero() && !numericIsTrueInState[currPrec]) {
                             if (evaluateDebug) cout << "\t\tAdding requirement for numeric preference precondition " << currPrec << ", " << RPGBuilder::getNumericPreTable()[currPrec] << " at time " << acIn << "\n";
-                            
+
                             payload->fluentLayers.requestNumericPrecondition(currPrec, acIn, currTS, goalsAtLayer, tilR);
                             //isHelpful = false;
                         } else {
@@ -7405,12 +7405,12 @@ public:
                         }
 
                     }
-                                    
+
                 }
             }
         }
-    
-        
+
+
     }
 
 
@@ -7418,7 +7418,7 @@ public:
                    const vector<EpsilonResolutionTimestamp> & earliestRelevanceOfGoal) {
 
         makespanEstimate = 0.0;
-        
+
         int latestTIL = 0;
         {
             const int mtSize = payload->minTimestamps.size();
@@ -7435,7 +7435,7 @@ public:
         vector<EpsilonResolutionTimestamp> & openEndActionSchedule = payload->openEndActionSchedule;
 
         payload->fluentLayers.prepareForExtraction();
-        
+
         static const set<int> emptyIntSet;
 
         RPGRegressionMap goalsAtLayer;
@@ -7453,12 +7453,12 @@ public:
                 #else
                 const EpsilonResolutionTimestamp & insLayer = (*achievedInLayer)[currGoal];
                 if (insLayer > 0.0) {
-                    const int achiever = (*achievedBy)[currGoal].first;                    
+                    const int achiever = (*achievedBy)[currGoal].first;
                 #endif
                     if (achiever != -1) {
                         #ifdef POPF3ANALYSIS
                         const map<int,int>::const_iterator fToG = RPGBuilder::getLiteralsToGoalIndex().find(*gsItr);
-                        assert(fToG != RPGBuilder::getLiteralsToGoalIndex().end());                        
+                        assert(fToG != RPGBuilder::getLiteralsToGoalIndex().end());
                         #ifndef NDEBUG
                         if (earliestRelevanceOfGoal.size() <= fToG->second) {
                             cerr << "Fatal error: fact " << *(RPGBuilder::getLiteral(*gsItr)) << " is down as being goal " << fToG->second << ", but this does not exist\n";
@@ -7491,23 +7491,23 @@ public:
             for (; gfItr != gfEnd; ++gfItr) {
                 const int currGoal = *gfItr;
                 const EpsilonResolutionTimestamp & insLayer = (*numericAchievedInLayer)[currGoal];
-                
+
                 if (insLayer.toDouble() > makespanEstimate) {
                     makespanEstimate = insLayer.toDouble();
                 }
-                
+
                 if (numericIsTrueInState[currGoal]) {
-                    
+
                     if (evaluateDebug) cout << "Numeric goal achieved in state, not adding to RPG regression\n";
                     continue;
                 }
-                
+
                 assert(insLayer > EpsilonResolutionTimestamp::zero());
-                    
-                if (evaluateDebug) cout << "Numeric goal to be achieved in layer with TS " << insLayer << "\n";                    
+
+                if (evaluateDebug) cout << "Numeric goal to be achieved in layer with TS " << insLayer << "\n";
                 payload->fluentLayers.requestGoal(currGoal, insLayer, goalsAtLayer);
 
-                
+
 
             }
         }
@@ -7526,7 +7526,7 @@ public:
                 // HACK
             }
         }
-        
+
         addGoalsForPreferences(payload, goalsAtLayer);
 
 
@@ -7535,11 +7535,11 @@ public:
             const EpsilonResolutionTimestamp currTS = goalsAtLayer.rbegin()->first;
             map<int, EpsilonResolutionTimestamp> & currPositiveGAL = goalsAtLayer.rbegin()->second.propositionalGoals;
             map<int, EpsilonResolutionTimestamp> & currNegativeGAL = goalsAtLayer.rbegin()->second.negativePropositionalGoals;
-            
+
             if (evaluateDebug) cout << COLOUR_light_green << currTS << ":\n" <<     COLOUR_default;
             map<int, pair<int, EpsilonResolutionTimestamp> > & actionStarts = goalsAtLayer.rbegin()->second.actionStarts;
             map<int, pair<int, EpsilonResolutionTimestamp> > & actionEnds   = goalsAtLayer.rbegin()->second.actionEnds;
-            
+
             bool alreadyPushed = false;
 
             {
@@ -7568,16 +7568,16 @@ public:
                     if (RPGHeuristic::printRPGAsDot) {
                         payload->dot.highlightAction(asItr->first, Planner::E_AT_START);
                     }
-                    
+
     //              if (currTS == EPSILON) {
     //                  helpfulActions.push_back(pair<int, Planner::time_spec>(*asItr, Planner::E_AT_START));
     //                  if (evaluateDebug) cout << "\t\tIs a helpful action\n";
     //              }
 
                     for (int pass = 0; pass < 2; ++pass) {
-                        
+
                         map<int, EpsilonResolutionTimestamp> & currGAL = (pass ? currNegativeGAL : currPositiveGAL);
-                        
+
                         list<Literal*> & actionEffectsList = (pass ? (*actionsToStartNegativeEffects)[asItr->first] : (*actionsToStartEffects)[asItr->first]);
                         list<Literal*>::iterator aelItr = actionEffectsList.begin();
                         const list<Literal*>::iterator aelEnd = actionEffectsList.end();
@@ -7590,7 +7590,7 @@ public:
                             }
                         }
                     }
-                    
+
 
                     bool isHelpful = true;
 
@@ -7606,14 +7606,14 @@ public:
                             const int currPrec = (*aplItr)->getStateID();
                             EpsilonResolutionTimestamp acIn(EpsilonResolutionTimestamp::undefined());
                             pair<int, Planner::time_spec> acBy;
-                            
+
                             if (evaluateDebug) {
                                 cout << "\t\tPrecondition " << currPrec << " " << *(RPGBuilder::getLiteral(currPrec)) << ": ";
                                 cout.flush();
                             }
-                            
+
                             getAchieverDetails(currPrec, currTS, acIn, acBy);
-                                
+
                             if (acIn > EpsilonResolutionTimestamp::zero()) {
                                 if (acBy.first != -1) {
                                     map<int, EpsilonResolutionTimestamp>::iterator insItr = goalsAtLayer[acIn].propositionalGoals.insert(pair<int, EpsilonResolutionTimestamp>(currPrec, tilR)).first;
@@ -7646,7 +7646,7 @@ public:
                             const EpsilonResolutionTimestamp & acIn = (*numericAchievedInLayer)[currPrec];
                             if (acIn > EpsilonResolutionTimestamp::zero() && !numericIsTrueInState[currPrec]) {
                                 if (evaluateDebug) cout << "\t\tAdding requirement for numeric precondition " << currPrec << ", " << RPGBuilder::getNumericPreTable()[currPrec] << " at time " << acIn << "\n";
-                                
+
                                 payload->fluentLayers.requestNumericPrecondition(currPrec, acIn, currTS, goalsAtLayer, tilR);
                                 isHelpful = false;
                             } else {
@@ -7690,7 +7690,7 @@ public:
                     if (RPGHeuristic::printRPGAsDot) {
                         payload->dot.highlightAction(asItr->first, Planner::E_AT_END);
                     }
-                    
+
 
                     if (!alreadyPushed) {
                         relaxedPlan.push_front(pair<double, list<ActionSegment> >((currTS - EpsilonResolutionTimestamp::epsilon()).toDouble(), list<ActionSegment>()));
@@ -7708,9 +7708,9 @@ public:
 
 
                     for (int pass = 0; pass < 2; ++pass) {
-                        
+
                         map<int, EpsilonResolutionTimestamp> & currGAL = (pass ? currNegativeGAL : currPositiveGAL);
-                        
+
                         list<Literal*> & actionEffectsList = (pass ? (*actionsToEndNegativeEffects)[asItr->first] : (*actionsToEndEffects)[asItr->first]);
                         list<Literal*>::iterator aelItr = actionEffectsList.begin();
                         const list<Literal*>::iterator aelEnd = actionEffectsList.end();
@@ -7724,7 +7724,7 @@ public:
                         }
                     }
 
-                    
+
                     bool isHelpful = true;
 
                     {
@@ -7737,9 +7737,9 @@ public:
                             const int currPrec = (*aplItr)->getStateID();
                             EpsilonResolutionTimestamp acIn(EpsilonResolutionTimestamp::undefined());
                             pair<int, Planner::time_spec> acBy;
-                            
+
                             getAchieverDetails(currPrec, currTS, acIn, acBy);
-                            
+
                             if (acIn > EpsilonResolutionTimestamp::zero()) {
                                 if (acBy.first != -1) {
                                     map<int, EpsilonResolutionTimestamp>::iterator galItr = goalsAtLayer[acIn].propositionalGoals.insert(pair<int, EpsilonResolutionTimestamp>(currPrec, tilR)).first;
@@ -7766,9 +7766,9 @@ public:
                             const EpsilonResolutionTimestamp & acIn = (*numericAchievedInLayer)[currPrec];
                             if (acIn > EpsilonResolutionTimestamp::zero() && !numericIsTrueInState[currPrec]) {
                                 if (evaluateDebug) cout << "\t\tAdding requirement for numeric precondition " << currPrec << ", " << RPGBuilder::getNumericPreTable()[currPrec] << " at time " << acIn << "\n";
-                                
+
                                 payload->fluentLayers.requestNumericPrecondition(currPrec, acIn, currTS, goalsAtLayer, tilR);
-                                
+
                                 isHelpful = false;
                             } else {
                                 if (evaluateDebug) cout << "\t\tNumeric precondition " << currPrec << ", " << RPGBuilder::getNumericPreTable()[currPrec] << " satisfied in initial state\n";
@@ -7798,49 +7798,49 @@ public:
             }
 
 
-            
+
             if (!ignoreNumbers) {
-                
+
                 RPGRegressionMap::const_iterator thisLayer = goalsAtLayer.end();
                 --thisLayer;
-                
+
                 list<pair<EpsilonResolutionTimestamp, SupportingAction> > actionsUsed;
                 payload->fluentLayers.satisfyNumericPreconditionsAtLayer(thisLayer, goalsAtLayer, actionsUsed);
-                
+
                 if (!actionsUsed.empty()) {
-                    
+
                     if (!alreadyPushed) {
                         relaxedPlan.push_front(pair<double, list<ActionSegment> >((currTS - EpsilonResolutionTimestamp::epsilon()).toDouble(), list<ActionSegment>()));
                         alreadyPushed = true;
                     }
-                    
+
                     if (evaluateDebug) cout << "Adding achievers for numeric goals at TS " << currTS << "\n";
 
                     list<pair<EpsilonResolutionTimestamp, SupportingAction> >::const_iterator sapItr = actionsUsed.begin();
                     const list<pair<EpsilonResolutionTimestamp, SupportingAction> >::const_iterator sapEnd = actionsUsed.end();
-            
+
                     for (; sapItr != sapEnd; ++sapItr) {
-                        
+
                         const SupportingAction* const saItr = &(sapItr->second);
-                        
+
                         if (sapItr->first < currTS) {
-                            
+
                             if (saItr->ts == Planner::E_AT_START) {
                                 map<int, pair<int, EpsilonResolutionTimestamp> >::iterator galItr = goalsAtLayer[sapItr->first].actionStarts.insert(pair<int, pair<int, EpsilonResolutionTimestamp> >(saItr->actID, make_pair(saItr->howManyTimes, saItr->tilR))).first;
                                 if (galItr->second.second > saItr->tilR) galItr->second.second = saItr->tilR;
                                 if (evaluateDebug) cout << "\t\tAdding requirement for start of action at time " << sapItr->first << "\n";
-                                                                    
+
                             } else {
                                 cerr << "Adding actions other than EPSILON earlier (in this case " << currTS << " - " << sapItr->first << ") should only occur for gradient actions\n";
                                 exit(1);
                             }
-                            
+
                             continue;
                         }
-                        
+
                         pair<int, Planner::time_spec> currAchievedBy(saItr->actID, saItr->ts);
-                        
-                        
+
+
                         if (currAchievedBy.second == Planner::E_AT_START) {
                             if (evaluateDebug) {
                                 cout << "\t\tUsing start of " << currAchievedBy.first << " - " << *(RPGBuilder::getInstantiatedOp(currAchievedBy.first));
@@ -7859,17 +7859,17 @@ public:
 
                             const EpsilonResolutionTimestamp sTIL = earliestTILForAction(currAchievedBy.first, true);
                             EpsilonResolutionTimestamp tilR = saItr->tilR;
-                            
+
                             if (tilR > sTIL) tilR = sTIL;
 
                             for (int pass = 0; pass < 2; ++pass) {
-                        
+
                                 map<int, EpsilonResolutionTimestamp> & currGAL = (pass ? currNegativeGAL : currPositiveGAL);
-                                
+
                                 list<Literal*> & actionEffectsList = (pass ? (*actionsToStartNegativeEffects)[currAchievedBy.first] : (*actionsToStartEffects)[currAchievedBy.first]);
                                 list<Literal*>::iterator aelItr = actionEffectsList.begin();
                                 const list<Literal*>::iterator aelEnd = actionEffectsList.end();
-                                
+
                                 for (; aelItr != aelEnd; ++aelItr) {
                                     map<int, EpsilonResolutionTimestamp>::iterator cgItr = currGAL.find((*aelItr)->getStateID());
                                     if (cgItr != currGAL.end()) {
@@ -7878,9 +7878,9 @@ public:
                                     }
                                 }
                             }
-                                                        
-                                                                                    
-                                                                                                                
+
+
+
                             bool isHelpful = true;
 
                             {
@@ -7891,7 +7891,7 @@ public:
                                 for (; aplItr != aplEnd; ++aplItr) {
 
                                     const int currPrec = (*aplItr)->getStateID();
-                                    
+
                                     EpsilonResolutionTimestamp acIn(EpsilonResolutionTimestamp::undefined());
                                     pair<int, Planner::time_spec> acBy;
 
@@ -7899,10 +7899,10 @@ public:
                                         cout << "\t\tPrecondition " << currPrec << " " << *(RPGBuilder::getLiteral(currPrec)) << ": ";
                                         cout.flush();
                                     }
-                                    
+
                                     getAchieverDetails(currPrec, currTS - EpsilonResolutionTimestamp::epsilon(), acIn, acBy);
-                                    
-                                    
+
+
                                     if (acIn > EpsilonResolutionTimestamp::zero()) {
                                         if (acBy.first != -1) {
                                             map<int, EpsilonResolutionTimestamp>::iterator galItr = goalsAtLayer[acIn].propositionalGoals.insert(pair<int, EpsilonResolutionTimestamp>(currPrec, tilR)).first;
@@ -7935,8 +7935,8 @@ public:
                                     const int currPrec = (*aplItr);
                                     const EpsilonResolutionTimestamp & acIn = (*numericAchievedInLayer)[currPrec];
                                     if (acIn > EpsilonResolutionTimestamp::zero() && !numericIsTrueInState[currPrec]) {
-                                        
-                                        if (evaluateDebug) cout << "\t\tAdding requirement for numeric precondition " << currPrec << ", " << RPGBuilder::getNumericPreTable()[currPrec] << " at time " << acIn << "\n";                                    
+
+                                        if (evaluateDebug) cout << "\t\tAdding requirement for numeric precondition " << currPrec << ", " << RPGBuilder::getNumericPreTable()[currPrec] << " at time " << acIn << "\n";
                                         payload->fluentLayers.requestNumericPrecondition(currPrec, acIn, currTS, goalsAtLayer, tilR);
                                         isHelpful = false;
                                     } else {
@@ -7945,7 +7945,7 @@ public:
 
                                 }
 
-                                if (evaluateDebug) cout << "\t\tPreconditions done.\n";                                                        
+                                if (evaluateDebug) cout << "\t\tPreconditions done.\n";
                             }
 
                             addExtraPreconditionsForPreferences(payload, currAchievedBy.first, Planner::E_AT_START, currTS - EpsilonResolutionTimestamp::epsilon(), tilR, goalsAtLayer);
@@ -7970,19 +7970,19 @@ public:
                                 payload->dot.highlightAction(currAchievedBy.first, Planner::E_AT_END);
                             }
 
-                            
+
                             const EpsilonResolutionTimestamp sTIL = earliestTILForAction(currAchievedBy.first, false);
                             EpsilonResolutionTimestamp tilR = saItr->tilR;
                             if (tilR > sTIL) tilR = sTIL;
 
                             for (int pass = 0; pass < 2; ++pass) {
-                        
+
                                 map<int, EpsilonResolutionTimestamp> & currGAL = (pass ? currNegativeGAL : currPositiveGAL);
-                                
+
                                 list<Literal*> & actionEffectsList = (pass ? (*actionsToEndNegativeEffects)[currAchievedBy.first] : (*actionsToEndEffects)[currAchievedBy.first]);
                                 list<Literal*>::iterator aelItr = actionEffectsList.begin();
                                 const list<Literal*>::iterator aelEnd = actionEffectsList.end();
-                                
+
                                 for (; aelItr != aelEnd; ++aelItr) {
                                     map<int, EpsilonResolutionTimestamp>::iterator cgItr = currGAL.find((*aelItr)->getStateID());
                                     if (cgItr != currGAL.end()) {
@@ -7991,7 +7991,7 @@ public:
                                     }
                                 }
                             }
-                            
+
                             bool isHelpful = true;
 
                             {
@@ -8007,9 +8007,9 @@ public:
 
                                     EpsilonResolutionTimestamp acIn(EpsilonResolutionTimestamp::undefined());
                                     pair<int, Planner::time_spec> acBy;
-                                    
+
                                     getAchieverDetails(currPrec, currTS - EpsilonResolutionTimestamp::epsilon(), acIn, acBy);
-                                    
+
                                     if (acIn > EpsilonResolutionTimestamp::zero()) {
                                         if (acBy.first != -1) {
                                             map<int, EpsilonResolutionTimestamp>::iterator galItr = goalsAtLayer[acIn].propositionalGoals.insert(pair<int, EpsilonResolutionTimestamp>(currPrec, tilR)).first;
@@ -8030,7 +8030,7 @@ public:
                                 if (evaluateDebug) cout << "\t\tPreconditions done\n";
 
                                 int addToThePast = saItr->howManyTimes;
-                                
+
                                 {
                                     map<int, set<int> >::const_iterator saItr = payload->startState.startedActions.find(currAchievedBy.first);
                                     if (saItr != payload->startState.startedActions.end()) {
@@ -8063,7 +8063,7 @@ public:
                                         if (evaluateDebug) cout << "\t\tAdding requirement for numeric precondition " << currPrec << " at time " << acIn << "\n";
                                         payload->fluentLayers.requestNumericPrecondition(currPrec, acIn, currTS, goalsAtLayer, tilR);
                                         isHelpful = false;
-                                        
+
                                     } else {
                                         if (evaluateDebug) cout << "\t\tNumeric precondition " << currPrec << " satisfied in initial state\n";
                                     }
@@ -8072,7 +8072,7 @@ public:
 
 
                             }
-                            
+
                             addExtraPreconditionsForPreferences(payload, currAchievedBy.first, Planner::E_AT_END, currTS - EpsilonResolutionTimestamp::epsilon(), tilR, goalsAtLayer);
 
                             if (evaluateDebug) cout << "\t\tPreconditions done.\n";
@@ -8088,15 +8088,15 @@ public:
                         }
 
                     }
-                    
+
                 }
 
             }
-            
+
             for (int galPass = 0; galPass < 2; ++galPass) {
-                
+
                 map<int, EpsilonResolutionTimestamp> & currSupportingGAL = (galPass ? currNegativeGAL : currPositiveGAL);
-                                
+
                 if (currSupportingGAL.empty()) {
                     continue;
                 }
@@ -8114,17 +8114,17 @@ public:
                         cout << "Finding achievers for " << currSupportingGAL.size() << " goal(s) at TS " << currTS << "\n";
                     }
                 }
-                
+
                 while (!currSupportingGAL.empty()) {
                     const map<int, EpsilonResolutionTimestamp>::iterator nta = currSupportingGAL.begin();
                     const int nextToAchieve = nta->first;
                     EpsilonResolutionTimestamp tilR = nta->second;
                     currSupportingGAL.erase(nta);
                     if (evaluateDebug) cout << "\tGoal " << nextToAchieve << ", " << *(RPGBuilder::getLiteral(nextToAchieve)) << "\n";
-                    
+
                     EpsilonResolutionTimestamp layerIgnore(EpsilonResolutionTimestamp::undefined());
                     pair<int, Planner::time_spec> currAchievedBy;
-                    
+
                     if (galPass) {
                         layerIgnore = (*negativeAchievedInLayer)[nextToAchieve];
                         currAchievedBy = (*negativeAchievedBy)[nextToAchieve];
@@ -8132,8 +8132,8 @@ public:
                         getAchieverDetails(nextToAchieve, currTS/* + EpsilonResolutionTimestamp::epsilon()*/, layerIgnore, currAchievedBy);
                         assert(sensiblePair(payload, currAchievedBy, nextToAchieve));
                     }
-                    
-                    
+
+
 
                     if (currAchievedBy.second == Planner::E_AT_START) {
                         if (evaluateDebug) cout << "\t\tUsing start of " << currAchievedBy.first << " - " << *(RPGBuilder::getInstantiatedOp(currAchievedBy.first)) << " at " << layerIgnore << "\n";
@@ -8145,7 +8145,7 @@ public:
                             payload->dot.highlightAction(currAchievedBy.first, Planner::E_AT_START);
                             payload->dot.actionMeetsFactInRP(currAchievedBy.first, Planner::E_AT_START, nextToAchieve);
                         }
-                        
+
                         const EpsilonResolutionTimestamp sTIL = earliestTILForAction(currAchievedBy.first, true);
                         if (tilR > sTIL) tilR = sTIL;
     //                  if (currTS == EPSILON) {
@@ -8156,7 +8156,7 @@ public:
                         for (int pass = galPass; pass < 2; ++pass) {
                             list<Literal*> & actionEffectsList = (pass ? (*actionsToStartNegativeEffects)[currAchievedBy.first] : (*actionsToStartEffects)[currAchievedBy.first]);
                             map<int, EpsilonResolutionTimestamp> & currGAL = (pass ? currNegativeGAL : currPositiveGAL);
-                            
+
                             list<Literal*>::iterator aelItr = actionEffectsList.begin();
                             const list<Literal*>::iterator aelEnd = actionEffectsList.end();
 
@@ -8179,17 +8179,17 @@ public:
                             for (; aplItr != aplEnd; ++aplItr) {
 
                                 const int currPrec = (*aplItr)->getStateID();
-                                
+
                                 if (evaluateDebug) {
                                     cout << "\t\tPrecondition " << currPrec << ", " << *(*aplItr) << ": ";
                                     cout.flush();
                                 }
-                                
+
                                 EpsilonResolutionTimestamp acIn(EpsilonResolutionTimestamp::undefined());
                                 pair<int, Planner::time_spec> acBy;
-                                
+
                                 getAchieverDetails(currPrec, currTS - EpsilonResolutionTimestamp::epsilon(), acIn, acBy);
-                                
+
                                 if (acIn > EpsilonResolutionTimestamp::zero()) {
                                     if (acBy.first != -1) {
                                         map<int, EpsilonResolutionTimestamp>::iterator galItr = goalsAtLayer[acIn].propositionalGoals.insert(pair<int, EpsilonResolutionTimestamp>(currPrec, tilR)).first;
@@ -8223,7 +8223,7 @@ public:
                                 const EpsilonResolutionTimestamp & acIn = (*numericAchievedInLayer)[currPrec];
                                 if (acIn > EpsilonResolutionTimestamp::zero() && !numericIsTrueInState[currPrec]) {
                                     if (evaluateDebug) cout << "\t\tAdding requirement for numeric precondition " << currPrec << " at time " << acIn << "\n";
-                                    
+
                                     payload->fluentLayers.requestNumericPrecondition(currPrec, acIn, currTS - EpsilonResolutionTimestamp::epsilon(), goalsAtLayer, tilR);
                                     isHelpful = false;
                                 } else {
@@ -8233,12 +8233,12 @@ public:
                             }
 
                             payload->fluentLayers.recordSideEffects(currAchievedBy.first, currAchievedBy.second, currTS - EpsilonResolutionTimestamp::epsilon());
-                            
+
                         }
-                                                                     
-                                                                     
+
+
                         addExtraPreconditionsForPreferences(payload, currAchievedBy.first, Planner::E_AT_START, currTS - EpsilonResolutionTimestamp::epsilon(), tilR, goalsAtLayer);
-                        
+
                         if (evaluateDebug) cout << "\t\tPreconditions done.\n";
 
                         if (isHelpful) {
@@ -8252,13 +8252,13 @@ public:
 
                     } else if (currAchievedBy.second == Planner::E_AT_END) {
                         if (evaluateDebug) cout << "\t\tUsing end of " << currAchievedBy.first << " - " << *(RPGBuilder::getInstantiatedOp(currAchievedBy.first)) << endl;
-                        
+
                         if (RPGHeuristic::printRPGAsDot) {
                             payload->dot.highlightAction(currAchievedBy.first, Planner::E_AT_END);
                             payload->dot.actionMeetsFactInRP(currAchievedBy.first, Planner::E_AT_END, nextToAchieve);
                         }
-                                                            
-                        
+
+
                         if (evaluateDebug && currTS == EpsilonResolutionTimestamp::epsilon()) cout << "\t\tIs a helpful action\n";
                         relaxedPlan.front().second.push_back(ActionSegment(getOp(currAchievedBy.first), Planner::E_AT_END, -1, emptyIntList));
     //                  if (currTS == EPSILON) {
@@ -8271,10 +8271,10 @@ public:
 
 
                         for (int pass = galPass; pass < 2; ++pass) {
-                            
+
                             list<Literal*> & actionEffectsList = (pass ? (*actionsToEndNegativeEffects)[currAchievedBy.first] : (*actionsToEndEffects)[currAchievedBy.first]);
                             map<int, EpsilonResolutionTimestamp> & currGAL = (pass ? currNegativeGAL : currPositiveGAL);
-                            
+
                             list<Literal*>::iterator aelItr = actionEffectsList.begin();
                             const list<Literal*>::iterator aelEnd = actionEffectsList.end();
 
@@ -8300,9 +8300,9 @@ public:
                                 const int currPrec = (*aplItr)->getStateID();
                                 EpsilonResolutionTimestamp acIn(EpsilonResolutionTimestamp::undefined());
                                 pair<int, Planner::time_spec> acBy;
-                                
+
                                 getAchieverDetails(currPrec, currTS - EpsilonResolutionTimestamp::epsilon(), acIn, acBy);
-                                
+
                                 if (acIn > EpsilonResolutionTimestamp::zero()) {
                                     if (acBy.first != -1) {
                                         map<int, EpsilonResolutionTimestamp>::iterator galItr = goalsAtLayer[acIn].propositionalGoals.insert(pair<int, EpsilonResolutionTimestamp>(currPrec, tilR)).first;
@@ -8354,7 +8354,7 @@ public:
                                 const EpsilonResolutionTimestamp & acIn = (*numericAchievedInLayer)[currPrec];
                                 if (acIn > EpsilonResolutionTimestamp::zero() && !numericIsTrueInState[currPrec]) {
                                     if (evaluateDebug) cout << "\t\tAdding requirement for numeric precondition " << currPrec << " at time " << acIn << "\n";
-                                    
+
                                     payload->fluentLayers.requestNumericPrecondition(currPrec, acIn, currTS - EpsilonResolutionTimestamp::epsilon(), goalsAtLayer, tilR);
                                 } else {
                                     if (evaluateDebug) cout << "\t\tNumeric precondition " << currPrec << " satisfied in initial state\n";
@@ -8362,7 +8362,7 @@ public:
 
                             }
 
-                            payload->fluentLayers.recordSideEffects(currAchievedBy.first,  currAchievedBy.second, currTS - EpsilonResolutionTimestamp::epsilon());                            
+                            payload->fluentLayers.recordSideEffects(currAchievedBy.first,  currAchievedBy.second, currTS - EpsilonResolutionTimestamp::epsilon());
 
                         }
 
@@ -8385,18 +8385,18 @@ public:
     //                      helpfulActions.push_back(currAchievedBy);
     //                  }
                         earliestTIL = currAchievedBy;
-                        
+
                         if (latestTIL < currAchievedBy.first) {
                             latestTIL = currAchievedBy.first;
                         }
 
                         //relaxedPlan.front().second.push_back(ActionSegment(0, Planner::E_AT, currAchievedBy.first, emptyIntList));
                         ++h;
-                        
+
                         for (int pass = galPass; pass < 2; ++pass) {
                             const list<int> & tilEffectsList = (pass ? tilTemporaryNegativeEffects[currAchievedBy.first] : tilEffects[currAchievedBy.first]);
                             map<int, EpsilonResolutionTimestamp> & currGAL = (pass ? currNegativeGAL : currPositiveGAL);
-                            
+
                             list<int>::const_iterator aelItr = tilEffectsList.begin();
                             const list<int>::const_iterator aelEnd = tilEffectsList.end();
 
@@ -8404,48 +8404,48 @@ public:
                                 currGAL.erase(*aelItr);
                             }
                         }
-                        
+
                         addExtraPreconditionsForPreferences(payload, currAchievedBy.first, Planner::E_AT, currTS - EpsilonResolutionTimestamp::epsilon(), tilR, goalsAtLayer);
 
                     }
 
                 }
 
-            }                        
+            }
             if (evaluateDebug) cout << "All goals at this TS now satisfied\n";
-                                        
+
             goalsAtLayer.erase(currTS);
         }
-        
+
         /*if (latestTIL > earliestTIL.first) {
             h += latestTIL - earliestTIL.first;
         }*/
     }
-    
+
     /** @brief Add the numeric effects of an action to the RPG.
-     * 
+     *
      * @param payload  The data describing the RPG currently being built
-     * @param currAct  The action ID to apply     
+     * @param currAct  The action ID to apply
      * @param currTS   The time specifier of the action: <code>Planner::E_AT_START</code> or <code>Planner::E_AT_END</code>
      * @param nlTime   The fact layer altered by the consequences of its effects
      * @param limitTo  A limit on how many times the action can be applied
      *
      * @return <code>true</code> if adding the action led to all goals being achieved; <code>false</code> otherwise.
-     */                
+     */
     bool applyNumericEffects(Private::BuildingPayload * const payload, const int & currAct, const Planner::time_spec & currTS, const EpsilonResolutionTimestamp & nlTime, const int & limitTo);
-    
-    
+
+
     /** @brief Add the propositional effects of an action to the RPG
-     * 
+     *
      * @param payload  The data describing the RPG currently being built
-     * @param currAct  The action ID to apply     
+     * @param currAct  The action ID to apply
      * @param currTS   The time specifier of the action: <code>Planner::E_AT_START</code> or <code>Planner::E_AT_END</code>
      * @param prefCosts  The preference violations incurred if the action is used at the current layer
      * @param nlTime   The fact layer altered by the consequences of its effects
      * @param POtime   Data to support use of the partial-order modified heuristic.
      *
      * @return <code>true</code> if adding the action led to all goals being achieved; <code>false</code> otherwise.
-     */                
+     */
     bool applyPropositionalEffects(Private::BuildingPayload * const payload,
                                    const int & currAct, const Planner::time_spec & currTS, const ActionViolationData & prefCosts,
                                    const bool & openEnd, const EpsilonResolutionTimestamp & nlTime);//, MaxDependentInfo & POtime);
@@ -8456,16 +8456,16 @@ public:
     bool updateActionsForNewNumericFact(BuildingPayload * const payload, const int & toPropagate, const EpsilonResolutionTimestamp & factLayerTime);
     bool applyEndEffectNow(BuildingPayload * const payload, const int & currAct, const bool & openAct, const EpsilonResolutionTimestamp & factLayerTime, const bool & isActuallyNew);
 
-    
+
     bool revisitActs(BuildingPayload * payload, const EpsilonResolutionTimestamp & factLayerTime, const list<pair<int, Planner::time_spec> > & actsToVisit);
-    bool updatePreferencesForFact(BuildingPayload * const payload, const int & fID, const bool & isALiteral, const bool & polarity, const bool & isActuallyNew, const EpsilonResolutionTimestamp & factLayerTime);    
+    bool updatePreferencesForFact(BuildingPayload * const payload, const int & fID, const bool & isALiteral, const bool & polarity, const bool & isActuallyNew, const EpsilonResolutionTimestamp & factLayerTime);
     bool updateForPreferencesInBetterPositions(BuildingPayload * const payload, const list<pair<int, int> > & preferencePairedWithFactNowFreeToAdd, const EpsilonResolutionTimestamp & factLayerTime);
-    
+
 #ifdef POPF3ANALYSIS
     void calculateGoalCost(BuildingPayload * const payload, double * calculatedCost=0);
     void updateAdditiveCosts(BuildingPayload * const payload, const int & ci, const EpsilonResolutionTimestamp & deadline, const int & updateForGoal, double & costToUpdate);
 #endif
-    
+
     bool startShouldBeDelayed(const int & currAct, const EpsilonResolutionTimestamp & factLayerTime, BuildingPayload * const payload);
 };
 
@@ -8497,9 +8497,9 @@ vector<vector<set<int> > > RPGHeuristic::Private::actionsAffectedByFluent;
 
 #ifdef POPF3ANALYSIS
 vector<vector<double> > RPGHeuristic::Private::startEffectsOnResourceLimits;
-vector<vector<double> > RPGHeuristic::Private::endEffectsOnResourceLimits;    
+vector<vector<double> > RPGHeuristic::Private::endEffectsOnResourceLimits;
 vector<vector<double> > RPGHeuristic::Private::dynamicStartEffectsOnResourceLimits;
-vector<vector<double> > RPGHeuristic::Private::dynamicEndEffectsOnResourceLimits;    
+vector<vector<double> > RPGHeuristic::Private::dynamicEndEffectsOnResourceLimits;
 
 vector<bool> RPGHeuristic::Private::costsAreIndependentGoalCosts;
 vector<vector<double> > RPGHeuristic::Private::maxPermissibleCostOfAFact;
@@ -8533,38 +8533,38 @@ void RPGHeuristic::doFullExpansion(MinimalState & refState, const list<FFEvent> 
     list<ActionSegment> dummyHelpful;
     list<pair<double, list<ActionSegment> > > dummyRP;
     vector<double> minTimestamps(dummyPlan.size(), 0.0);
-    
+
     list<FFEvent>::const_iterator pItr = dummyPlan.begin();
     const list<FFEvent>::const_iterator pEnd = dummyPlan.end();
-    
+
     for (int p = 0; pItr != pEnd; ++pItr, ++p) {
         minTimestamps[p] = pItr->lpMinTimestamp;
         if (minTimestamps[p] < 0.0) {
             minTimestamps[p] = 0.0;
         }
     }
-    
+
     double dummyEstimate;
     d->buildEmptyActionFluentLookupTable();
-    
+
     const bool wasBlind = blindSearch;
     const bool wasNoNumbers = ignoreNumbers;
-    
+
     d->expandFully = true;
     blindSearch = false;
     ignoreNumbers = false;
-    
+
     vector<double> timeAtWhichValueIsDefined(refState.secondMin.size(),0.0);
 
     {
-        refState.preferenceStatus = PreferenceHandler::getInitialAutomataPositions();    
+        refState.preferenceStatus = PreferenceHandler::getInitialAutomataPositions();
         refState.prefPreconditionViolations = 0.0;
     }
-    
-    
+
+
     delete getRelaxedPlan(refState, 0, minTimestamps, 0.0, -DBL_MAX, refState.secondMin, refState.secondMax, timeAtWhichValueIsDefined, dummyHelpful, dummyRP, dummyEstimate);
-    
-    d->expandFully = false;    
+
+    d->expandFully = false;
     blindSearch = wasBlind;
     ignoreNumbers = wasNoNumbers;
 }
@@ -8598,7 +8598,7 @@ RPGHeuristic::RPGHeuristic(const bool & b,
                            vector<EpsilonResolutionTimestamp> * negail,
                            vector<EpsilonResolutionTimestamp> * negailr,
                            vector<pair<int, Planner::time_spec> > * negab,
-                           vector<pair<int, Planner::time_spec> > * negabr,                    
+                           vector<pair<int, Planner::time_spec> > * negabr,
                            vector<EpsilonResolutionTimestamp> * nail,
                            vector<EpsilonResolutionTimestamp> * nailr,
                            vector<ActionFluentModification*> * nab,
@@ -8664,9 +8664,9 @@ RPGHeuristic::RPGHeuristic(const bool & b,
 {
 
     {
-        
+
         d->literalGoalVector.resize(RPGBuilder::getLiteralGoals().size(), (Literal*) 0);
-        
+
         list<Literal*>::iterator gsItr = RPGBuilder::getLiteralGoals().begin();
         const list<Literal*>::iterator gsEnd = RPGBuilder::getLiteralGoals().end();
 
@@ -8806,13 +8806,13 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
     const bool prefDebug = Globals::globalVerbosity & 32768 || PreferenceHandler::preferenceDebug;
 
     d->setDebugFlag(evaluateDebug);
-    
+
     if (!d->expandFully) {
         ++statesEvaluated;
     }
-    
 
-        
+
+
 //    const int vCount = theState.secondMin.size();
 //    const int avCount = RPGBuilder::getAVCount();
 
@@ -8824,17 +8824,17 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
 
 //  startedActionExtraEndPreconditions.clear();
 
-    
+
     d->populateActionFluentLookupTable();
 
     if (evaluateDebug) cout << "Evaluating a state with " << theState.startedActions.size() << " sorts of actions on the go\n";
 
     //rpprintState(theState);
 
-    auto_ptr<Private::BuildingPayload> payload(d->spawnNewPayload(theState, costLimit, startEventQueue, minTimestamps, stateTS, helpfulActions));
+    unique_ptr<Private::BuildingPayload> payload(d->spawnNewPayload(theState, costLimit, startEventQueue, minTimestamps, stateTS, helpfulActions));
 
     map<double, list<DelayedGradientDescriptor> > delayedGradients;
-    
+
     d->giveUsTheEffectsOfExecutingActions(payload.get(), timeAtWhichValueIsDefined, delayedGradients);
 
     /*if (evaluateDebug || eeDebug) {
@@ -8858,7 +8858,7 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
     if (realGoalsSatisfied) {
         cout << "(G)"; cout.flush();
     }
-    
+
     if (evaluateDebug) {
         cout << "Goals unsatisfied in initial state: " << payload->unsatisfiedGoals << "\n";
         cout << "Ends not appeared so far: " << payload->unappearedEnds << "\n";
@@ -8866,7 +8866,7 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
 
     const double currentPreferenceCost = PreferenceHandler::getCurrentCost(theState);
     const double reachablePreferenceCost = PreferenceHandler::getReachableCost(theState);
-    
+
     if (RPGBuilder::getMetric()) {
         if (RPGBuilder::getMetric()->minimise) {
             if (currentPreferenceCost - reachablePreferenceCost >= 0.0001) {
@@ -8904,11 +8904,11 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
         ++payload->unsatisfiedGoals;
     }
 
-    
-    
+
+
     payload->rpgGoalPrefViolation = currentPreferenceCost;
     payload->goalPrefViolationAtLastLayer = currentPreferenceCost;
-    
+
     if ((!payload->unsatisfiedGoals && !payload->unappearedEnds) || blindSearch) {
         if (evaluateDebug) {
             if (blindSearch) {
@@ -8920,16 +8920,16 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
         const int fakeH = (!payload->unsatisfiedGoals && !payload->unappearedEnds ? 0 : 1);
         if (RPGBuilder::getMetric() && Globals::optimiseSolutionQuality) {
             if (NumericAnalysis::theMetricIsMonotonicallyWorsening()) {
-                
+
                 double admissibleCost = reachablePreferenceCost/* + definiteWithinCost*/ + RPGBuilder::getMetric()->constant;
-                        
+
                 const int pneCount = RPGBuilder::getPNECount();
                 list<int>::const_iterator vItr = RPGBuilder::getMetric()->variables.begin();
                 const list<int>::const_iterator vEnd = RPGBuilder::getMetric()->variables.end();
-                
+
                 list<double>::const_iterator wItr = RPGBuilder::getMetric()->weights.begin();
                 const list<double>::const_iterator wEnd = RPGBuilder::getMetric()->weights.end();
-                
+
                 for (; wItr != wEnd; ++wItr, ++vItr) {
                     if (*vItr < 0) {
                         if (*wItr < 0.0) {
@@ -8944,8 +8944,8 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
                     } else {
                         const double value = -payload->startState.secondMax[*vItr];
                         admissibleCost += value * *wItr;
-                    }        
-                }           
+                    }
+                }
                 if (evaluateDebug) {
                     cout << "Returned admissible cost = " << admissibleCost << endl;
                 }
@@ -8954,22 +8954,22 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
                 return new EvaluationInfo(fakeH,std::numeric_limits< double >::signaling_NaN(),!payload->unsatisfiedGoals && !payload->unappearedEnds);
             }
         }
-    
-        return new EvaluationInfo(fakeH,reachablePreferenceCost,!payload->unsatisfiedGoals && !payload->unappearedEnds);
-    }                    
 
-    
+        return new EvaluationInfo(fakeH,reachablePreferenceCost,!payload->unsatisfiedGoals && !payload->unappearedEnds);
+    }
+
+
     d->initPrefCosts();
-    
+
     d->resetAchievedBy(payload.get());
     d->setInitialNegativePreconditionsOfPreferences(payload.get());
-    d->recordFactLayerZero(payload.get());    
+    d->recordFactLayerZero(payload.get());
     d->performTILInitialisation();
 
     d->initialiseLatestArrays();
 
     d->addTemporalConstraintsFromActiveActions(payload.get());
-    
+
     if (RPGBuilder::modifiedRPG) {
         d->delayOpenEndsUntilTheirPOPositions(payload.get());
     }
@@ -8998,7 +8998,7 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
         if (!RPGBuilder::modifiedRPG && RPGBuilder::sortedExpansion) {
 
             map<double, list<int> > expansionOrder;
-                        
+
             StateFacts::const_iterator stateItr = theState.first.begin();
             const StateFacts::const_iterator stateEnd = theState.first.end();
 
@@ -9023,9 +9023,9 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
             }
 
 
-        } else {            
+        } else {
             if (evaluateDebug) cout << "Considering " << theState.first.size() << " initial propositional facts\n";
-            
+
             if (!RPGBuilder::getPreferences().empty()) {
                 StateFacts::const_iterator stateItr = theState.first.begin();
                 const StateFacts::const_iterator stateEnd = theState.first.end();
@@ -9044,14 +9044,14 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
                     #endif
                     if (layer.isZero()) {
                         if (evaluateDebug) cout << "Updating preferences from fact " << factID << ", " << *(RPGBuilder::getLiteral(factID)) << endl;
-                        if (d->updatePreferencesForFact(payload.get(), factID, true, true, true, layer)) break;                    
+                        if (d->updatePreferencesForFact(payload.get(), factID, true, true, true, layer)) break;
                     } else {
                         if (evaluateDebug) cout << "Modified RPG: Not updating preferences from fact " << factID << " until " << layer << "\n";
                     }
                 }
 
             }
-            
+
             {
                 StateFacts::const_iterator stateItr = theState.first.begin();
                 const StateFacts::const_iterator stateEnd = theState.first.end();
@@ -9083,19 +9083,19 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
                     }
                 }
             }
-            
+
         }
 
     }
 
-    if (payload->unsatisfiedGoals || payload->unappearedEnds) {       
+    if (payload->unsatisfiedGoals || payload->unappearedEnds) {
         const int loopLim = d->rpgNumericPreconditions->size();
 
         if (loopLim) {
             if (evaluateDebug) cout << "Considering initial numeric facts\n";
-            
+
             const vector<double> * const maxFluentTable = &(payload->fluentLayers.borrowFactLayerZeroValues());
-            
+
             if (!RPGBuilder::getPreferences().empty()) {
                 for (int i = 0; i < loopLim; ++i) {
                     RPGBuilder::RPGNumericPrecondition & currPre = (*(d->rpgNumericPreconditions))[i];
@@ -9116,9 +9116,9 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
                     }
                 }
 
-            
+
             }
-            
+
             {
                 for (int i = 0; i < loopLim; ++i) {
                     RPGBuilder::RPGNumericPrecondition & currPre = (*(d->rpgNumericPreconditions))[i];
@@ -9130,7 +9130,7 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
                             }
                             if (evaluateDebug) {
                                 cout << "Updating from numeric fact " << i << ":  " << (*(d->rpgNumericPreconditions))[i];
-                                cout << "; was achieved in the initial state\n";                            
+                                cout << "; was achieved in the initial state\n";
                             }
                             if (d->updateActionsForNewNumericFact(payload.get(), i, EpsilonResolutionTimestamp::zero())) {
                                 break;
@@ -9145,81 +9145,81 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
                     }
                 }
             }
-                        
+
         }
-        
-        
+
+
         {
-        
+
             list<int>::const_iterator procItr = d->backgroundProcesses.begin();
             const list<int>::const_iterator procEnd = d->backgroundProcesses.end();
-            
+
             for (; procItr != procEnd; ++procItr) {
-                
+
                 const int currAct = *procItr;
 
                 const RPGBuilder::LinearEffects* currLD = RPGBuilder::getLinearDiscretisation()[currAct];
-                
+
                 assert(currLD);
-                
+
                 const vector<int> & varList = currLD->vars;
                 const vector<RPGBuilder::LinearEffects::EffectExpression> & changeList = currLD->effects[0];
-                
+
                 const int effCount = varList.size();
-                
+
                 for (int e = 0; e < effCount; ++e) {
-                    DelayedGradientDescriptor proc(currAct, Planner::E_AT_START, DBL_MAX, make_pair(varList[e], changeList[e].constant));                
+                    DelayedGradientDescriptor proc(currAct, Planner::E_AT_START, DBL_MAX, make_pair(varList[e], changeList[e].constant));
                     payload->fluentLayers.recordGradientNumericEffect(proc, EpsilonResolutionTimestamp::epsilon(), proc.gradientEffect, payload->factLayers);
                 }
-                
-                
-                
+
+
+
             }
-            
+
         }
-    
-        
+
+
         if (!delayedGradients.empty()) {
             d->addDelayedGradientEffects(payload.get(), delayedGradients);
         }
-                    
-        
+
+
         list<int> newNumericPreconditions;
-        
+
         payload->fluentLayers.applyRecentlyRecordedEffects(*(d->numericAchievedInLayer), newNumericPreconditions, d->maxNeeded);
-        
+
         if (!newNumericPreconditions.empty()) {
             list<int>::const_iterator npItr = newNumericPreconditions.begin();
             const list<int>::const_iterator npEnd = newNumericPreconditions.end();
-            
+
             for (; npItr != npEnd; ++npItr) {
                 if (d->goalFluents.find(*npItr) != d->gfEnd) {
                     --(payload->unsatisfiedGoals);
                 }
             }
-                            
+
             if (payload->unsatisfiedGoals || payload->unappearedEnds) {
                 if (RPGBuilder::modifiedRPG) {
-                    
+
                     list<int>::const_iterator preID = newNumericPreconditions.begin();
                     const list<int>::const_iterator preIDEnd = newNumericPreconditions.end();
-                    
+
                     for (; preID != preIDEnd; ++preID) {
                         const EpsilonResolutionTimestamp earliestPOPoint = earliestPointForNumericPrecondition(RPGBuilder::getNumericPreTable()[*preID], &(d->earliestNumericPOTimes));
                         if (earliestPOPoint > EpsilonResolutionTimestamp::epsilon()) {
                             payload->factLayers[earliestPOPoint].second.push_back(*preID);
                             if (printRPGAsDot) {
                                 payload->dot.addNumericFactNode(earliestPOPoint.toDouble(), *preID);
-                            }                            
+                            }
                         } else {
                             payload->factLayers[EpsilonResolutionTimestamp::epsilon()].second.push_back(*preID);
                             if (printRPGAsDot) {
                                 payload->dot.addNumericFactNode(EpsilonResolutionTimestamp::epsilon().toDouble(), *preID);
                             }
-                            
+
                         }
                     }
-                    
+
                 } else {
                     list<int> & dest = payload->factLayers[EpsilonResolutionTimestamp::epsilon()].second;
                     dest.insert(dest.end(), newNumericPreconditions.begin(), newNumericPreconditions.end());
@@ -9239,15 +9239,15 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
             if (evaluateDebug || prefDebug) {
                 cout << "All remaining goals are fake\n";
             }
-            
+
             assert(RPGBuilder::getMetric());
-            
+
             const bool prefsPreviouslyRemaining = (RPGBuilder::getMetric()->minimise ? (payload->goalPrefViolationAtLastLayer - reachablePreferenceCost >= 0.0001)
                                                                                      : (payload->goalPrefViolationAtLastLayer - reachablePreferenceCost <= -0.0001));
-            
+
             payload->goalPrefViolationAtLastLayer = payload->rpgGoalPrefViolation;
-               
-            if (prefsPreviouslyRemaining) {                
+
+            if (prefsPreviouslyRemaining) {
                 if (RPGBuilder::getMetric()->minimise ? (payload->goalPrefViolationAtLastLayer - reachablePreferenceCost < 0.0001)
                                                       : (payload->goalPrefViolationAtLastLayer - reachablePreferenceCost > -0.0001)) {
                     if (prefDebug) {
@@ -9257,7 +9257,7 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
                     --payload->unsatisfiedGoals;
                 }
             }
-            
+
         }
     }
 
@@ -9266,34 +9266,34 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
 #endif
 
     NextFactLayer nextHappening;
-    
+
     vector<EpsilonResolutionTimestamp> earliestRelevanceOfGoal(RPGBuilder::getLiteralGoals().size(), EpsilonResolutionTimestamp::infinite());
-    
+
     if (payload->unsatisfiedGoals || payload->unappearedEnds) {
-        
+
 #ifdef POPF3ANALYSIS
         {
-            
+
             const list<Literal*> & literalGoals = RPGBuilder::getLiteralGoals();
             const list<double> & literalGoalDeadlines = RPGBuilder::getLiteralGoalDeadlines();
 
             //earliestRelevanceOfGoal.resize(literalGoals.size(), EpsilonResolutionTimestamp::infinite());
-                                    
-            list<Literal*>::const_iterator gItr = literalGoals.begin();        
+
+            list<Literal*>::const_iterator gItr = literalGoals.begin();
             const list<Literal*>::const_iterator gEnd = literalGoals.end();
-            
+
             list<double>::const_iterator gdItr = literalGoalDeadlines.begin();
-            
-            int gID = 0;            
-            
+
+            int gID = 0;
+
             for (int fID; gItr != gEnd; ++gItr, ++gdItr, ++gID) {
-                
+
                 if (RPGBuilder::isStatic(*gItr).first) {
                     continue;
                 }
-                
+
                 fID = (*gItr)->getStateID();
-                          
+
                 if (theState.first.find(fID) != theState.first.end()) {
                     continue;
                 }
@@ -9301,88 +9301,88 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
                 if (*gdItr != DBL_MAX) {
                     payload->factLayers[EpsilonResolutionTimestamp(*gdItr,true)].literalGoalsWeMustHaveByNow.push_back(fID);
                     earliestRelevanceOfGoal[gID] = EpsilonResolutionTimestamp(*gdItr,true);
-                    
+
                     if (deadline2Debug) {
                         cout << "Must have " << *(*gItr) << " by " << *gdItr << endl;
                     }
                 }
-                
-                
-            
-                
+
+
+
+
             }
-            
+
             map<EpsilonResolutionTimestamp, list<int> >::const_iterator costItr = payload->becomesUnreachableAtLayer.begin();
             const map<EpsilonResolutionTimestamp, list<int> >::const_iterator costEnd = payload->becomesUnreachableAtLayer.end();
-            
+
             for (; costItr != costEnd; ++costItr) {
 
                 payload->factLayers[costItr->first].preferenceUnreachableIfNotSatisfiedByNow = costItr->second;
-                
+
 //                 if (RPGBuilder::getTILs().empty()) { // if all deadlines are soft
 //                     if (costItr->first < earliestRelevanceOfGoal[gID]) {
 //                         earliestRelevanceOfGoal[gID] = costItr->first;
 //                     }
 //                 }
-                
+
             }
-            
+
         }
-        
-        
+
+
         {
-         
+
             const list<pair<int,int> > & numericGoals = RPGBuilder::getNumericRPGGoals();
             const list<double> & numericGoalDeadlines = RPGBuilder::getNumericRPGGoalDeadlines();
-            
+
             const vector<double> * const maxFluentTable = &(payload->fluentLayers.borrowFactLayerZeroValues());
-            
+
             list<pair<int,int> >::const_iterator gItr = numericGoals.begin();
             const list<pair<int,int> >::const_iterator gEnd = numericGoals.end();
-            
+
             list<double>::const_iterator gdItr = numericGoalDeadlines.begin();
-            
+
             for (int fID; gItr != gEnd; ++gItr, ++gdItr) {
-                
+
                 for (int ipass = 0; ipass < 2; ++ipass) {
                     fID = (ipass ? gItr->second : gItr->first);
-                    
+
                     if (fID < 0) continue;
-                    
+
                     if (*gdItr == DBL_MAX) {
                         continue;
-                    }                    
-                    
+                    }
+
                     const RPGBuilder::RPGNumericPrecondition & currPre = RPGBuilder::getNumericPreTable()[fID];
 
                     if (!ignoreNumbers && !currPre.isSatisfied(*maxFluentTable)) {
 
                         payload->factLayers[EpsilonResolutionTimestamp(*gdItr,true)].numericGoalsWeMustHaveByNow.push_back(fID);
-                        
+
                         if (deadline2Debug) {
                             cout << "Must have " << currPre << " by " << *gdItr << endl;
                         }
                     }
                 }
-                
+
             }
         }
 
 #endif
-        
+
         payload->nextThingToVisit(EpsilonResolutionTimestamp::zero(), nextHappening);
     } else {
         #ifdef POPF3ANALYSIS
         payload->tooExpensive = false;
         #endif
     }
-    
+
     #ifdef POPF3ANALYSIS
     const bool breakOnGoalsAndEnds = NumericAnalysis::getGoalNumericUsageLimits().empty();
     #else
     const bool breakOnGoalsAndEnds = true;
     #endif
-    
+
     #ifdef POPF3ANALYSIS
     bool failedToMeetDeadline = false;
     #endif
@@ -9394,27 +9394,27 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
             cout << "Expanding RPG forwards, next happening: " << nextHappening.timestamp << "\n";
         }
 
-        #ifdef STOCHASTICDURATIONS        
+        #ifdef STOCHASTICDURATIONS
         if (nextHappening.timestamp.toDouble() > solutionDeadlineTime + (EPSILON / 2)) {
             break;
-        }        
+        }
         #endif
 
         {
-            // make sure the fluent layer just before the actions that are about to appear exists            
+            // make sure the fluent layer just before the actions that are about to appear exists
             payload->fluentLayers.createThenIgnore(nextHappening.timestamp);
         }
-        
+
         if (nextHappening.revisitInstantaneousNumericEffects) {
             payload->fluentLayers.recordEffectsThatAreNowToBeRevisited(payload->factLayers);
         }
-        
+
         if (nextHappening.gradientsCauseFactsToBecomeTrue) {
             payload->fluentLayers.recordConsequencesOfActiveGradients(nextHappening.timestamp + EpsilonResolutionTimestamp::epsilon());
         }
 
          if (nextHappening.newFactsAtThisTime != payload->factLayers.end() && !RPGBuilder::getPreferences().empty()) {
-            
+
             const map<EpsilonResolutionTimestamp, FactLayerEntry>::iterator currFactLayerItr = nextHappening.newFactsAtThisTime;
             if (evaluateDebug) cout << "FACT LAYER UPDATING PREFERENCES AT TIME " << currFactLayerItr->first << "\n";
 
@@ -9427,33 +9427,33 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
 
                 for (; stateItr != stateEnd; ++stateItr) {
                     if (evaluateDebug) cout << "Updating preferences from fact " << *stateItr << ", " << *(RPGBuilder::getLiteral(*stateItr)) << endl;
-                    if (d->updatePreferencesForFact(payload.get(), *stateItr, true, true, true, cTime) && breakOnGoalsAndEnds) break;                    
+                    if (d->updatePreferencesForFact(payload.get(), *stateItr, true, true, true, cTime) && breakOnGoalsAndEnds) break;
                 }
 
             }
-            
+
             {
                 set<int>::iterator stateItr = currFactLayerItr->second.firstRepeated.begin();
                 const set<int>::iterator stateEnd = currFactLayerItr->second.firstRepeated.end();
-                
+
                 for (; stateItr != stateEnd; ++stateItr) {
                     if (evaluateDebug) cout << "Updating preferences from repeated fact " << *stateItr << ", " << *(RPGBuilder::getLiteral(*stateItr)) << endl;
-                    if (d->updatePreferencesForFact(payload.get(), *stateItr, true, true, false, cTime) && breakOnGoalsAndEnds) break;                    
+                    if (d->updatePreferencesForFact(payload.get(), *stateItr, true, true, false, cTime) && breakOnGoalsAndEnds) break;
                 }
-                
+
             }
-            
+
             {
                 list<int>::iterator stateItr = currFactLayerItr->second.negativeLiterals.begin();
                 const list<int>::iterator stateEnd = currFactLayerItr->second.negativeLiterals.end();
 
                 for (; stateItr != stateEnd; ++stateItr) {
                     if (evaluateDebug) cout << "Updating preferences from negative fact " << *stateItr << ", " << *(RPGBuilder::getLiteral(*stateItr)) << endl;
-                    if (d->updatePreferencesForFact(payload.get(), *stateItr, true, false, true, cTime) && breakOnGoalsAndEnds) break;                    
+                    if (d->updatePreferencesForFact(payload.get(), *stateItr, true, false, true, cTime) && breakOnGoalsAndEnds) break;
                 }
 
             }
-            
+
             {
                 list<int>::iterator stateItr = currFactLayerItr->second.second.begin();
                 const list<int>::iterator stateEnd = currFactLayerItr->second.second.end();
@@ -9470,9 +9470,9 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
 
             }
         }
-            
 
-        
+
+
         if (nextHappening.endActionsAppearingAtThisTime != payload->endActionsAtTime.end()) {
 
             if (evaluateDebug) cout << "ACTION LAYER AT TIME " << nextHappening.endActionsAppearingAtThisTime->first << "\n";
@@ -9496,18 +9496,18 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
                         cout << "End of action has been cancelled: invariant or one-way end precondition deleted by TIL\n";
                     }
                 } else {
-                    
+
                     int abstractFalse = 0;
-                    
+
                     if (eaItr->second) {
-                        const map<int, list<int> > & endUses = TemporalAnalysis::getAbstractFactsUsedByActionEnd();                        
-                        
-                        map<int, list<int> >::const_iterator euItr = endUses.find(actToPass);                        
-                        
+                        const map<int, list<int> > & endUses = TemporalAnalysis::getAbstractFactsUsedByActionEnd();
+
+                        map<int, list<int> >::const_iterator euItr = endUses.find(actToPass);
+
                         if (euItr != endUses.end()) {
                             list<int>::const_iterator preItr = euItr->second.begin();
                             const list<int>::const_iterator preEnd = euItr->second.end();
-                            
+
                             for (; preItr != preEnd; ++preItr) {
                                 if (!payload->abstractFactCurrentlyTrue[*preItr]) {
                                     ++abstractFalse;
@@ -9515,20 +9515,20 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
                             }
                         }
                     }
-                    
+
                     if (abstractFalse > 0) {
                         if (evaluateDebug) {
                             cout << "Not applying ";
                             if (actIsOpen) cout << "open ";
                             cout << "end effect of " << actToPass << " " << *(RPGBuilder::getInstantiatedOp(actToPass)) << ": " << abstractFalse << " as some support is false:";
-                            const map<int, list<int> > & endUses = TemporalAnalysis::getAbstractFactsUsedByActionEnd();                        
-                        
-                            map<int, list<int> >::const_iterator euItr = endUses.find(actToPass);                        
-                            
+                            const map<int, list<int> > & endUses = TemporalAnalysis::getAbstractFactsUsedByActionEnd();
+
+                            map<int, list<int> >::const_iterator euItr = endUses.find(actToPass);
+
                             if (euItr != endUses.end()) {
                                 list<int>::const_iterator preItr = euItr->second.begin();
                                 const list<int>::const_iterator preEnd = euItr->second.end();
-                                
+
                                 for (; preItr != preEnd; ++preItr) {
                                     if (!payload->abstractFactCurrentlyTrue[*preItr]) {
                                         cout << " " << *(RPGBuilder::getLiteral(*preItr));
@@ -9537,10 +9537,10 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
                             }
                             cout << endl;
                         }
-                        
-                        payload->endPreconditionCounts[actToPass] += abstractFalse;                        
+
+                        payload->endPreconditionCounts[actToPass] += abstractFalse;
                     } else {
-                    
+
                         if (evaluateDebug) {
                             if (!eaItr->second) {
                                 cout << "Re-";
@@ -9549,8 +9549,8 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
                             if (actIsOpen) cout << "open ";
                             cout << "end effect of " << actToPass << " " << *(RPGBuilder::getInstantiatedOp(actToPass)) << "\n";
                         }
-                        
-                        if (actIsOpen && eaItr->second) {                            
+
+                        if (actIsOpen && eaItr->second) {
                             payload->markEndAppeared(actToPass, cTime);
                             if (breakOnGoalsAndEnds && !payload->unappearedEnds && !payload->unsatisfiedGoals) {
                                 break;
@@ -9564,9 +9564,9 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
             payload->endActionsAtTime.erase(eaatItr);
 
         }
-        
+
         if (nextHappening.newFactsAtThisTime != payload->factLayers.end()) {
-            
+
             const map<EpsilonResolutionTimestamp, FactLayerEntry>::iterator currFactLayerItr = nextHappening.newFactsAtThisTime;
             if (evaluateDebug) cout << "FACT LAYER AT TIME " << currFactLayerItr->first << "\n";
 
@@ -9584,16 +9584,16 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
                 }
 
             }
-            
+
             {
                 set<int>::iterator stateItr = currFactLayerItr->second.firstRepeated.begin();
                 const set<int>::iterator stateEnd = currFactLayerItr->second.firstRepeated.end();
-                
+
                 for (; stateItr != stateEnd; ++stateItr) {
                     if (evaluateDebug) cout << "Updating from repeated fact " << *stateItr << ", " << *(RPGBuilder::getLiteral(*stateItr)) << endl;
                     if (d->updateActionsForNewLiteralFact(payload.get(), *stateItr, cTime, false) && breakOnGoalsAndEnds) break;
                 }
-                
+
             }
 
 
@@ -9617,43 +9617,43 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
 //             {
 //                 list<pair<int, int> >::iterator stateItr = currFactLayerItr->second.TILs.begin();
 //                 const list<pair<int, int> >::iterator stateEnd = currFactLayerItr->second.TILs.end();
-// 
+//
 //                 for (; stateItr != stateEnd; ++stateItr) {
 //                     if (evaluateDebug) cout << "Updating from TIL " << stateItr->first << ", fact " << stateItr->second << "\n";
-// 
+//
 //                     ActionViolationData & costData = payload->tilCosts[stateItr->first];
-//                     
+//
 //                     costData.canBeApplied = true;
-//                     
+//
 //                     d->addPreconditionCost(costData, stateItr->first, Planner::E_AT, EpsilonResolutionTimestamp::undefined(), payload.get());
 //                     d->addEffectCost(costData, stateItr->first, Planner::E_AT, payload.get());
-// 
+//
 //                     const CostedAchieverDetails::AchieverProposalResult applyResult = d->proposeNewAchiever(stateItr->second, stateItr->first, Planner::E_AT, costData, false, cTime);
 //                     if (applyResult != CostedAchieverDetails::not_added) {
 //                         if (d->updateActionsForNewLiteralFact(payload.get(), stateItr->second, cTime, (applyResult == CostedAchieverDetails::first_achiever)) && breakOnGoalsAndEnds) break;
 //                     }
-// 
-// 
+//
+//
 //                 }
 //             }
 
             {
                 list<int>::iterator stateItr = currFactLayerItr->second.TILs.begin();
                 const list<int>::iterator stateEnd = currFactLayerItr->second.TILs.end();
-                
+
                 for (; stateItr != stateEnd; ++stateItr) {
                     ActionViolationData & costData = payload->tilCosts[*stateItr];
-                     
+
                      costData.canBeApplied = true;
 
                      if (evaluateDebug) {
                          cout << "Updating from TIL " << *stateItr << " @ " << RPGBuilder::getNonAbstractedTILVec()[*stateItr]->duration << " (cTime = " << cTime << ")" << endl;
                      }
-                     
-                     
+
+
                      d->addPreconditionCost(costData, *stateItr, Planner::E_AT, EpsilonResolutionTimestamp::undefined(), payload.get());
                      d->addEffectCost(costData, *stateItr, Planner::E_AT, payload.get());
-                     
+
                      EpsilonResolutionTimestamp nlTime = cTime;
                      ++nlTime;
                      if (d->applyPropositionalEffects(payload.get(), *stateItr, Planner::E_AT, costData, false, nlTime) && breakOnGoalsAndEnds) break;
@@ -9661,20 +9661,20 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
             }
 
             if (!currFactLayerItr->second.startDelayedUntilNow.empty()) {
-                
+
                 d->noLongerForbidden.clear();
-                
+
                 set<int>::const_iterator aItr = currFactLayerItr->second.startDelayedUntilNow.begin();
                 const set<int>::const_iterator aEnd = currFactLayerItr->second.startDelayedUntilNow.end();
-                
+
                 for (; aItr != aEnd; ++aItr) {
                     d->noLongerForbidden.push_back(make_pair(*aItr, Planner::E_AT_START));
                 }
-                
+
                 if (d->updateActionsForNewLiteralFact(payload.get(), -2, cTime, true) && breakOnGoalsAndEnds) break;
-                
+
             }
-            
+
             if (currFactLayerItr->second.endOfJustApplied) {
                 d->noLongerForbidden.clear();
                 set<int> & startSet = currFactLayerItr->second.endOfJustApplied->first;
@@ -9720,30 +9720,30 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
                 }
             }
 
-            
+
             if (RPGBuilder::modifiedRPG && (!currFactLayerItr->second.abstractFactBecomesTrue.empty() || !currFactLayerItr->second.abstractFactBecomesFalse.empty())) {
                 // abstract TIL stuff
                 d->noLongerForbidden.clear();
-                
+
                 bool spawn = false;
-                
+
                 {
                     list<int>::iterator delItr = currFactLayerItr->second.abstractFactBecomesFalse.begin();
                     const list<int>::iterator delEnd = currFactLayerItr->second.abstractFactBecomesFalse.end();
 
                     for (; delItr != delEnd; ++delItr) {
-                        
+
                         if (!payload->abstractFactCurrentlyTrue[*delItr]) {
                             continue;
                         }
-                
+
                         payload->abstractFactCurrentlyTrue[*delItr] = false;
-                
+
                         if (evaluateDebug) {
                             cout << COLOUR_light_blue << "Abstract fact " << *(RPGBuilder::getLiteral(*delItr)) << " becomes false.";
                             cout.flush();
                         }
-                
+
                         list<pair<int, Planner::time_spec> > & currList = (*d->preconditionsToActions)[*delItr];
 
                         list<pair<int, Planner::time_spec> >::iterator ioItr = currList.begin();
@@ -9754,44 +9754,44 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
                             const int actID = ioItr->first;
                             if (ioItr->second == Planner::E_AT_START || ioItr->second == Planner::E_OVER_ALL) {
                                 if (payload->startPreconditionCounts[ioItr->first] || payload->numericStartPreconditionCounts[ioItr->first]) {
-                                    // still not appeared in the TRPG                                    
+                                    // still not appeared in the TRPG
                                     ++(payload->startPreconditionCounts[ioItr->first]); // one of its start preconditions has become unsatisfied
                                     ++uncounted;
                                 }
                             }
                             if (ioItr->second == Planner::E_AT_END  || ioItr->second == Planner::E_OVER_ALL) {
                                 if (payload->endPreconditionCounts[ioItr->first] || payload->numericEndPreconditionCounts[ioItr->first]) {
-                                    // still not appeared in the TRPG                                    
+                                    // still not appeared in the TRPG
                                     ++(payload->endPreconditionCounts[ioItr->first]); // one of its start preconditions has become unsatisfied
                                     ++uncounted;
-                                }                                
+                                }
                             }
                         }
-                        
+
                         if (evaluateDebug) {
-                            cout << " Unsupported " << uncounted << " actions\n" << COLOUR_default;                            
+                            cout << " Unsupported " << uncounted << " actions\n" << COLOUR_default;
                         }
                     }
                 }
-                
+
                 {
                     list<int>::iterator addItr = currFactLayerItr->second.abstractFactBecomesTrue.begin();
                     const list<int>::iterator addEnd = currFactLayerItr->second.abstractFactBecomesTrue.end();
 
                     for (; addItr != addEnd; ++addItr) {
-                        
+
                         if (payload->abstractFactCurrentlyTrue[*addItr]) {
                             continue;
                         }
-                        
+
                         payload->abstractFactCurrentlyTrue[*addItr] = true;
-                        
+
                         if (evaluateDebug) {
                             cout << COLOUR_light_blue << "Abstract fact " << *(RPGBuilder::getLiteral(*addItr)) << " becomes true.";
                             cout.flush();
                         }
-                
-                        
+
+
                         list<pair<int, Planner::time_spec> > & currList = (*d->preconditionsToActions)[*addItr];
 
                         int counted = 0;
@@ -9802,7 +9802,7 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
                             const int actID = ioItr->first;
                             if (ioItr->second == Planner::E_AT_START || ioItr->second == Planner::E_OVER_ALL) {
                                 if (payload->startPreconditionCounts[ioItr->first]) { // still being disabled by at least the absence of this fact
-                                    // still not appeared in the TRPG                                    
+                                    // still not appeared in the TRPG
                                     ++counted;
                                     if (!(--(payload->startPreconditionCounts[ioItr->first])) &&  !(payload->numericStartPreconditionCounts[ioItr->first])) {
                                         d->noLongerForbidden.push_back(pair<int, Planner::time_spec>(actID, Planner::E_AT_START));
@@ -9812,23 +9812,23 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
                             }
                             if (ioItr->second == Planner::E_AT_END || ioItr->second == Planner::E_OVER_ALL) {
                                 if (payload->endPreconditionCounts[ioItr->first]) { // still being disabled by at least the absence of this fact
-                                    // still not appeared in the TRPG                                    
+                                    // still not appeared in the TRPG
                                     ++counted;
                                     if (!(--(payload->endPreconditionCounts[ioItr->first])) &&  !(payload->numericEndPreconditionCounts[ioItr->first])) {
                                         d->noLongerForbidden.push_back(pair<int, Planner::time_spec>(actID, Planner::E_AT_END));
                                         payload->endActionSchedule[ioItr->first] = cTime;
                                         spawn = true;
                                     }
-                                }                                
+                                }
                             }
                         }
-                        
+
                         if (evaluateDebug) {
-                            cout << " Supported " << counted << " actions\n" << COLOUR_default;                            
+                            cout << " Supported " << counted << " actions\n" << COLOUR_default;
                         }
                     }
                 }
-                    
+
                 if (spawn) {
                     if (d->updateActionsForNewLiteralFact(payload.get(), -2, cTime, true) && breakOnGoalsAndEnds) break;
                 }
@@ -9866,7 +9866,7 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
             {
                 list<int>::const_iterator gItr = currFactLayerItr->second.literalGoalsWeMustHaveByNow.begin();
                 const list<int>::const_iterator gEnd = currFactLayerItr->second.literalGoalsWeMustHaveByNow.end();
-                
+
                 for (; gItr != gEnd; ++gItr) {
                     #ifdef POPF3ANALYSIS
                     if (d->achieverDetails[*gItr].empty()) {
@@ -9879,38 +9879,38 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
 
                 }
             }
-            
+
             if (!failedToMeetDeadline) {
-                
+
                 list<int>::const_iterator gItr = currFactLayerItr->second.numericGoalsWeMustHaveByNow.begin();
                 const list<int>::const_iterator gEnd = currFactLayerItr->second.numericGoalsWeMustHaveByNow.end();
-                
+
                 for (; gItr != gEnd; ++gItr) {
                     if ((*(d->numericAchievedInLayer))[(*gItr)].isUndefined()) {
                         failedToMeetDeadline = true;
                         break;
                     }
                 }
-                
+
             }
-            
+
             if (!failedToMeetDeadline) {
                 list<int>::const_iterator gItr = currFactLayerItr->second.preferenceUnreachableIfNotSatisfiedByNow.begin();
                 const list<int>::const_iterator gEnd = currFactLayerItr->second.preferenceUnreachableIfNotSatisfiedByNow.end();
-                
+
                 bool costChanged = false;
-                
+
                 for (; gItr != gEnd; ++gItr) {
                     if (isSatisfied(payload->optimisticPrefStatus[*gItr])) {
                         continue;
                     }
-                    
+
                     payload->optimisticPrefStatus[*gItr] = AutomatonPosition::unreachable;
-                    
+
                     payload->withinCosts += RPGBuilder::getPreferences()[*gItr].cost;
-                    costChanged = true;                   
+                    costChanged = true;
                 }
-                
+
                 if (costChanged && Globals::bestSolutionQuality > -DBL_MAX) {
                     assert(RPGBuilder::getMetric());
                     if (RPGBuilder::getMetric()->variables.empty()) {
@@ -9918,14 +9918,14 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
                         if (RPGBuilder::getMetric()->minimise && localCost != 0.0) {
                             localCost = -localCost;
                         }
-                        
+
                         if (localCost <= Globals::bestSolutionQuality) {
                             if (evaluateDebug || PreferenceHandler::preferenceDebug) {
                                 cout << "Pruning state: within costs alone would mean the solution cost is " << localCost << " by layer " << currFactLayerItr->first << endl;
                             }
-                            failedToMeetDeadline = true;                            
+                            failedToMeetDeadline = true;
                         }
-                        
+
                     }
                 }
             }
@@ -9937,22 +9937,22 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
             payload->factLayers.erase(currFactLayerItr);
 
         }
-        
+
         #ifdef POPF3ANALYSIS
-        if (!failedToMeetDeadline) 
+        if (!failedToMeetDeadline)
         #endif
         {
             // now we've applied all the effects we're going to get, see if new numeric preconditions are true
             // epsilon in the future
-            
-            list<int> newNumericPreconditions;            
+
+            list<int> newNumericPreconditions;
             payload->fluentLayers.applyRecentlyRecordedEffects(*(d->numericAchievedInLayer), newNumericPreconditions, d->maxNeeded);
-            
+
             if (!newNumericPreconditions.empty()) {
-                                
+
                 list<int>::const_iterator npItr = newNumericPreconditions.begin();
                 const list<int>::const_iterator npEnd = newNumericPreconditions.end();
-                
+
                 for (; npItr != npEnd; ++npItr) {
                     if (d->goalFluents.find(*npItr) != d->gfEnd) {
                         --(payload->unsatisfiedGoals);
@@ -9964,12 +9964,12 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
                         }
                     }
                 }
-                
+
                 if (RPGBuilder::modifiedRPG) {
-                    
+
                     list<int>::const_iterator preID = newNumericPreconditions.begin();
                     const list<int>::const_iterator preIDEnd = newNumericPreconditions.end();
-                    
+
                     for (; preID != preIDEnd; ++preID) {
                         const EpsilonResolutionTimestamp earliestPOPoint = earliestPointForNumericPrecondition(RPGBuilder::getNumericPreTable()[*preID], &(d->earliestNumericPOTimes));
                         if (earliestPOPoint > nextHappening.timestamp + EpsilonResolutionTimestamp::epsilon()) {
@@ -9982,41 +9982,41 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
                             if (printRPGAsDot) {
                                 payload->dot.addNumericFactNode(nextHappening.timestamp.toDouble() + EPSILON, *preID);
                             }
-                            
+
                         }
                     }
-                                        
+
                 } else {
                     FactLayerEntry & factsGoAt = payload->factLayers[nextHappening.timestamp + EpsilonResolutionTimestamp::epsilon()];
-                                        
+
                     factsGoAt.second.insert(factsGoAt.second.end(), newNumericPreconditions.begin(), newNumericPreconditions.end());
                 }
             } else {
                 if (evaluateDebug) {
                     cout << "No new numeric preconditions became true\n";
-                }                
+                }
             }
         }
-        
+
         #ifdef POPF3ANALYSIS
         if (failedToMeetDeadline) {
             break;
         }
         #endif
-    
+
         if (payload->unsatisfiedGoals && payload->unsatisfiedGoals == payload->fakeGoalCount) {
-            
+
             if (evaluateDebug || prefDebug) {
                 cout << "All remaining goals are fake\n";
             }
-            
+
             assert(RPGBuilder::getMetric());
-            
+
             const bool prefsPreviouslyRemaining = (RPGBuilder::getMetric()->minimise ? payload->goalPrefViolationAtLastLayer - reachablePreferenceCost >= 0.0001
                                                                                      : payload->goalPrefViolationAtLastLayer - reachablePreferenceCost <= -0.0001);
-            
+
             payload->goalPrefViolationAtLastLayer = payload->rpgGoalPrefViolation;
-               
+
             if (prefsPreviouslyRemaining) {
                 if (RPGBuilder::getMetric()->minimise ? payload->goalPrefViolationAtLastLayer - reachablePreferenceCost < 0.0001
                                                       : payload->goalPrefViolationAtLastLayer - reachablePreferenceCost > -0.0001) {
@@ -10027,10 +10027,10 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
                     --payload->unsatisfiedGoals;
                 }
             }
-            
+
         }
-    
-    
+
+
 #ifdef POPF3ANALYSIS
         if ((payload->unsatisfiedGoals == payload->fakeGoalCount) && !payload->unappearedEnds) {
             d->calculateGoalCost(payload.get());
@@ -10040,31 +10040,31 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
         if (payload->unsatisfiedGoals || payload->unappearedEnds
             #ifdef POPF3ANALYSIS
             || payload->tooExpensive
-            #endif            
+            #endif
         ) {
             const EpsilonResolutionTimestamp thisTS = nextHappening.timestamp;
             payload->nextThingToVisit(thisTS, nextHappening);
         } else {
             break;
         }
-        
+
     }
 
     double calculatedAdmissibleCostThroughFullExpansion;
-    
+
     if (RPGHeuristic::alwaysExpandFully && Globals::optimiseSolutionQuality && !d->currentCosts.empty()) {
         --(payload->unsatisfiedGoals); // undo dummy goal to expand fully
         if (!((payload->unsatisfiedGoals > payload->fakeGoalCount) || payload->unappearedEnds || failedToMeetDeadline)) {
-            d->calculateGoalCost(payload.get(), &calculatedAdmissibleCostThroughFullExpansion);        
+            d->calculateGoalCost(payload.get(), &calculatedAdmissibleCostThroughFullExpansion);
         }
     }
-    
-    
+
+
     if ((payload->unsatisfiedGoals > payload->fakeGoalCount) || payload->unappearedEnds
 #ifdef POPF3ANALYSIS
         || payload->tooExpensive
         || failedToMeetDeadline
-#endif                
+#endif
     ) {
         if (RPGHeuristic::printRPGAsDot) {
             const DotDetails & dot = payload->dot;
@@ -10079,11 +10079,11 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
                 dotfile.close();
             }
         }
-        
-        
+
+
         if (evaluateDebug) {
             cout << "Dead end found in RPG\n";
-            
+
             cout << "unsatisfiedGoals = " << payload->unsatisfiedGoals << ", fake goals " << payload->fakeGoalCount << ", unappearedEnds = " << payload->unappearedEnds;
             #ifdef POPF3ANALYSIS
             if (payload->tooExpensive) {
@@ -10092,20 +10092,20 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
             if (failedToMeetDeadline) {
                 cout << ", failed to meet deadline";
             }
-            #endif            
+            #endif
             cout << endl;
-            
+
             #ifdef ENABLE_DEBUGGING_HOOKS
             if (!Globals::remainingActionsInPlan.empty()) {
                 list<ActionSegment>::const_iterator actItr = Globals::remainingActionsInPlan.begin();
                 const list<ActionSegment>::const_iterator actEnd = Globals::remainingActionsInPlan.end();
-                
+
                 for (; actItr != actEnd; ++actItr) {
                     if (actItr->second == Planner::E_AT) {
                         // skip TILs
                         continue;
                     }
-                
+
                     cout << "Seeing if preconditions of " << *(actItr->first);
                     if (actItr->second == Planner::E_AT_START) {
                         cout << ", start, are satisfied\n";
@@ -10120,30 +10120,30 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
                         cout << ", end, are satisfied\n";
                         if (payload->endPreconditionCounts[actItr->first->getID()]) {
                             cout << "Noted number of unsatisfied end preconditions: " << payload->endPreconditionCounts[actItr->first->getID()] << endl;
-                        }                        
+                        }
                         map<int,int>::iterator fItr = payload->forbiddenEnd.find(actItr->first->getID());
                         if (fItr != payload->forbiddenEnd.end()) {
                             cout << "Noted as being forbidden: " << fItr->second << endl;
-                        }                        
+                        }
                     }
-                    
+
                     {
                         const list<Literal*> pres = (actItr->second == Planner::E_AT_START
                                                         ? (*(d->actionsToProcessedStartPreconditions))[actItr->first->getID()]
                                                         : (*(d->actionsToEndPreconditions))[actItr->first->getID()]);
-                        
+
                         list<Literal*>::const_iterator pItr = pres.begin();
                         const list<Literal*>::const_iterator pEnd = pres.end();
-                        
+
                         for (; pItr != pEnd; ++pItr) {
                             EpsilonResolutionTimestamp acIn(EpsilonResolutionTimestamp::undefined());
                             pair<int, Planner::time_spec> acBy;
-                            
+
                             d->getAchieverDetails((*pItr)->getStateID(), EpsilonResolutionTimestamp::infinite(), acIn, acBy);
-                            
-                            if (acIn.isUndefined()) {                                
+
+                            if (acIn.isUndefined()) {
                                 cout << "\tPrecondition " << *(*pItr) << " was never seen. ";
-                            } else {                                
+                            } else {
                                 if (theState.first.find((*pItr)->getStateID()) != theState.first.end()) {
                                     cout << "\tPrecondition " << *(*pItr) << " was achieved in layer " << acIn << endl;
                                 } else {
@@ -10152,7 +10152,7 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
                             }
                         }
                     }
-                    
+
                     {
                         const list<int> & pres = (actItr->second == Planner::E_AT_START
                                                     ? (*(d->actionsToProcessedStartNumericPreconditions))[actItr->first->getID()]
@@ -10160,26 +10160,26 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
 
                         list<int>::const_iterator pItr = pres.begin();
                         const list<int>::const_iterator pEnd = pres.end();
-                        
+
                         for (; pItr != pEnd; ++pItr) {
-                            
-                            if ((*(d->numericAchievedInLayer))[(*pItr)].isUndefined()) {                                
+
+                            if ((*(d->numericAchievedInLayer))[(*pItr)].isUndefined()) {
                                 cout << "\tNumeric precondition " << RPGBuilder::getNumericPreTable()[*pItr] << " was never seen. ";
                             } else {
                                 if (d->numericIsTrueInState[*pItr]) {
                                     cout << "\tNumeric precondition " << RPGBuilder::getNumericPreTable()[*pItr] << " is true in state, PO time " << (*(d->numericAchievedInLayer))[(*pItr)] << endl;
                                 } else {
                                     cout << "\tNumeric precondition " << RPGBuilder::getNumericPreTable()[*pItr] << " was achieved at time " << (*(d->numericAchievedInLayer))[(*pItr)] << endl;
-                                } 
-                            
+                                }
+
                             }
                         }
-                        
+
                     }
                 }
             }
             #endif
-            
+
             set<int>::const_iterator gItr = d->goals.begin();
             const set<int>::const_iterator gEnd = d->goals.end();
 
@@ -10206,7 +10206,7 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
                             for (; preItr != preEnd; ++preItr) {
                                 EpsilonResolutionTimestamp acIn(EpsilonResolutionTimestamp::undefined());
                                 pair<int, Planner::time_spec> acBy;
-                                
+
                                 #ifdef POPF3ANALYSIS
                                 if (d->achieverDetails[(*preItr)->getStateID()].empty()) {
                                     acIn = EpsilonResolutionTimestamp::undefined();
@@ -10216,7 +10216,7 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
                                 #else
                                 d->getAchieverDetails((*preItr)->getStateID(), EpsilonResolutionTimestamp::infinite(), acIn, acBy);
                                 #endif
-                                
+
                                 if (acIn.isUndefined()) {
                                     cout << "   * Start precondition " << *(*preItr) << " never appeared\n";
                                 }
@@ -10234,7 +10234,7 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
                                     for (; preItr != preEnd; ++preItr) {
                                         EpsilonResolutionTimestamp acIn(EpsilonResolutionTimestamp::undefined());
                                         pair<int, Planner::time_spec> acBy;
-                                        
+
                                         #ifdef POPF3ANALYSIS
                                         if (d->achieverDetails[(*preItr)->getStateID()].empty()) {
                                             acIn = EpsilonResolutionTimestamp::undefined();
@@ -10256,7 +10256,7 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
                                 for (; preItr != preEnd; ++preItr) {
                                     EpsilonResolutionTimestamp acIn(EpsilonResolutionTimestamp::undefined());
                                     pair<int, Planner::time_spec> acBy;
-                                    
+
                                     #ifdef POPF3ANALYSIS
                                     if (d->achieverDetails[(*preItr)->getStateID()].empty()) {
                                         acIn = EpsilonResolutionTimestamp::undefined();
@@ -10276,11 +10276,11 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
                     }
                 }
             }
-            
+
             if (startEventQueue) {
                 list<StartEvent>::const_iterator seqItr = startEventQueue->begin();
                 const list<StartEvent>::const_iterator seqEnd = startEventQueue->end();
-                
+
                 for (; seqItr != seqEnd; ++seqItr) {
                     cout << "- End of " << seqItr->actID << ", " << *(RPGBuilder::getInstantiatedOp(seqItr->actID)) << ":\n";
 
@@ -10291,7 +10291,7 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
                     for (; preItr != preEnd; ++preItr) {
                         EpsilonResolutionTimestamp acIn(EpsilonResolutionTimestamp::undefined());
                         pair<int, Planner::time_spec> acBy;
-                        
+
                         #ifdef POPF3ANALYSIS
                         if (d->achieverDetails[(*preItr)->getStateID()].empty()) {
                             acIn = EpsilonResolutionTimestamp::undefined();
@@ -10301,7 +10301,7 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
                         #else
                         d->getAchieverDetails((*preItr)->getStateID(), EpsilonResolutionTimestamp::infinite(), acIn, acBy);
                         #endif
-                        
+
                         if (acIn.isUndefined()) {
                             cout << "   * End precondition " << *(*preItr) << " never appeared\n";
                             presHere = false;
@@ -10310,13 +10310,13 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
 
                     if (presHere) {
                         list<Literal*> & actEffs = (*(d->actionsToEndEffects))[seqItr->actID];
-                        
+
                         list<Literal*>::const_iterator preItr = actEffs.begin();
                         const list<Literal*>::const_iterator preEnd = actEffs.end();
                         for (; preItr != preEnd; ++preItr) {
                             EpsilonResolutionTimestamp acIn(EpsilonResolutionTimestamp::undefined());
                             pair<int, Planner::time_spec> acBy;
-                            
+
                             #ifdef POPF3ANALYSIS
                             if (d->achieverDetails[(*preItr)->getStateID()].empty()) {
                                 acIn = EpsilonResolutionTimestamp::undefined();
@@ -10326,13 +10326,13 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
                             #else
                             d->getAchieverDetails((*preItr)->getStateID(), EpsilonResolutionTimestamp::infinite(), acIn, acBy);
                             #endif
-                            
+
                             if (acIn.isUndefined()) {
                                 cout << "   * Internal error: effect " << *(*preItr) << " never appeared\n";
                                 exit(1);
                             }
                         }
-                        
+
                     }
                 }
             }
@@ -10347,14 +10347,14 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
         } else {
             if (evaluateDebug) cout << "RPG found all goals and ends, and satisfied all preferences\n";
         }
-        
+
         if (prefDebug) {
             cout << COLOUR_red << "Got preference violations down to " << payload->goalPrefViolationAtLastLayer << COLOUR_default << endl;
         }
     }
 
 
-    
+
 
 
     int h = heuristicOffset;
@@ -10370,7 +10370,7 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
                     d->numericIsTrueInState[i] = true;
                 }
             }
-        }        
+        }
     }
 
     pair<int, Planner::time_spec> earliestTIL(INT_MAX, Planner::E_AT);
@@ -10380,16 +10380,16 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
     if (earliestTIL.first != INT_MAX) {
         for (int tilID = theState.nextTIL; tilID <= earliestTIL.first; ++tilID) {
             const double tilTime = RPGBuilder::getNonAbstractedTILVec()[tilID]->duration;
-            
+
             list<pair<double, list<ActionSegment> > >::iterator rpItr = relaxedPlan.begin();
             const list<pair<double, list<ActionSegment> > >::iterator rpEnd = relaxedPlan.end();
-            
+
             for (; rpItr != rpEnd; ++rpItr) {
                 if (rpItr->first > tilTime) {
                     break;
                 }
             }
-            
+
             if (rpItr != rpEnd) {
                 if (EpsilonResolutionTimestamp(rpItr->first,true) == EpsilonResolutionTimestamp(tilTime,true) ) {
                     rpItr->second.push_back(ActionSegment((instantiatedOp*) 0,Planner::E_AT,tilID, RPGHeuristic::emptyIntList));
@@ -10397,25 +10397,25 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
                     if (tilID == theState.nextTIL) {
                         helpfulActions.push_back(rpItr->second.back());
                     }
-                    
+
                 } else {
                     pair<double, list<ActionSegment> > insPair;
-                    
-                    insPair.first = tilTime;                    
+
+                    insPair.first = tilTime;
                     rpItr = relaxedPlan.insert(rpItr, insPair);
-                    
+
                     rpItr->second.push_back(ActionSegment((instantiatedOp*) 0,Planner::E_AT,tilID, RPGHeuristic::emptyIntList));
                     //++h;
-                    
+
                     if (tilID == theState.nextTIL) {
                         helpfulActions.push_back(rpItr->second.back());
                     }
-                    
+
                 }
             } else {
                 pair<double, list<ActionSegment> > insPair;
-                    
-                insPair.first = tilTime;                    
+
+                insPair.first = tilTime;
                 relaxedPlan.push_back(insPair);
                 relaxedPlan.back().second.push_back(ActionSegment((instantiatedOp*) 0,Planner::E_AT,tilID, RPGHeuristic::emptyIntList));
                 //++h;
@@ -10425,7 +10425,7 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
             }
         }
     }
-    
+
 
     if (RPGHeuristic::printRPGAsDot) {
         const DotDetails & dot = payload->dot;
@@ -10440,21 +10440,21 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
             dotfile.close();
         }
     }
-    
-    
+
+
 
     {
         // HACK
 
         map<int, int> started;
         map<int, int>::iterator insItr = started.end();
-        
+
         {
             map<int, set<int> >::const_iterator saItr = theState.startedActions.begin();
             const map<int, set<int> >::const_iterator saEnd = theState.startedActions.end();
 
             for (; saItr != saEnd; ++saItr) {
-                insItr = started.insert(insItr, make_pair(saItr->first, saItr->second.size()));                
+                insItr = started.insert(insItr, make_pair(saItr->first, saItr->second.size()));
             }
 
         }
@@ -10475,7 +10475,7 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
                     }
                 } else {
                     if (!RPGBuilder::getRPGDEs(rlItr->first->getID()).empty()
-                        && !TemporalAnalysis::canSkipToEnd(rlItr->first->getID())) {                        
+                        && !TemporalAnalysis::canSkipToEnd(rlItr->first->getID())) {
                         insItr = started.insert(insItr, make_pair(rlItr->first->getID(), 0));
                         ++(insItr->second);
                     }
@@ -10617,10 +10617,10 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
 
         if (Globals::globalVerbosity & 1048576) {
             cout << "Unordered helpful actions:\n";
-            
+
             list<ActionSegment>::iterator haItr = helpfulActions.begin();
             const list<ActionSegment>::iterator haEnd = helpfulActions.end();
-            
+
             for (; haItr != haEnd; ++haItr) {
                 if (haItr->second == Planner::E_AT) {
                     cout << "Timed initial literal action " << haItr->divisionID << "\n";
@@ -10631,9 +10631,9 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
                     if (haItr->second == Planner::E_OVER_ALL) cout << "middle point " << haItr->divisionID << "\n";
                 }
             }
-            
+
         }
-        
+
         list<ActionSegment> unsortedList;
         unsortedList.swap(helpfulActions);
 
@@ -10719,110 +10719,110 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
     }
 
 //     double definiteWithinCost = 0.0;
-//     
+//
 //     if (theState.statusOfTemporalPreferences
 // ) {
-//      
+//
 //         // post-process to mark within preferences as unreachable
-//         
+//
 //         PreferenceStatusArray & psa = (*(theState.statusOfTemporalPreferences
 // ));
-//         
-//         const list<Literal*> & goals = RPGBuilder::getLiteralGoals();        
+//
+//         const list<Literal*> & goals = RPGBuilder::getLiteralGoals();
 //         const vector<map<EpsilonResolutionTimestamp, int> > & softDeadlines = RPGBuilder::getLiteralGoalSoftDeadlines();
-//                 
+//
 //         const int gSize = softDeadlines.size();
-//     
+//
 //         list<Literal*>::const_iterator gItr = goals.begin();
-//         
+//
 //         for (int gID = 0; gID < gSize; ++gID, ++gItr) {
-//         
+//
 //             if (softDeadlines[gID].empty()) {
 //                 // no soft deadlines involving this goal
 //                 continue;
 //             }
-//             
+//
 //             if (psa[softDeadlines[gID].rbegin()->second] != AutomatonPosition::satisfied) {
 //                 // the final soft deadline on this goal is either eternally broken or satisfied
 //                 continue;
 //             }
-//             
+//
 //             const int fID = (*gItr)->getStateID();
-// 
+//
 //             if (theState.first.find(fID) != theState.first.end()) {
 //                 continue;
 //             }
-//             
+//
 //             EpsilonResolutionTimestamp acIn = d->getEarliestAchievedAt(fID);
-//                       
+//
 //             map<EpsilonResolutionTimestamp, int>::const_iterator costItr = softDeadlines[gID].begin();
 //             const map<EpsilonResolutionTimestamp, int>::const_iterator costEnd = softDeadlines[gID].end();
-//             
+//
 //             for (; costItr != costEnd && acIn >= costItr->first; ++costItr) {
-//                 
+//
 //                 if (!(psa[costItr->second] == AutomatonPosition::satisfied) ) {
-//                     
+//
 //                     assert(psa[costItr->second] == AutomatonPosition::unreachable || psa[costItr->second] == AutomatonPosition::eternallysatisfied);
 //                     continue;
 //                 }
-//                 
+//
 //                 const RPGBuilder::Constraint & currPref = RPGBuilder::getPreferences()[costItr->second];
-//                 
+//
 //                 if (evaluateDebug) {
 //                     cout << "\t\tUpdating state as in RPG, fact " << *(*gItr) << " didn't appear until " << acIn << ", so at time " << costItr->first << ", violated preference " << currPref.name << ", cost " << currPref.cost << endl;
-//                 }            
-//                 
+//                 }
+//
 //                 psa.getCost() += currPref.cost;
 //                 psa[costItr->second] = AutomatonPosition::unreachable;
-//                 
+//
 //             }
 //         }
-//         
+//
 //         definiteWithinCost += psa.getCost();
 //     }
-    
+
     if (RPGBuilder::getMetric()) {
-        
+
         if (RPGBuilder::getMetric()->minimise ? payload->rpgGoalPrefViolation > reachablePreferenceCost
                                               : payload->rpgGoalPrefViolation < reachablePreferenceCost) {
-        
+
             if (prefDebug) {
                 cout << "Minimum violation cost to goal " << payload->rpgGoalPrefViolation << endl;
             }
-            
+
             list<int> punreachable;
-            
+
             const int pCount = payload->optimisticPrefStatus.size();
-            
+
             for (int p = 0; p < pCount; ++p) {
                 if (!canBeSatisfied(theState.preferenceStatus[p])) continue;
                 if (!isSatisfied(payload->optimisticPrefStatus[p])) {
                     punreachable.push_back(p);
                     if (prefDebug) {
                         cout << "Preference " << RPGBuilder::getPreferences()[p].name << " (" << p << ") was never reached\n";
-                        
+
                         NNF_Flat * const f = payload->initialUnsatisfiedPreferenceConditions[p][0];
                         assert(!f->isSatisfied());
-                        
+
                         const NNF_Flat::Cell * const cells = f->getCells();
                         const bool * cellIsAnd = f->cellIsAnAnd();
                         const int cellCount = f->getCellCount();
                         const int * parentIDs = f->getParentIDs();
-                        
+
                         if (cellIsAnd[0]) {
                             bool oneWasFalse = false;
-                            
+
                             if (RPGBuilder::getPreferences()[p].cons == E_WITHIN) {
                                 if (payload->optimisticPrefStatus[p] == AutomatonPosition::unreachable) {
                                     cout << " #t Not satisfied in time\n";
                                     oneWasFalse = true;
                                 }
                             }
-                            
+
                             for (int cc = 0; cc < cellCount; ++cc) {
                                 if (!cells[cc].isCell()) continue;
                                 if (parentIDs[cc] != 0) continue;
-                                
+
                                 if (cells[cc].lit) {
                                     const int fID = cells[cc].lit->getStateID();
                                     if (cells[cc].polarity) {
@@ -10842,7 +10842,7 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
                                     }
                                 } else {
                                     const int fID = cells[cc].num;
-                                    if (cells[cc].polarity) {                                    
+                                    if (cells[cc].polarity) {
                                         if ((*d->numericAchievedInLayer)[fID].isUndefined()) {
                                             oneWasFalse = true;
                                             cout << " - Don't have supporting numeric " << RPGBuilder::getNumericPreTable()[fID] << endl;
@@ -10855,45 +10855,45 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
                                     }
                                 }
                             }
-                            
+
                             assert(oneWasFalse);
-                            
+
                         }
-                        
-                        
+
+
                     }
                 }
             }
-            
+
             if (!punreachable.empty()) {
                 if (PreferenceHandler::markUnreachables(theState, punreachable) == DBL_MAX) {
                     // unsatisfied :constraints
                     return new EvaluationInfo(-1,0.0,false);
                 }
             }
-                                
+
         }
     }
-        
+
     if (RPGBuilder::getMetric() && Globals::optimiseSolutionQuality) {
         if (NumericAnalysis::theMetricIsMonotonicallyWorsening()) {
-                        
+
             double admissibleCost = 0.0;
-            
+
             if (RPGHeuristic::alwaysExpandFully && Globals::optimiseSolutionQuality && !d->currentCosts.empty()) {
                 admissibleCost = calculatedAdmissibleCostThroughFullExpansion;
                 //cout << "Heuristic admissible cost = " << admissibleCost << endl;
             } else {
-                
+
                 admissibleCost = payload->rpgGoalPrefViolation/* + definiteWithinCost*/ + RPGBuilder::getMetric()->constant;
-                        
+
                 const int pneCount = RPGBuilder::getPNECount();
                 list<int>::const_iterator vItr = RPGBuilder::getMetric()->variables.begin();
                 const list<int>::const_iterator vEnd = RPGBuilder::getMetric()->variables.end();
-                
+
                 list<double>::const_iterator wItr = RPGBuilder::getMetric()->weights.begin();
                 const list<double>::const_iterator wEnd = RPGBuilder::getMetric()->weights.end();
-                
+
                 for (; wItr != wEnd; ++wItr, ++vItr) {
                     if (*vItr < 0) {
                         if (*wItr < 0.0) {
@@ -10908,22 +10908,22 @@ RPGHeuristic::EvaluationInfo* RPGHeuristic::getRelaxedPlan(MinimalState & theSta
                     } else {
                         const double value = -payload->startState.secondMax[*vItr];
                         admissibleCost += value * *wItr;
-                    }        
+                    }
                 }
-                
+
                 //cout << "Normal admissible cost = " << admissibleCost << endl;
-            
+
             }
-            
+
             return new EvaluationInfo(h,admissibleCost,realGoalsSatisfied);
-            
-        } else {        
+
+        } else {
             return new EvaluationInfo(h,std::numeric_limits< double >::signaling_NaN(),realGoalsSatisfied);
         }
     }
-    
+
     return new EvaluationInfo(h,payload->rpgGoalPrefViolation/* + definiteWithinCost*/,realGoalsSatisfied);
-    
+
 };
 
 EpsilonResolutionTimestamp RPGHeuristic::Private::earliestTILForAction(const unsigned int & i, const bool & isStart)
@@ -10978,13 +10978,13 @@ bool RPGHeuristic::Private::applyPropositionalEffects(Private::BuildingPayload *
         for (; addEffItr != addEffEnd; ++addEffItr) {
             const int currEff = (*addEffItr)->getStateID();
             const CostedAchieverDetails::AchieverProposalResult applyResult = proposeNewAchiever(currEff, currAct, currTS, prefCosts, openEnd, nlTime);
-            
+
             switch (applyResult) {
                 case CostedAchieverDetails::not_added: {
                     if (updateDebug) cout << "\t\tFact " << currEff << ", " << *(*addEffItr) << ", was already achieved\n";
                     break;
                 }
-                case CostedAchieverDetails::replaced_existing_achiever: {            
+                case CostedAchieverDetails::replaced_existing_achiever: {
                     // fact is repeated, now with lower cost
                     if (RPGHeuristic::printRPGAsDot) {
                         payload->dot.addActionToFactEdge(currAct, currTS, currEff);
@@ -10999,21 +10999,21 @@ bool RPGHeuristic::Private::applyPropositionalEffects(Private::BuildingPayload *
                         payload->dot.addFactNode(nlTime.toDouble(), currEff);
                         payload->dot.addActionToFactEdge(currAct, currTS, currEff);
                     }
-                                                                
-                                                                
+
+
                     payload->factLayers[nlTime].first.push_back(currEff);
                     //earliestPropositionPOTimes[currEff] = POtime.get();
                     if (updateDebug) cout << "\t\tFact " << currEff << ", " << *(*addEffItr) << ", is new in " << nlTime << "\n";
                     if (goals.find(currEff) != gsEnd) {
                         --(payload->unsatisfiedGoals);
                         if (payload->unsatisfiedGoals == payload->fakeGoalCount && payload->unappearedEnds == 0) {
-                            
+
                             // either have met everything, or only have soft-goals left
                             if (payload->admissibleMakespanEstimate < nlTime) {
                                 payload->admissibleMakespanEstimate = nlTime;
                             }
-                            
-                            if (payload->unsatisfiedGoals == 0) {      
+
+                            if (payload->unsatisfiedGoals == 0) {
                                 // can return true (terminate expansion) if there are no outstanding fake goals
                                 return true;
                             }
@@ -11041,21 +11041,21 @@ bool RPGHeuristic::Private::applyPropositionalEffects(Private::BuildingPayload *
         list<Literal*>::const_iterator delEffItr = delEffects.begin();
         const list<Literal*>::const_iterator delEffEnd = delEffects.end();
 
-                                                
+
         for (; delEffItr != delEffEnd; ++delEffItr) {
             const int currEff = (*delEffItr)->getStateID();
-        
+
             EpsilonResolutionTimestamp & currAIL = (*negativeAchievedInLayer)[currEff];
-            if (currAIL.isUndefined()) {                            
+            if (currAIL.isUndefined()) {
                 if (updateDebug) cout << "\t\tNegative fact " << currEff << " is new\n";
                 currAIL = nlTime;
                 (*negativeAchievedBy)[currEff] = pair<int, Planner::time_spec>(currAct, currTS);
                 payload->factLayers[nlTime].negativeLiterals.push_back(currEff);
-            }  
-            
+            }
+
         }
     }
-    
+
     return false;
 }
 
@@ -11116,35 +11116,35 @@ bool RPGHeuristic::Private::applyNumericEffects(Private::BuildingPayload * const
                                                 const int & currAct, const Planner::time_spec & currTS, const EpsilonResolutionTimestamp & nlTime,
                                                 const int & limitTo)
 {
-    
+
     const int actualLimit = (limitTo != -1 ? limitTo : RPGBuilder::howManyTimesOptimistic(currAct, payload->startState));
-    
+
     if (actualLimit == 0) {
         if (evaluateDebug) {
             cout << "\t\tNot applying numeric effects: are not interesting\n";
         }
         return false;
     }
-    
+
     assert(actualLimit > 0);
-    
+
     ActionAndHowManyTimes details(currAct, currTS,
                                   actualLimit,
                                   payload->actionDurations[currAct].first, payload->actionDurations[currAct].second);
-    
+
     {
         // first, instantaneous numeric effects
         const list<int> & numericEffects = (currTS == Planner::E_AT_START ? (*actionsToRPGNumericStartEffects)[currAct]
                                                                       : (*actionsToRPGNumericEndEffects)[currAct]  );
-        
+
         list<int>::const_iterator numEffItr = numericEffects.begin();
         const list<int>::const_iterator numEffEnd = numericEffects.end();
-        
+
         for (; numEffItr != numEffEnd; ++numEffItr) {
             payload->fluentLayers.recordInstantaneousNumericEffect(details, nlTime, *numEffItr);
         }
-        
-        
+
+
     }
 
     map<int, list<RPGBuilder::IntegralContinuousEffect> >::const_iterator iceItr = RPGBuilder::getActionsToIntegralConditionalEffects().find(currAct);
@@ -11152,7 +11152,7 @@ bool RPGHeuristic::Private::applyNumericEffects(Private::BuildingPayload * const
     if (iceItr != RPGBuilder::getActionsToIntegralConditionalEffects().end()) {
         list<RPGBuilder::IntegralContinuousEffect>::const_iterator ceItr = iceItr->second.begin();
         const list<RPGBuilder::IntegralContinuousEffect>::const_iterator ceEnd = iceItr->second.end();
-        
+
         for (; ceItr != ceEnd; ++ceItr) {
             if (ceItr->getTS() == currTS) {
                 list<int> numericEffects;
@@ -11163,60 +11163,60 @@ bool RPGHeuristic::Private::applyNumericEffects(Private::BuildingPayload * const
                 } else {
                     ceItr->getRelaxedEndEffects(numericEffects, now.toDouble());
                 }
-                
-                
+
+
                 if (evaluateDebug) {
                     cout << "Applying a bunch of ICE outcomes\n";
                 }
                 list<int>::const_iterator numEffItr = numericEffects.begin();
                 const list<int>::const_iterator numEffEnd = numericEffects.end();
-                
+
                 for (; numEffItr != numEffEnd; ++numEffItr) {
                     payload->fluentLayers.recordInstantaneousNumericEffect(details, nlTime, *numEffItr);
                 }
             }
         }
     }
-    
+
     if (currTS == Planner::E_AT_START) {
         // any continuous effects?
-        
+
         // first, any that have been integrated
-        if (!integratedCTSEffectChange[currAct].empty()) {            
+        if (!integratedCTSEffectChange[currAct].empty()) {
             list<double>::const_iterator contChangeItr = integratedCTSEffectChange[currAct].begin();
             const list<double>::const_iterator contChangeEnd = integratedCTSEffectChange[currAct].end();
-            
+
             list<int>::const_iterator contChangeVar = integratedCTSEffectVar[currAct].begin();
-            
+
             for (; contChangeItr != contChangeEnd; ++contChangeItr, ++contChangeVar) {
                 payload->fluentLayers.recordIntegratedNumericEffect(details, nlTime, make_pair(*contChangeVar, *contChangeItr));
             }
         }
-        
+
         if (!gradientCTSEffectChange[currAct].empty()) {
 
             list<double>::const_iterator contChangeItr = gradientCTSEffectChange[currAct].begin();
             const list<double>::const_iterator contChangeEnd = gradientCTSEffectChange[currAct].end();
-            
+
             list<int>::const_iterator contChangeVar = gradientCTSEffectVar[currAct].begin();
-            
+
             for (; contChangeItr != contChangeEnd; ++contChangeItr, ++contChangeVar) {
                 payload->fluentLayers.recordGradientNumericEffect(details, nlTime, make_pair(*contChangeVar, *contChangeItr), payload->factLayers);
 
             }
-            
+
         }
     }
-    
+
     return false;
 }
-   
+
 
 bool RPGHeuristic::Private::updateActionsForNewLiteralFact(Private::BuildingPayload * const payload,
                                                            const int & toPropagate, const EpsilonResolutionTimestamp & factLayerTime,
                                                            const bool & decrementRemainingUnsatisfiedPreconditionCounters)
 {
-    
+
     vector<int> & startPreconditionCounts = payload->startPreconditionCounts;
     vector<int> & endPreconditionCounts = payload->endPreconditionCounts;
     vector<int> & numericStartPreconditionCounts = payload->numericStartPreconditionCounts;
@@ -11266,11 +11266,11 @@ bool RPGHeuristic::Private::updateActionsForNewLiteralFact(Private::BuildingPayl
             int & spc = startPreconditionCounts[currAct];
             if (!preconditionless && decrementRemainingUnsatisfiedPreconditionCounters) --spc;
             if ((!spc && !numericStartPreconditionCounts[currAct]) && forbiddenStart.find(currAct) == forbiddenStart.end() && nlTime < latestStartAllowed[currAct]) {
-                
+
                 if (startShouldBeDelayed(currAct, factLayerTime, payload)) {
                     continue;
                 }
-                
+
                 assert(!RPGBuilder::rogueActions[currAct]);
                 if (updateDebug) {
                     cout << "\tStart of action " << currAct << " is now applicable: " << startPreconditionCounts[currAct] << "/" << numericStartPreconditionCounts[currAct];
@@ -11292,13 +11292,13 @@ bool RPGHeuristic::Private::updateActionsForNewLiteralFact(Private::BuildingPayl
                 }
 
                 ActionViolationData & costData = payload->startActionCosts[currAct];
-                
+
                 costData.canBeApplied = true;
-                
+
                 addPreconditionCost(costData, currAct, depItr->second, factLayerTime, payload);
                 addEffectCost(costData, currAct, depItr->second, payload);
-                
-                
+
+
 
                 //MAKESTARTMDI(POtime, currAct);
 
@@ -11317,9 +11317,9 @@ bool RPGHeuristic::Private::updateActionsForNewLiteralFact(Private::BuildingPayl
 
                 {
                     static pair<EpsilonResolutionTimestamp, list<pair<int,bool> > > defaultEntry(EpsilonResolutionTimestamp::undefined(), list<pair<int,bool> >());
-                    
+
                     defaultEntry.first = factLayerTime + EpsilonResolutionTimestamp(payload->actionDurations[currAct].first,true);
-                 
+
                     if (decrementRemainingUnsatisfiedPreconditionCounters) {
                         endActionSchedule[currAct] = defaultEntry.first;
                     }
@@ -11361,28 +11361,28 @@ bool RPGHeuristic::Private::updateActionsForNewLiteralFact(Private::BuildingPayl
                 //assert(checkPreconditionsAreSatisfied(depItr->first, depItr->second, nlTime));
 
                 bool insistOnThisEnd = (insistUponEnds.find(currAct) != insistUponEnds.end());
-                
+
                 if (decrementRemainingUnsatisfiedPreconditionCounters) {
-                
+
                     if (expandFully) earliestEndAllowed[currAct] = factLayerTime;
 
                     computeDynamicCost(currAct, Planner::E_AT_END, factLayerTime);
-                    
+
                     if (insistOnThisEnd) {
                         if (updateDebug) cout << "\tEnd is insisted upon, had " << unappearedEnds << " remaining\n";
                         if (factLayerTime - openEndActionSchedule[currAct] >= EpsilonResolutionTimestamp::zero()) {
-                            payload->markEndAppeared(currAct, factLayerTime);                            
+                            payload->markEndAppeared(currAct, factLayerTime);
                             if (!unappearedEnds && unsatisfiedGoals == payload->fakeGoalCount) {
-                                
+
                                 if (payload->admissibleMakespanEstimate < factLayerTime) {
                                     payload->admissibleMakespanEstimate = factLayerTime;
                                 }
-                                
+
                                 if (unsatisfiedGoals == 0) {
-                                    return true;                                
+                                    return true;
                                 }
                             }
-                            
+
                             if (updateDebug) cout << "\tNow down to " << unappearedEnds << "\n";
                         } else {
                             if (updateDebug) cout << "\tOpen end cannot appear quite yet\n";
@@ -11390,13 +11390,13 @@ bool RPGHeuristic::Private::updateActionsForNewLiteralFact(Private::BuildingPayl
                             endActionsAtTime[openEndActionSchedule[currAct]].push_back(make_pair(-1 - currAct, decrementRemainingUnsatisfiedPreconditionCounters));
                             /*--unappearedEnds; // has still appeared, insofar as plan extraction will happily pick this up at a later layer.
                             if (!unappearedEnds && unsatisfiedGoals == payload->fakeGoalCount) {
-                                
+
                                 if (payload->admissibleMakespanEstimate < openEndActionSchedule[currAct]) {
                                     payload->admissibleMakespanEstimate = openEndActionSchedule[currAct];
                                 }
-                                                                
+
                                 if (unsatisfiedGoals == 0) {
-                                    return true;                                
+                                    return true;
                                 }
                             }*/
                             if (updateDebug) cout << "\tNow down to " << unappearedEnds << "\n";
@@ -11424,31 +11424,31 @@ bool RPGHeuristic::Private::updateActionsForNewLiteralFact(Private::BuildingPayl
                                 if (updateDebug) {
                                     cout << "\t\tDoing the update loop because " << factLayerTime << " >= " << enforcedEnd << endl;
                                 }
-                                
+
                             } else {
                                 endActionsAtTime[enforcedEnd].push_back(make_pair(currAct,decrementRemainingUnsatisfiedPreconditionCounters));
                                 if (updateDebug) {
                                     cout << "\t\tNot doing the update loop because " << factLayerTime << " < " << enforcedEnd << endl;
                                 }
-                                
+
                             }
                         }
                     }
 
                     if (doLoop) {
-                        
+
                         if (!calculatedCostYet) {
                             calculatedCostYet = true;
-                            
+
                             ActionViolationData & costData = payload->endActionCosts[currAct];
-                
+
                             costData.canBeApplied = true;
-                            
+
                             addPreconditionCost(costData, currAct, depItr->second, factLayerTime, payload);
                             addEffectCost(costData, currAct, depItr->second, payload);
-                            
+
                         }
-                        
+
                         if (updateDebug) {
                             if (limitToOnce) {
                                 cout << "\tStarted before RPG\n";
@@ -11492,14 +11492,14 @@ bool RPGHeuristic::Private::updateActionsForNewLiteralFact(Private::BuildingPayl
                         cout << "\tEnd of action " << currAct << " at " << factLayerTime << " now only has " << numericEndPreconditionCounts[currAct] << " unsatisfied numeric conditions, and 1 unsatisfied literal condition:";
                         list<Literal*>::const_iterator litItr = RPGBuilder::getEndPropositionalPreconditions()[currAct].begin();
                         const list<Literal*>::const_iterator litEnd = RPGBuilder::getEndPropositionalPreconditions()[currAct].end();
-                        
+
                         int matches = 0;
                         int slack = 0;
                         for (; litItr != litEnd; ++litItr) {
-                            if (achieverDetails[(*litItr)->getStateID()].empty()) {                                
+                            if (achieverDetails[(*litItr)->getStateID()].empty()) {
                                 cout << " missing{" << *(*litItr) << "}";
                                 ++matches;
-                            } else {   
+                            } else {
                                 if (achieverDetails[(*litItr)->getStateID()].front().getLayer() == factLayerTime) {
                                     cout << " now{" << *(*litItr) << "@" << achieverDetails[(*litItr)->getStateID()].front().getLayer() << "}";
                                     ++slack;
@@ -11579,28 +11579,28 @@ bool RPGHeuristic::Private::updateActionsForNewNumericFact(Private::BuildingPayl
                     continue;
                 }
 
-                
+
                 //assert(checkPreconditionsAreSatisfied(depItr->first, depItr->second, nlTime));
 
                 if (RPGHeuristic::printRPGAsDot) {
                     payload->dot.addActionNode(factLayerTime.toDouble(), depItr->first, depItr->second);
                 }
-                
-                
+
+
                 if (expandFully) earliestStartAllowed[currAct] = factLayerTime;
 
                 startActionSchedule[currAct] = factLayerTime;
                 computeDynamicCost(currAct, Planner::E_AT_START, factLayerTime);
-                
+
                 //MAKESTARTMDI(POtime, currAct);
 
                 ActionViolationData & costData = payload->startActionCosts[currAct];
-                
+
                 costData.canBeApplied = true;
-                
+
                 addPreconditionCost(costData, currAct, depItr->second, factLayerTime, payload);
                 addEffectCost(costData, currAct, depItr->second, payload);
-                
+
                 if (applyPropositionalEffects(payload, currAct, Planner::E_AT_START, costData, false, nlTime/*, POtime*/)) return true;
 
                 if (applyNumericEffects(payload, currAct, Planner::E_AT_START, nlTime, -1)) return true;
@@ -11631,24 +11631,24 @@ bool RPGHeuristic::Private::updateActionsForNewNumericFact(Private::BuildingPayl
 
                 //assert(checkPreconditionsAreSatisfied(depItr->first, depItr->second, nlTime));
 
-                
+
                 if (expandFully) earliestEndAllowed[currAct] = factLayerTime;
 
                 computeDynamicCost(currAct, Planner::E_AT_END, factLayerTime);
-                
+
                 bool insistOnThisEnd = (insistUponEnds.find(currAct) != insistUponEnds.end());
                 if (insistOnThisEnd) {
-                    if (factLayerTime - openEndActionSchedule[currAct] >= EpsilonResolutionTimestamp::zero()) {                        
+                    if (factLayerTime - openEndActionSchedule[currAct] >= EpsilonResolutionTimestamp::zero()) {
                         payload->markEndAppeared(currAct, factLayerTime);
                         if (unappearedEnds == 0 && unsatisfiedGoals == payload->fakeGoalCount) {
                             if (payload->admissibleMakespanEstimate < factLayerTime) {
                                 payload->admissibleMakespanEstimate = factLayerTime;
                             }
-                            
+
                             if (unsatisfiedGoals == 0) {
-                                return true;                                
+                                return true;
                             }
-                        }                        
+                        }
                         if (updateDebug) cout << "\tNow down to " << unappearedEnds << "\n";
                     } else {
                         if (updateDebug) cout << "\tOpen end cannot appear quite yet\n";
@@ -11659,11 +11659,11 @@ bool RPGHeuristic::Private::updateActionsForNewNumericFact(Private::BuildingPayl
                             if (payload->admissibleMakespanEstimate < openEndActionSchedule[currAct]) {
                                 payload->admissibleMakespanEstimate = openEndActionSchedule[currAct];
                             }
-                                                        
+
                             if (unsatisfiedGoals == 0) {
-                                return true;                                
+                                return true;
                             }
-                        }*/ 
+                        }*/
                         if (updateDebug) cout << "\tNow down to " << unappearedEnds << "\n";
                     }
                 }
@@ -11699,16 +11699,16 @@ bool RPGHeuristic::Private::updateActionsForNewNumericFact(Private::BuildingPayl
 
                         if (!calculatedCostYet) {
                             calculatedCostYet = true;
-                            
+
                             ActionViolationData & costData = payload->endActionCosts[currAct];
-                
+
                             costData.canBeApplied = true;
-                            
+
                             addPreconditionCost(costData, currAct, depItr->second, factLayerTime, payload);
                             addEffectCost(costData, currAct, depItr->second, payload);
-                            
+
                         }
-                        
+
                         if (updateDebug) {
                             if (limitToOnce) {
                                 cout << "\tStarted before RPG\n";
@@ -11716,7 +11716,7 @@ bool RPGHeuristic::Private::updateActionsForNewNumericFact(Private::BuildingPayl
                                 cout << "\tStart is sufficiently earlier\n";
                             }
                         }
-                        
+
                         if (RPGHeuristic::printRPGAsDot) {
                             if (epPass == 0) {
                                 payload->dot.addNeededEnd(factLayerTime.toDouble(), depItr->first);
@@ -11724,14 +11724,14 @@ bool RPGHeuristic::Private::updateActionsForNewNumericFact(Private::BuildingPayl
                                 payload->dot.addActionNode(factLayerTime.toDouble(), depItr->first, depItr->second);
                             }
                         }
-                                                                
-                                                                                
-                        
+
+
+
                         //MAKEENDMDI(POtime, (limitToOnce ? payload->earliestStartOf[currAct] : 0.0), RPGBuilder::getOpMinDuration(currAct, 0), currAct);
-                        
+
                         if (applyPropositionalEffects(payload, currAct, Planner::E_AT_END, payload->endActionCosts[currAct], limitToOnce, nlTime/*, POtime*/)) return true;
-                        
-                        
+
+
                         if (limitToOnce) {
                             const map<int, set<int> >::const_iterator saItr = startedActions.find(currAct);
                             if (saItr != startedActions.end()) {
@@ -11740,7 +11740,7 @@ bool RPGHeuristic::Private::updateActionsForNewNumericFact(Private::BuildingPayl
                         } else {
                             if (applyNumericEffects(payload, currAct, Planner::E_AT_END, nlTime, -1)) return true;
                         }
-                        
+
 
 
                     }
@@ -11776,7 +11776,7 @@ bool RPGHeuristic::Private::applyEndEffectNow(Private::BuildingPayload * const p
     const bool updateDebug = Globals::globalVerbosity & 64;
 
     computeDynamicCost(currAct, Planner::E_AT_END, factLayerTime);
-    
+
     if (updateDebug) cout << "\tEnd of action " << currAct << " is now applicable\n";
 
     //assert(checkPreconditionsAreSatisfied(currAct, Planner::E_AT_END, nlTime));
@@ -11788,13 +11788,13 @@ bool RPGHeuristic::Private::applyEndEffectNow(Private::BuildingPayload * const p
             payload->dot.addActionNode(factLayerTime.toDouble(), currAct, Planner::E_AT_END);
         }
     }
-    
+
     if (expandFully) earliestEndAllowed[currAct] = factLayerTime;
 
     ActionViolationData & costData = payload->endActionCosts[currAct];
 
     costData.canBeApplied = true;
-    
+
     addPreconditionCost(costData, currAct, Planner::E_AT_END, factLayerTime, payload);
     addEffectCost(costData, currAct, Planner::E_AT_END, payload);
 
@@ -11812,7 +11812,7 @@ bool RPGHeuristic::Private::applyEndEffectNow(Private::BuildingPayload * const p
         if (applyNumericEffects(payload, currAct, Planner::E_AT_END, nlTime, -1)) return true;
     }
 
-    
+
     //assert(checkPreconditionsAreSatisfied(currAct, Planner::E_AT_END, nlTime));
 
     return false;
@@ -11821,66 +11821,66 @@ bool RPGHeuristic::Private::applyEndEffectNow(Private::BuildingPayload * const p
 
 bool RPGHeuristic::Private::startShouldBeDelayed(const int & currAct, const EpsilonResolutionTimestamp & factLayerTime, BuildingPayload * const payload)
 {
-    
+
     static const bool shortCircuit = !TemporalAnalysis::isAnythingTILManipulated();
-    
+
     if (shortCircuit) {
         return false;
     }
-    
+
     static const bool debug = (Globals::globalVerbosity & 16);
-    
+
     pair<double,double> startBounds(factLayerTime.toDouble(), TemporalAnalysis::getActionTSBounds()[currAct][0].second);
     pair<double,double> endBounds(factLayerTime.toDouble() + payload->actionDurations[currAct].first, TemporalAnalysis::getActionTSBounds()[currAct][1].second);
-    
+
     bool keep = true;
-    
+
     TemporalAnalysis::reboundSingleAction(currAct, payload->actionDurations, keep, startBounds, endBounds);
-    
-    if (!keep) {        
+
+    if (!keep) {
         if (debug) {
             cout << COLOUR_light_red << "Not actually getting start of " << *(RPGBuilder::getInstantiatedOp(currAct)) << " as it can't appear here due to temporal constraints\n" << COLOUR_default;
         }
         return true;
     }
-    
+
     EpsilonResolutionTimestamp rounded(startBounds.first, true);
     if (rounded <= factLayerTime) {
         return false;
     }
-        
+
     payload->factLayers[rounded].startDelayedUntilNow.insert(currAct);
     if (debug) {
         cout << COLOUR_light_red << "Delayed start of " << *(RPGBuilder::getInstantiatedOp(currAct)) << " to " << rounded << " rather than " << factLayerTime << " due to temporal constraints\n" << COLOUR_default;
     }
-    
+
     return true;
 }
 
 bool RPGHeuristic::Private::revisitActs(BuildingPayload * payload, const EpsilonResolutionTimestamp & factLayerTime, const list<pair<int, Planner::time_spec> > & actsToVisit) {
-    
+
     if (actsToVisit.empty()) {
         return false;
     }
-    
+
     EpsilonResolutionTimestamp nlTime(factLayerTime);
     ++nlTime;
-    
+
     list<pair<int,Planner::time_spec> >::const_iterator depItr = actsToVisit.begin();
     const list<pair<int, Planner::time_spec> >::const_iterator depEnd = actsToVisit.end();
-    
+
     for (; depItr != depEnd; ++depItr) {
         const int currAct = depItr->first;
         if (depItr->second == Planner::E_AT_START) {
-            
+
             ActionViolationData & costData = payload->startActionCosts[currAct];
-            
+
             costData.canBeApplied = true;
-            
+
             addPreconditionCost(costData, currAct, depItr->second, factLayerTime, payload);
             addEffectCost(costData, currAct, depItr->second, payload);
-            
-            
+
+
 
             //MAKESTARTMDI(POtime, currAct);
 
@@ -11888,24 +11888,24 @@ bool RPGHeuristic::Private::revisitActs(BuildingPayload * payload, const Epsilon
 
             {
                 static pair<EpsilonResolutionTimestamp, list<pair<int,bool> > > defaultEntry(EpsilonResolutionTimestamp::undefined(), list<pair<int,bool> >());
-                
+
                 defaultEntry.first = factLayerTime + EpsilonResolutionTimestamp(payload->actionDurations[currAct].first,true);
-             
+
                 if (!payload->endPreconditionCounts[currAct] && !payload->numericEndPreconditionCounts[currAct]) {
                     payload->endActionsAtTime.insert(defaultEntry).first->second.push_back(make_pair(currAct, false) );
                 }
             }
 
-            
+
         } else if (depItr->second == Planner::E_AT_END) {
-                        
+
             bool insistOnThisEnd = (payload->insistUponEnds.find(currAct) != payload->insistUponEnds.end());
             bool calculatedCostYet = false;
-            
+
             for (int epPass = 0; epPass < 2; ++epPass) {
                 bool doLoop = false;
                 bool limitToOnce = false;
-                
+
                 if (!epPass) {
                     doLoop = insistOnThisEnd;
                     limitToOnce = true;
@@ -11919,46 +11919,46 @@ bool RPGHeuristic::Private::revisitActs(BuildingPayload * payload, const Epsilon
                 }
 
                 if (doLoop) {
-                    
+
                     if (!calculatedCostYet) {
                         calculatedCostYet = true;
-                        
+
                         ActionViolationData & costData = payload->endActionCosts[currAct];
-            
+
                         costData.canBeApplied = true;
-                        
+
                         addPreconditionCost(costData, currAct, depItr->second, factLayerTime, payload);
                         addEffectCost(costData, currAct, depItr->second, payload);
-                        
+
                     }
-                    
+
                     //MAKEENDMDI(POtime, (limitToOnce ? payload->earliestStartOf[currAct] : 0.0), RPGBuilder::getOpMinDuration(currAct, 0), currAct);
 
                     if (applyPropositionalEffects(payload, currAct, Planner::E_AT_END, payload->endActionCosts[currAct], limitToOnce, nlTime/*, POtime*/)) return true;
-                    
+
                 }
 
             }
         } else {
             assert(depItr->second == Planner::E_AT);
-            
-            
+
+
             ActionViolationData & costData = payload->tilCosts[depItr->first];
-                    
+
             costData.canBeApplied = true;
-            
+
             addPreconditionCost(costData, depItr->first, Planner::E_AT, EpsilonResolutionTimestamp::undefined(), payload);
             addEffectCost(costData, depItr->first, Planner::E_AT, payload);
 
             if (applyPropositionalEffects(payload, depItr->first, depItr->second, costData, false, nlTime/*, POtime*/)) return true;
 
-            
+
         }
-            
+
     }
-    
+
     return false;
-    
+
 }
 
 bool RPGHeuristic::Private::updatePreferencesForFact(BuildingPayload * const payload,
@@ -11971,49 +11971,49 @@ bool RPGHeuristic::Private::updatePreferencesForFact(BuildingPayload * const pay
         // TODO: is this right?
         return false;
     }
-    
+
     assert(isALiteral ? (polarity ? (size_t) fID < preconditionsToPrefs->size() : (size_t) fID < negativePreconditionsToPrefs->size())
                       : (polarity && (size_t) fID < numericPreconditionsToPrefs->size()));
-    
+
     const list<LiteralCellDependency<pair<int,bool> > > & dependents
         = (isALiteral ? (polarity ? (*preconditionsToPrefs)[fID] : (*negativePreconditionsToPrefs)[fID])
                       : (*numericPreconditionsToPrefs)[fID]
           );
 
     list<pair<int,int> > nowCostFreeToAdd;
-    
+
     set<pair<int, Planner::time_spec> > actsVisited;
     list<pair<int, Planner::time_spec> > actsToVisit;
-    
+
     static const int taskPrefCount = RPGBuilder::getTaskPrefCount();
-    
+
     if (evaluateDebug) {
         cout << "\tNumber of preferences depending on this: " << dependents.size() << endl;
     }
-    
+
     {
         list<LiteralCellDependency<pair<int,bool> > >::const_iterator depItr = dependents.begin();
         const list<LiteralCellDependency<pair<int,bool> > >::const_iterator depEnd = dependents.end();
-        
+
         for (; depItr != depEnd; ++depItr) {
-            
+
             NNF_Flat* const toUpdate = payload->initialUnsatisfiedPreferenceConditions[depItr->dest.first][depItr->dest.second ? 1 : 0];
-            
+
             if (!toUpdate) continue;
-            
+
             if (toUpdate->isSatisfied()) continue;
-            
+
             if (depItr->dest.first < taskPrefCount) {
-                
+
                 if (payload->optimisticPrefStatus[depItr->dest.first] == AutomatonPosition::unreachable) {
                     continue;
                 }
-                
+
                 const RPGBuilder::Constraint & currPref = RPGBuilder::getPreferences()[depItr->dest.first];
                 if (currPref.cons == VAL::E_WITHIN && currPref.deadline < factLayerTime.toDouble()) {
                     if (Globals::globalVerbosity & 32768) {
                         cout << "\t" << COLOUR_light_green;
-                        
+
                         if (isALiteral) {
                             cout << "Literal fact ";
                             if (!polarity) cout << "¬";
@@ -12021,18 +12021,18 @@ bool RPGHeuristic::Private::updatePreferencesForFact(BuildingPayload * const pay
                         } else {
                             cout << "Numeric fact " << RPGBuilder::getNumericPreTable()[fID];
                         }
-                        
+
                         cout << "was relevant to within preference " << currPref.name << ":" << depItr->dest.first << ", but " << factLayerTime << " is too late for " << currPref.deadline << COLOUR_default << endl;
                     }
-                                
+
 
                     continue;
                 }
             }
-            
+
             if (Globals::globalVerbosity & 32768) {
                 cout << "\t" << COLOUR_light_green;
-                
+
                 if (isALiteral) {
                     cout << "Literal fact ";
                     if (!polarity) cout << "¬";
@@ -12040,17 +12040,17 @@ bool RPGHeuristic::Private::updatePreferencesForFact(BuildingPayload * const pay
                 } else {
                     cout << "Numeric fact " << RPGBuilder::getNumericPreTable()[fID];
                 }
-                
+
                 cout << "is relevant to preference " << RPGBuilder::getPreferences()[depItr->dest.first].name << ":" << depItr->dest.first << COLOUR_default << endl;
             }
-                        
-            
+
+
             toUpdate->satisfy(depItr->index);
-            
+
             if (depItr->dest.first < taskPrefCount) {
-                
+
                 if (toUpdate->isSatisfied()) {
-                    
+
                     if (Globals::globalVerbosity & 32768) {
                         if (depItr->dest.second) {
                             cout << "\t\t" << COLOUR_light_red << "Preference trigger now satisfied\n" << COLOUR_default;
@@ -12058,30 +12058,30 @@ bool RPGHeuristic::Private::updatePreferencesForFact(BuildingPayload * const pay
                             cout << "\t\t" << COLOUR_light_red << "Preference goal now satisfied\n" << COLOUR_default;
                         }
                     }
-                    
+
                     payload->preferencePartTrueAtLayer[depItr->dest.first][depItr->dest.second ? 1 : 0] = factLayerTime;
-                    
+
                     const AutomatonPosition::Position oldPosn = payload->optimisticPrefStatus[depItr->dest.first];
-                                
+
                     PreferenceHandler::updateCostsAndPreferenceStatus(payload->startState, depItr->dest, payload->optimisticPrefStatus,
                                                                        payload->prefCostOfAddingFact, payload->prefCostOfChangingNumberB,
                                                                        nowCostFreeToAdd);
-                    
+
                     const AutomatonPosition::Position newPosn = payload->optimisticPrefStatus[depItr->dest.first];
-                    
+
                     if (Globals::globalVerbosity & 32768) {
                         cout << "\t\t" << COLOUR_light_red << "Preference status was " << positionName[oldPosn] << ", now " << positionName[newPosn] << COLOUR_default << endl;
                     }
-                    
+
                     if (oldPosn == AutomatonPosition::unsatisfied || oldPosn == AutomatonPosition::triggered) {
-                        
+
                         if (isSatisfied(newPosn)) {
                             payload->rpgGoalPrefViolation -= RPGBuilder::getPreferences()[depItr->dest.first].cost;
-                                         
+
                             if (Globals::globalVerbosity & 32768) {
                                 cout << "\t\t" << COLOUR_light_red << "Subtracted " << RPGBuilder::getPreferences()[depItr->dest.first].cost << " from cost of reaching goal" << COLOUR_default << endl;
-                            }   
-                            if (RPGBuilder::getMetric()) {    
+                            }
+                            if (RPGBuilder::getMetric()) {
                                 if (RPGBuilder::getMetric()->minimise) {
                                     if (payload->rpgGoalPrefViolation < 0.0000001) {
                                         payload->rpgGoalPrefViolation = 0.0;
@@ -12096,17 +12096,17 @@ bool RPGHeuristic::Private::updatePreferencesForFact(BuildingPayload * const pay
                     }
 
                 }
-                
+
             } else {
-                
+
                 if (toUpdate->isSatisfied()) {
                     if (Globals::globalVerbosity & 32768) {
                         cout << "\t\t" << COLOUR_light_blue << "Precondition preference now satisfied, at time " << factLayerTime << "\n" << COLOUR_default;
                     }
                     payload->preferencePartTrueAtLayer[depItr->dest.first][depItr->dest.second ? 1 : 0] = factLayerTime;
-                    
+
                     const pair<int,Planner::time_spec> & currAct = RPGBuilder::getPreferences()[depItr->dest.first].attachedToOperator;
-                    
+
                     if (Globals::globalVerbosity & 32768) {
                         cout << "Applies to action " << *(RPGBuilder::getInstantiatedOp(currAct.first));
                         if (currAct.second == Planner::E_AT_END) {
@@ -12115,41 +12115,41 @@ bool RPGHeuristic::Private::updatePreferencesForFact(BuildingPayload * const pay
                             cout << ", start\n";
                         }
                     }
-                    
+
                     ActionViolationData & actCost = (currAct.second == Planner::E_AT_START ? payload->startActionCosts[currAct.first] : payload->endActionCosts[currAct.first]);
-                    
+
                     bool canAppearHere = actCost.canBeApplied;
-                                    
+
                     if (actCost.canBeApplied) {
-                        
+
                         if (currAct.second == Planner::E_AT_START) {
-                            
+
                             canAppearHere = ((!payload->startPreconditionCounts[currAct.first] && !payload->numericStartPreconditionCounts[currAct.first])
                                                && payload->forbiddenStart.find(currAct.first) == payload->forbiddenStart.end()
                                                && factLayerTime < latestStartAllowed[currAct.first]);
-                            
+
                         } else if (currAct.second == Planner::E_AT_END) {
-                            
+
                             canAppearHere = ((!payload->endPreconditionCounts[currAct.first] && !payload->numericEndPreconditionCounts[currAct.first])
                                                && payload->forbiddenEnd.find(currAct.first) == payload->forbiddenEnd.end()
                                                && factLayerTime < latestEndAllowed[currAct.first]);
-                            
+
                         } else {
                             cerr << "Fatal internal error: precondition preference not at the start or end of an action\n";
                             exit(1);
                         }
-                        
+
                     }
-                    
+
                     if (canAppearHere) {
-                        
-                        
-                        
+
+
+
                         const set<int>::iterator pmvItr = actCost.preconditionsMeanViolating.find(depItr->dest.first);
                         assert(pmvItr != actCost.preconditionsMeanViolating.end());
-                        
+
                         const double costDelta = RPGBuilder::getPreferences()[depItr->dest.first].cost;
-                        
+
                         actCost.preconditionsMeanViolating.erase(pmvItr);
                         actCost.overallViolations.erase(depItr->dest.first);
                         actCost.overallViolationCost -= costDelta;
@@ -12159,7 +12159,7 @@ bool RPGHeuristic::Private::updatePreferencesForFact(BuildingPayload * const pay
                             if (Globals::globalVerbosity & 32768) {
                                 cout << "\t\t" << COLOUR_yellow << " - Revisiting " << *(RPGBuilder::getInstantiatedOp(currAct.first));
                                 if (currAct.second == Planner::E_AT_END) {
-                                    cout << ", end";                                
+                                    cout << ", end";
                                 } else {
                                     cout << ", start";
                                 }
@@ -12167,30 +12167,30 @@ bool RPGHeuristic::Private::updatePreferencesForFact(BuildingPayload * const pay
                             }
                             actsToVisit.push_back(currAct);
                         }
-                        
-                        
+
+
                     }
-                    
-                    payload->preferencePartsToSatisfyBeforeAction[currAct].push_back(depItr->dest);                    
-                    
+
+                    payload->preferencePartsToSatisfyBeforeAction[currAct].push_back(depItr->dest);
+
                 }
-                
+
             }
         }
-        
+
     }
-    
+
     EpsilonResolutionTimestamp nlTime = factLayerTime;
     ++nlTime;
-    
+
     if (!nowCostFreeToAdd.empty()) {
         list<pair<int,int> > & toUpdate = payload->factLayers[nlTime].preferencePairedWithFactNowFreeToAdd;
-        
+
         toUpdate.insert(toUpdate.end(), nowCostFreeToAdd.begin(), nowCostFreeToAdd.end());
     }
-        
+
     return revisitActs(payload, factLayerTime, actsToVisit);
-    
+
 }
 
 bool RPGHeuristic::Private::updateForPreferencesInBetterPositions(BuildingPayload * const payload,
@@ -12200,61 +12200,61 @@ bool RPGHeuristic::Private::updateForPreferencesInBetterPositions(BuildingPayloa
     set<pair<int, Planner::time_spec> > actsVisited;
     list<pair<int, Planner::time_spec> > actsToVisit;
 
-    
+
     list<pair<int, int> >::const_iterator cfItr = preferencePairedWithFactNowFreeToAdd.begin();
     const list<pair<int,int> >::const_iterator cfEnd  =preferencePairedWithFactNowFreeToAdd.end();
-    
-    for (; cfItr != cfEnd; ++cfItr) {        
+
+    for (; cfItr != cfEnd; ++cfItr) {
         const map<int, set<pair<int, Planner::time_spec> > >::iterator reduceCostItr = payload->preferenceWouldBeViolatedByAction.find(cfItr->first);
         if (reduceCostItr == payload->preferenceWouldBeViolatedByAction.end()) {
             if (Globals::globalVerbosity & 32768) {
                 cout << COLOUR_light_blue "\tNo actions have costs associated with " << RPGBuilder::getPreferences()[cfItr->first].name << ":" << cfItr->first << COLOUR_default << endl;
-            }            
+            }
             continue;
         }
-        
+
         const double costDelta = prefCosts[cfItr->first];
-        
+
         set<pair<int, Planner::time_spec> >::const_iterator actItr = reduceCostItr->second.begin();
         const set<pair<int, Planner::time_spec> >::const_iterator actEnd = reduceCostItr->second.end();
-        
+
         for (; actItr != actEnd; ++actItr) {
             const int currAct = actItr->first;
-            
+
             ActionViolationData & actCost = (actItr->second == Planner::E_AT
-                                              ? (payload->tilCosts[currAct])                                              
+                                              ? (payload->tilCosts[currAct])
                                               : (actItr->second == Planner::E_AT_START ? payload->startActionCosts[currAct] : payload->endActionCosts[currAct]));
-            
+
             actCost.effectsMeanViolating.erase(cfItr->first);
-            
+
             if (cfItr->second != -1) {
                 payload->preferencePartsToSatisfyBeforeAction[*actItr].push_back(make_pair(cfItr->first, (cfItr->second == 1)));
             }
-            
+
             bool canAppearHere = actCost.canBeApplied;
-                                    
+
             if (actCost.canBeApplied) {
-                
+
                 if (actItr->second == Planner::E_AT_START) {
-                    
+
                     canAppearHere = ((!payload->startPreconditionCounts[currAct] && !payload->numericStartPreconditionCounts[currAct])
                                        && payload->forbiddenStart.find(currAct) == payload->forbiddenStart.end()
                                        && factLayerTime < latestStartAllowed[currAct]);
-                    
+
                 } else if (actItr->second == Planner::E_AT_END) {
-                    
+
                     canAppearHere = ((!payload->endPreconditionCounts[currAct] && !payload->numericEndPreconditionCounts[currAct])
                                        && payload->forbiddenEnd.find(currAct) == payload->forbiddenEnd.end()
                                        && factLayerTime < latestEndAllowed[currAct]);
-                    
+
                 } else if (actItr->second == Planner::E_AT) {
                     if (currAct < payload->startState.nextTIL) {
                         canAppearHere = false;
-                    } else {                    
+                    } else {
                         if (RPGBuilder::modifiedRPG) {
                             // TIL only appears once, in the right place
-                            canAppearHere = false;                        
-                        } else {                    
+                            canAppearHere = false;
+                        } else {
                             const EpsilonResolutionTimestamp tilTS = EpsilonResolutionTimestamp(tilTimes[currAct], false) - payload->stateTS;
                             if (tilTS <= factLayerTime) { // if the latest point at which the TIL can appear is before now
                                 canAppearHere = false;
@@ -12262,27 +12262,27 @@ bool RPGHeuristic::Private::updateForPreferencesInBetterPositions(BuildingPayloa
                         }
                     }
                 }
-                
+
             }
-            
+
             if (canAppearHere) {
-                                
-                if (actCost.preconditionsMeanViolating.find(cfItr->first) == actCost.preconditionsMeanViolating.end()) {                                
+
+                if (actCost.preconditionsMeanViolating.find(cfItr->first) == actCost.preconditionsMeanViolating.end()) {
                     actCost.overallViolations.erase(cfItr->first);
                     actCost.overallViolationCost -= costDelta;
                     actCost.effViolationCost -= costDelta;
 
                     if (Globals::globalVerbosity & 32768) {
                         cout << "Reducing the recorded cost of ";
-                        ActionSegment::printIntTSPair(*actItr);                        
+                        ActionSegment::printIntTSPair(*actItr);
                         cout << " to " << actCost.overallViolationCost << endl;
                     }
-                    
-                    
+
+
                     if (actsVisited.insert(*actItr).second) {
                         if (Globals::globalVerbosity & 32768) {
                             cout << "\t\t" << COLOUR_yellow << " - Revisiting ";
-                            ActionSegment::printIntTSPair(*actItr);                        
+                            ActionSegment::printIntTSPair(*actItr);
                             cout << ", as it's now " << costDelta << " cheaper\n" << COLOUR_default;
                         }
                         actsToVisit.push_back(*actItr);
@@ -12295,7 +12295,7 @@ bool RPGHeuristic::Private::updateForPreferencesInBetterPositions(BuildingPayloa
                         ActionSegment::printIntTSPair(*actItr);
                         cout << " would still violate the preference, due to its preconditions\n";
                     }
-                                    
+
                 }
             } else {
                 if (Globals::globalVerbosity & 32768) {
@@ -12303,12 +12303,12 @@ bool RPGHeuristic::Private::updateForPreferencesInBetterPositions(BuildingPayloa
                     ActionSegment::printIntTSPair(*actItr);
                     cout << " becomes applicable, it will no longer violate the preference\n";
                 }
-                
+
             }
         }
-        
+
     }
-    
+
     return revisitActs(payload, factLayerTime, actsToVisit);
 }
 
@@ -12316,7 +12316,7 @@ bool RPGHeuristic::Private::updateForPreferencesInBetterPositions(BuildingPayloa
 
 void printVec(const vector<double> & costVec) {
     const int cSize = costVec.size();
-    
+
     cout << "[";
     for (int i = 0; i < cSize; ++i) {
         if (i) cout << ", ";
@@ -12339,53 +12339,53 @@ void RPGHeuristic::Private::updateAdditiveCosts(BuildingPayload * const payload,
     }
 
     const map<int, list<int> > & igc = NumericAnalysis::getIndependentGoalCosts()[updateForGoal];
-    
+
     if (igc.empty()) {
         return;
     }
 
     const map<int, list<int> >::const_iterator igcItr = igc.find(ci);
-    
+
     if (igcItr == igc.end()) {
         return;
     }
 
     static const int localDebug = 0;
-    
+
     static const string UAC("\tupdateAdditiveCosts(): ");
 
     // if we get this far, we have independent goal costs - iterate over achievers,
     // finding which exist, and add the smallest of those to the additive cost
-    
+
     double costUpdate = 0.0;
     bool achieverYet = false;
-    
+
     list<int>::const_iterator achievedByItr = igcItr->second.begin();
     const list<int>::const_iterator achievedByEnd = igcItr->second.end();
 
-    
+
     for (double localCost; achievedByItr != achievedByEnd; ++achievedByItr) {
         if (payload->startActionSchedule[*achievedByItr].isUndefined()) {
-            
+
             // don't use an achiever if its start hasn't appeared yet
             continue;
         }
-        
+
         if (!RPGBuilder::getRPGDEs(*achievedByItr).empty()
             && payload->endActionSchedule[*achievedByItr].isUndefined()
             && payload->openEndActionSchedule[*achievedByItr].isUndefined()) {
-            
+
             // for durative actions, don't use an achiever if its end hasn't appeared yet
             continue;
         }
-        
+
         if (payload->startActionSchedule[*achievedByItr] > deadline) {
             // don't use achievers that start too late
             continue;
         }
-        
-        
-        
+
+
+
         {
             const list<Literal*> & startAdds = RPGBuilder::getStartPropositionAdds()[*achievedByItr];
             list<Literal*>::const_iterator addItr = startAdds.begin();
@@ -12395,37 +12395,37 @@ void RPGHeuristic::Private::updateAdditiveCosts(BuildingPayload * const payload,
                     break;
                 }
             }
-            
+
             if (addItr == addEnd) {
                 // here, it means it wasn't added by the start of the action
-                
+
                 if (payload->endActionSchedule[*achievedByItr] <= deadline) {
-                    
+
                 } else {
-                    
-                    if (payload->startState.startedActions.find(*achievedByItr) == payload->startState.startedActions.end() 
+
+                    if (payload->startState.startedActions.find(*achievedByItr) == payload->startState.startedActions.end()
                         || payload->openEndActionSchedule[*achievedByItr] > deadline) {
-                        
+
                         // don't use achievers that end too late
-                        
+
                         continue;
                     }
                 }
-                                        
+
             }
         }
-        
-        
+
+
         localCost = startEffectsOnResourceLimits[*achievedByItr][ci]
                     + endEffectsOnResourceLimits[*achievedByItr][ci]
                     + dynamicStartEffectsOnResourceLimits[*achievedByItr][ci]
                     + dynamicEndEffectsOnResourceLimits[*achievedByItr][ci];
-        
+
         if (localCost == 0.0) {
             // have a cost-free achiever - assume we'd use it
             return;
         }
-        
+
         if (achieverYet) {
             if (localCost > 0.0) {
                 if (localCost < costUpdate) {
@@ -12434,30 +12434,30 @@ void RPGHeuristic::Private::updateAdditiveCosts(BuildingPayload * const payload,
             } else {
                 if (localCost > costUpdate) {
                     costUpdate = localCost;
-                }                                
-            } 
-        
+                }
+            }
+
         } else {
             costUpdate = localCost;
             achieverYet = true;
-        } 
-    
+        }
+
     }
-    
+
     if (localDebug) {
         cout << COLOUR_yellow << UAC << "- Additive cost of goal " << *(literalGoalVector[updateForGoal]) << " on limit " << ci << " = " << costUpdate << COLOUR_default << endl;
     }
-    
+
     costToUpdate += costUpdate;
 }
 
 void RPGHeuristic::Private::calculateGoalCost(BuildingPayload * const payload, double * calculatedCost)
 {
-    
+
     static const int localDebug = (Globals::globalVerbosity & 16 ? 1 : 0);
-    
+
     static const string CGC("calculateGoalCost(): ");
-    
+
     if (!calculatedCost) {
         if (!payload->tooExpensive) {
             if (localDebug & 1) {
@@ -12465,50 +12465,50 @@ void RPGHeuristic::Private::calculateGoalCost(BuildingPayload * const payload, d
             }
             return;
         }
-        
+
         if (!NumericAnalysis::areThereAnyIndependentGoalCosts() && RPGBuilder::getPreferences().empty()) {
             if (localDebug & 1) {
                 cout << COLOUR_light_green << CGC << "No independent goal costs, so costs known to be okay\n" << COLOUR_default;
             }
-            
+
             payload->tooExpensive = false;
             return;
         }
     }
-    
+
     if (localDebug) {
         cout << COLOUR_light_magenta << CGC << COLOUR_default << endl;
     }
-    
-    
+
+
     const int costCount = currentCosts.size();
-        
+
     assert(costCount); // or there shouldn't be independent goal costs
-    
+
     const bool addTheMaxCosts = RPGHeuristic::addTheMaxCosts;
-    
+
     vector<double> maxCosts(costCount, 0.0);
     vector<double> additiveCosts(costCount, 0.0);
     vector<int> mostExpensiveGID(costCount, -1);
-    
+
     const int lgc = literalGoalVector.size();
-    
+
     int fID;
 
     const vector<NumericAnalysis::NumericLimitDescriptor> & limits = NumericAnalysis::getGoalNumericUsageLimits();
 
-    
+
     const list<double> & literalGoalDeadlines = RPGBuilder::getLiteralGoalDeadlines();
     list<double>::const_iterator deadlineItr = literalGoalDeadlines.begin();
-    
-    
+
+
     for (int gID = 0; gID < lgc; ++gID, ++deadlineItr) {
-        
+
         if (!literalGoalVector[gID]) {
             // static goal
             continue;
         }
-        
+
         fID = literalGoalVector[gID]->getStateID();
 
         if (payload->startState.first.find(fID) != payload->startState.first.end()) {
@@ -12518,67 +12518,67 @@ void RPGHeuristic::Private::calculateGoalCost(BuildingPayload * const payload, d
             // true in the state being evaluated
             continue;
         }
-        
 
-                
-                
-        
-        const list<CostedAchieverDetails> & achievers = achieverDetails[fID];        
+
+
+
+
+        const list<CostedAchieverDetails> & achievers = achieverDetails[fID];
         assert(!achievers.empty());
-            
+
         list<CostedAchieverDetails>::const_reverse_iterator accItr = achievers.rbegin();
         const list<CostedAchieverDetails>::const_reverse_iterator accEnd = achievers.rend();
-        
+
         EpsilonResolutionTimestamp roundedDeadline(EpsilonResolutionTimestamp::infinite());
         if (*deadlineItr != DBL_MAX) {
             roundedDeadline = EpsilonResolutionTimestamp(*deadlineItr,true);
         }
-        
+
         for (; accItr != accEnd && accItr->getLayer() > roundedDeadline; ++accItr) ;
-        
+
         if (accItr == accEnd) {
             // in this case, we don't have an early enough achiever, give up for now
             return;
         }
-                    
-        
+
+
         const CostedAchieverDetails & achiever = *accItr;
 
-        
-        
+
+
         for (int ci = 0; ci < costCount; ++ci) {
-            
+
             if (limits[ci].optimisationLimit && addTheMaxCosts) {
                 if (achiever.costs[ci] > 0.0) {
-                    if (mostExpensiveGID[ci] == -1) {                        
-                        maxCosts[ci] = currentCosts[ci];   
+                    if (mostExpensiveGID[ci] == -1) {
+                        maxCosts[ci] = currentCosts[ci];
                         mostExpensiveGID[ci] = INT_MAX;
                     }
-                    
+
                     maxCosts[ci] += achiever.costs[ci] - currentCosts[ci];
-                    
+
                     if (localDebug & 2) {
                         cout << COLOUR_light_blue << CGC << "goal fact" << *(literalGoalVector[gID]) << ": is ";
                         cout << " adding to the costs on ";
                         cout << ci << ", " << achiever.costs[ci] - currentCosts[ci] << "; total is now " << maxCosts[ci] << endl << COLOUR_default;
                     }
-                    
+
                 } else if (achiever.costs[ci] < 0.0) {
-                    if (mostExpensiveGID[ci] == -1) {                        
-                        maxCosts[ci] = currentCosts[ci];   
+                    if (mostExpensiveGID[ci] == -1) {
+                        maxCosts[ci] = currentCosts[ci];
                         mostExpensiveGID[ci] = INT_MAX;
                     }
-                    
+
                     maxCosts[ci] += (achiever.costs[ci] - currentCosts[ci]);
                     if (localDebug & 2) {
                         cout << COLOUR_light_blue << CGC << "goal fact" << *(literalGoalVector[gID]) << ": is ";
                         cout << " adding to the costs on ";
                         cout << ci << ", " << achiever.costs[ci] - currentCosts[ci] << "; total is now " << maxCosts[ci] << endl << COLOUR_default;
                     }
-                   
+
                 }
             } else {
-            
+
                 if (achiever.costs[ci] > 0.0) {
                     if (mostExpensiveGID[ci] == -1 || maxCosts[ci] < achiever.costs[ci]) {
                         if (localDebug & 2) {
@@ -12587,14 +12587,14 @@ void RPGHeuristic::Private::calculateGoalCost(BuildingPayload * const payload, d
                                 cout << " the first max on ";
                             } else {
                                 cout << " the new max on ";
-                            }                        
+                            }
                             cout << ci << ", " << achiever.costs[ci] << endl << COLOUR_default;
                         }
                         updateAdditiveCosts(payload, ci, roundedDeadline, mostExpensiveGID[ci], additiveCosts[ci]);
                         maxCosts[ci] = achiever.costs[ci];
                         mostExpensiveGID[ci] = gID;
-                        
-                        
+
+
                     } else {
                         updateAdditiveCosts(payload, ci, roundedDeadline, gID, additiveCosts[ci]);
                     }
@@ -12606,41 +12606,41 @@ void RPGHeuristic::Private::calculateGoalCost(BuildingPayload * const payload, d
                                 cout << " the first max on ";
                             } else {
                                 cout << " the new max on ";
-                            }                        
+                            }
                             cout << ci << ", " << achiever.costs[ci] << endl << COLOUR_default;
                         }
-                                            
-                                            
+
+
                         updateAdditiveCosts(payload, ci, roundedDeadline, mostExpensiveGID[ci], additiveCosts[ci]);
                         maxCosts[ci] = achiever.costs[ci];
                         mostExpensiveGID[ci] = gID;
-                        
+
                     } else {
                         updateAdditiveCosts(payload, ci, roundedDeadline, gID, additiveCosts[ci]);
                     }
                 }
             }
         }
-        
+
     }
 
-    
+
     double localCost, limitToUse;
-    
+
     for (int ci = 0; ci < costCount; ++ci) {
 
         localCost = additiveCosts[ci] + maxCosts[ci];
 
         limitToUse = limits[ci].limit;
-        
+
         if (limits[ci].optimisationLimit && (Globals::bestSolutionQuality > -DBL_MAX || calculatedCost)) {
             if (Globals::bestSolutionQuality + 0.001 > limitToUse) {
                 limitToUse = Globals::bestSolutionQuality + 0.001;
             }
             if (localDebug & 1) {
-                cout << COLOUR_light_blue << CGC << "Optimisation limit, direct effect on limit is " << localCost << ", split into " << additiveCosts[ci] << " additive costs, and " << maxCosts[ci] << " max costs\n";                
+                cout << COLOUR_light_blue << CGC << "Optimisation limit, direct effect on limit is " << localCost << ", split into " << additiveCosts[ci] << " additive costs, and " << maxCosts[ci] << " max costs\n";
             }
-            
+
             if (RPGBuilder::getMetric()->minimise) {
                 localCost -= RPGBuilder::getMetric()->constant;
                 if (metricWeightOfMakespan != 0.0) {
@@ -12652,7 +12652,7 @@ void RPGHeuristic::Private::calculateGoalCost(BuildingPayload * const payload, d
                     localCost += payload->admissibleMakespanEstimate.toDouble() * metricWeightOfMakespan;
                 }
             }
-            
+
             if (localDebug & 1) {
                 if (RPGBuilder::getMetric()->constant != 0.0) {
                     cout << ", constant of " << RPGBuilder::getMetric()->constant;
@@ -12664,7 +12664,7 @@ void RPGHeuristic::Private::calculateGoalCost(BuildingPayload * const payload, d
                     }
                 }
             }
-            
+
             if (!RPGBuilder::getPreferences().empty()) {
                 if (RPGBuilder::getMetric()->minimise) {
                     localCost -= PreferenceHandler::getCurrentCost(payload->startState.prefPreconditionViolations, payload->optimisticPrefStatus);
@@ -12678,8 +12678,8 @@ void RPGHeuristic::Private::calculateGoalCost(BuildingPayload * const payload, d
             if (localDebug & 1) {
                 cout << COLOUR_default << endl;
             }
-            //localCost += payload->withinCosts;         
-                        
+            //localCost += payload->withinCosts;
+
             if (calculatedCost) {
                 if (RPGBuilder::getMetric()->minimise) {
                     *calculatedCost = (localCost == 0.0 ? 0.0 : -localCost);
@@ -12693,14 +12693,14 @@ void RPGHeuristic::Private::calculateGoalCost(BuildingPayload * const payload, d
 //             if (localDebug & 1) {
 //                 cout << COLOUR_light_blue << CGC << "final effect on limit " << ci << " is zero: ignoring it\n" << COLOUR_default;
 //             }
-//             
+//
 //             // can use none of this resource
 //             continue;
 //         }
-//         
+//
 
         if (limitToUse > -DBL_MAX) {
-                                                                                                    
+
             if (localCost > 0.0) {
                 switch (limits[ci].op) {
                     case E_GREATER:
@@ -12709,7 +12709,7 @@ void RPGHeuristic::Private::calculateGoalCost(BuildingPayload * const payload, d
                             if (localDebug & 1) {
                                 cout << COLOUR_light_red << CGC << "final effect on limit " << ci << " is " << localCost << ", limit is " << limitToUse << ", so too expensive\n" << COLOUR_default;
                             }
-                            
+
                             return;
                         }
                         break;
@@ -12720,11 +12720,11 @@ void RPGHeuristic::Private::calculateGoalCost(BuildingPayload * const payload, d
                             if (localDebug & 1) {
                                 cout << COLOUR_light_red << CGC << "final effect on limit " << ci << " is " << localCost << ", limit is " << limitToUse << ", so too expensive\n" << COLOUR_default;
                             }
-                            
+
                             return;
                         }
-                        break;                    
-                    }                                
+                        break;
+                    }
                     default:
                     {
                         cerr << "Internal error: limits should be defined in terms of > or >=\n";
@@ -12734,7 +12734,7 @@ void RPGHeuristic::Private::calculateGoalCost(BuildingPayload * const payload, d
                 if (localDebug & 1) {
                     cout << COLOUR_light_green << CGC << "final effect on limit " << ci << " is " << localCost << ", limit is " << limitToUse << ", so okay\n" << COLOUR_default;
                 }
-                                                            
+
             } else if (localCost < 0.0) {
                 switch (limits[ci].op) {
                     case E_GREATER:
@@ -12743,7 +12743,7 @@ void RPGHeuristic::Private::calculateGoalCost(BuildingPayload * const payload, d
                             if (localDebug & 1) {
                                 cout << COLOUR_light_red << CGC << "final effect on limit " << ci << " is " << localCost << ", limit is " << limitToUse << ", so too expensive\n" << COLOUR_default;
                             }
-                            
+
                             return;
                         }
                         break;
@@ -12754,11 +12754,11 @@ void RPGHeuristic::Private::calculateGoalCost(BuildingPayload * const payload, d
                             if (localDebug & 1) {
                                 cout << COLOUR_light_red << CGC << "final effect on limit " << ci << " is " << localCost << ", limit is " << limitToUse << ", so too expensive\n" << COLOUR_default;
                             }
-                            
+
                             return;
                         }
-                        break;                    
-                    }                                
+                        break;
+                    }
                     default:
                     {
                         cerr << "Internal error: limits should be defined in terms of > or >=\n";
@@ -12768,21 +12768,21 @@ void RPGHeuristic::Private::calculateGoalCost(BuildingPayload * const payload, d
                 if (localDebug & 1) {
                     cout << COLOUR_light_green << CGC << "final effect on limit " << ci << " is " << localCost << ", limit is " << limitToUse << ", so okay\n" << COLOUR_default;
                 }
-            } 
+            }
         }
-    
-        
+
+
     }
 
-    
+
     // if the for loop didn't 'return' us out of here, the cost limits are okay
-    
+
     if (localDebug & 1) {
         cout << COLOUR_light_red << CGC << "success: RP is cheap enough\n" << COLOUR_default;
     }
-                                    
+
     payload->tooExpensive = false;
-    
+
 }
 #endif
 
@@ -12879,9 +12879,9 @@ void RPGHeuristic::Private::findApplicableActions(const MinimalState & theState,
         for (; stateItr != stateEnd; ++stateItr) {
 
             if (debug) {
-                cout << "Considering what benefits from " << *(RPGBuilder::getLiteral(FACTA(stateItr))) << " being true\n";                
+                cout << "Considering what benefits from " << *(RPGBuilder::getLiteral(FACTA(stateItr))) << " being true\n";
             }
-            
+
             list<pair<int, Planner::time_spec> > & dependents = (*processedPreconditionsToActions)[FACTA(stateItr)];
 
             list<pair<int, Planner::time_spec> >::const_iterator depItr = dependents.begin();
@@ -13002,20 +13002,20 @@ void RPGHeuristic::Private::findApplicableActions(const MinimalState & theState,
                     } else {
                         if (debug) {
                             cout << "Not okay to apply " << *fItr << ", as it would not be interesting to do so\n";
-                        }                                                            
+                        }
                     }
                 } else {
                     if (debug) {
                         cout << "Not okay to apply " << *fItr << ", as it is currently executing and the planner has been asked to forbid self-overlapping actions\n";
-                    }                                    
+                    }
                 }
             } else {
                 if (saOneItr != theState.startedActions.end()) {
-                    applicableActions.push_back(*fItr);                    
+                    applicableActions.push_back(*fItr);
                 } else {
                     if (debug) {
                         cout << "Not okay to apply " << *fItr << ", as it hasn't been started\n";
-                    }                    
+                    }
                 }
             }
         }
@@ -13289,7 +13289,7 @@ void RPGHeuristic::Private::filterApplicableActions(const MinimalState & theStat
                 if (filterDebug) cout << "Considering start of " << *(tfItr->first) << "\n";
 
                 isApplicable = RPGBuilder::isInteresting(tfItr->first->getID(), theState.first, theState.startedActions);
-                
+
                 if (isApplicable) isApplicable = TemporalAnalysis::okayToStart(tfItr->first->getID(), stateTime);
 
                 if (isApplicable) isApplicable = RPGBuilder::stepNeedsToHaveFinished(*tfItr, theState, tfItr->needToFinish);
@@ -13461,17 +13461,17 @@ RPGBuilder::RPGNumericEffect & RPGHeuristic::getRPGNE(const int & i)
 
 bool RPGHeuristic::printRPGAsDot = false;
 bool RPGHeuristic::blindSearch = false;
-bool RPGHeuristic::makeCTSEffectsInstantaneous = false;    
+bool RPGHeuristic::makeCTSEffectsInstantaneous = false;
 bool RPGHeuristic::ignoreNumbers = false;
-bool RPGHeuristic::estimateCosts = true;    
+bool RPGHeuristic::estimateCosts = true;
 
 
 void RPGHeuristic::setGuidance(const char * config)
 {
     const string asString(config);
-    
+
     if (asString == "blind") {
-        blindSearch = true;                
+        blindSearch = true;
     } else if (asString == "nonumbers") {
         ignoreNumbers = true;
     } else if (asString == "makectsinstantaneous") {
@@ -13484,7 +13484,7 @@ void RPGHeuristic::setGuidance(const char * config)
         exit(1);
     }
 }
-    
+
 
 
 };
