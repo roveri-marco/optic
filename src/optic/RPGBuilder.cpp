@@ -209,7 +209,7 @@ public:
 
 
 class ChildInfoStack {
- 
+
     list<int> childCouldOnlyBe;
 
 public:
@@ -217,7 +217,7 @@ public:
     {
         childCouldOnlyBe.push_back(i);
     }
-    
+
     void get_result(int & i)
     {
         i = childCouldOnlyBe.back();
@@ -251,14 +251,14 @@ private:
 
     bool checkingIfConstraintCouldOnlyBeFalse;
     ChildInfoStack childCouldOnlyBe;
-        
+
     bool inpres;
     bool checkpos;
     bool inConstraints;
     bool inPreference;
 
     double currentDeadline;
-    
+
 public:
 
     list<RPGBuilder::Constraint> builtPreferences;
@@ -272,7 +272,7 @@ public:
             numToUse(numericGoals), numDToUse(numericGoalDeadlines), litToUse(literalGoals), litDToUse(literalGoalDeadlines),
             prefNameToID(p), prefNameToNumberOfTimesDefinitelyViolated(pv), tc(t), adding(true), op(o), fe(f),
             checkingIfConstraintCouldOnlyBeFalse(false), inpres(true), checkpos(true), inConstraints(false), inPreference(false) {
-            
+
         #ifdef STOCHASTICDURATIONS
         currentDeadline = solutionDeadlineTime;
         #else
@@ -282,22 +282,22 @@ public:
 
 
     virtual void visit_comparison(comparison * c) {
-        
+
         if (checkingIfConstraintCouldOnlyBeFalse) {
             childCouldOnlyBe.push_back(0);
             return;
         }
-        
+
         assert(!inPreference || (!inConstraints || numericGoals != numToUse));
         numToUse->push_back(RPGBuilder::NumericPrecondition(c->getOp(), const_cast<VAL::expression*>(c->getLHS()), const_cast<VAL::expression*>(c->getRHS()), fe, tc));
         if (!numToUse->back().valid) {
             ostringstream s;
-            
+
             {
                 ExpressionPrinter p(s, fe, tc);
                 p.printFormula(const_cast<VAL::expression*>(c->getLHS()));
             }
-            
+
             switch(c->getOp()) {
                 case VAL::E_GREATEQ:
                     s << " >= ";
@@ -317,15 +317,15 @@ public:
                 default:
                     s << " <unknown operator> ";
             }
-            
-            
+
+
             {
                 ExpressionPrinter p(s, fe, tc);
                 p.printFormula(const_cast<VAL::expression*>(c->getRHS()));
             }
-            
+
             string asString = s.str();
-            
+
             postmortem_invalidGoal(asString);
         }
         if (numDToUse) {
@@ -336,40 +336,40 @@ public:
     virtual void visit_simple_goal(simple_goal * p) {
 
         if (checkingIfConstraintCouldOnlyBeFalse) {
-            Literal tmp(p->getProp(),fe);                        
-            
+            Literal tmp(p->getProp(),fe);
+
             if(VAL::current_analysis->pred_tab.symbol_probe("=") == EPS(p->getProp()->head)->getParent()) {
                 VAL::LiteralParameterIterator<VAL::parameter_symbol_list::iterator> tmpBegin = tmp.begin();
-                
+
                 VAL::parameter_symbol * a = *tmpBegin;
                 ++tmpBegin;
                 VAL::parameter_symbol * b = *tmpBegin;
-                
-                
+
+
                 childCouldOnlyBe.push_back(a != b ? -1 : 1);
-                
+
             } else {
                 validateLiteral(&tmp);
                 Literal* const seeIfItExists = instantiatedOp::findLiteral(&tmp);
                 if (!seeIfItExists) {
                     childCouldOnlyBe.push_back(-1);
                 } else {
-                    
+
                     const pair<bool,bool> & staticInfo = RPGBuilder::isStatic(seeIfItExists);
-                    
-                    if (staticInfo.first) {                    
+
+                    if (staticInfo.first) {
                         childCouldOnlyBe.push_back(staticInfo.second ? 1 : -1);
                     } else {
                         childCouldOnlyBe.push_back(0);
                     }
                 }
             }
-                        
+
             return;
-        }        
-        
+        }
+
         assert(!inPreference || literalGoals != litToUse);
-                        
+
         if (VAL::current_analysis->pred_tab.symbol_probe("=") == EPS(p->getProp()->head)->getParent()) {
             Literal tmp(p->getProp(), fe);
 
@@ -414,7 +414,7 @@ public:
         if (!checkingIfConstraintCouldOnlyBeFalse) {
             if (p->getQuantifier() == E_EXISTS) postmortem_noADL();
         }
-        
+
         vector<vector<VAL::const_symbol*>::const_iterator> vals(p->getVars()->size());
         vector<vector<VAL::const_symbol*>::const_iterator> starts(p->getVars()->size());
         vector<vector<VAL::const_symbol*>::const_iterator> ends(p->getVars()->size());
@@ -443,10 +443,10 @@ public:
         bool allFalse = true;
         bool allTrue = true;
         bool anyTrue = false;
-        
+
         --i;
         int cResult;
-        
+
         while (vals[i] != ends[i]) {
 // This is inefficient because it creates a copy of the environment even if the copy is never used.
 // In practice, this should not be a problem because a quantified effect presumably uses the variables
@@ -454,7 +454,7 @@ public:
             FastEnvironment * ecpy = fe;
             fe = fe->copy();
             p->getGoal()->visit(this);
-            
+
             if (checkingIfConstraintCouldOnlyBeFalse) {
                 childCouldOnlyBe.get_result(cResult);
                 switch (cResult) {
@@ -476,10 +476,10 @@ public:
                         break;
                     }
                 }
-                                
+
             }
-            
-            
+
+
             fe = ecpy;
 
             int x = 0;
@@ -503,7 +503,7 @@ public:
                 } else {
                     childCouldOnlyBe.push_back(0);
                 }
-                                
+
             } else {
                 if (allFalse) {
                     childCouldOnlyBe.push_back(-1);
@@ -514,30 +514,30 @@ public:
                 }
             }
         }
-        
-        
+
+
     };
     virtual void visit_conj_goal(conj_goal * p) {
         if (!checkingIfConstraintCouldOnlyBeFalse) {
             p->getGoals()->visit(this);
             return;
         }
-        
+
         if (p->getGoals()->empty()) {
             childCouldOnlyBe.push_back(1);
             return;
         }
-        
+
         bool anyFalse = false;
         bool allTrue = true;
-        
+
         pc_list<goal*>::const_iterator goalItr = p->getGoals()->begin();
         const pc_list<goal*>::const_iterator goalEnd = p->getGoals()->end();
-        
+
         int cResult;
         for (; goalItr != goalEnd; ++goalItr) {
             (*goalItr)->visit(this);
-            
+
             if (checkingIfConstraintCouldOnlyBeFalse) {
                 childCouldOnlyBe.get_result(cResult);
                 if (cResult == -1) {
@@ -547,9 +547,9 @@ public:
                     allTrue = false;
                 }
             }
-            
+
         }
-        
+
         if (anyFalse) {
             childCouldOnlyBe.push_back(-1);
         } else if (allTrue) {
@@ -557,22 +557,22 @@ public:
         } else {
             childCouldOnlyBe.push_back(0);
         }
-        
+
     };
-    
+
     virtual void visit_disj_goal(disj_goal * p) {
         if (checkingIfConstraintCouldOnlyBeFalse) {
-            
+
             bool anyTrue = false;
             bool allFalse = true;
-            
+
             pc_list<goal*>::const_iterator goalItr = p->getGoals()->begin();
             const pc_list<goal*>::const_iterator goalEnd = p->getGoals()->end();
-        
+
             int cResult;
             for (; !anyTrue && goalItr != goalEnd; ++goalItr) {
                 (*goalItr)->visit(this);
-                
+
                 if (checkingIfConstraintCouldOnlyBeFalse) {
                     childCouldOnlyBe.get_result(cResult);
                     if (cResult == 1) {
@@ -580,11 +580,11 @@ public:
                         break;
                     } else if (cResult == 0) {
                         allFalse = false;
-                    }                    
-                }                            
+                    }
+                }
             }
-        
-                            
+
+
             if (anyTrue) {
                 childCouldOnlyBe.push_back(1);
             } else if (allFalse) {
@@ -592,10 +592,10 @@ public:
             } else {
                 childCouldOnlyBe.push_back(0);
             }
-            
+
             return;
         }
-        
+
         postmortem_noADL();
 
     };
@@ -603,33 +603,33 @@ public:
     virtual void visit_imply_goal(imply_goal * p) {
         if (checkingIfConstraintCouldOnlyBeFalse) {
             p->getAntecedent()->visit(this);
-            
+
             int acv;
             childCouldOnlyBe.get_result(acv);
-            
+
             if (acv == -1) {
                 childCouldOnlyBe.push_back(1);
                 return;
-            }                        
+            }
 
             p->getConsequent()->visit(this);
-            
+
             int ccv;
             childCouldOnlyBe.get_result(ccv);
-            
+
             if (acv == 1) {
-                childCouldOnlyBe.push_back(ccv);                
+                childCouldOnlyBe.push_back(ccv);
             } else {
                 if (ccv == 1) {
                     childCouldOnlyBe.push_back(1);
                 } else {
-                    childCouldOnlyBe.push_back(0);  
+                    childCouldOnlyBe.push_back(0);
                 }
             }
-            
+
             return;
         }
-        
+
         postmortem_noADL();
 
     };
@@ -642,39 +642,39 @@ public:
             childCouldOnlyBe.push_back(oldVal);
             return;
         }
-        
+
         postmortem_noADL();
 
     };
     virtual void visit_preference(preference * p) {
-        
+
         if (!current_analysis->the_problem->metric || !Globals::optimiseSolutionQuality) {
             return;
         }
-        
-        inPreference = true;        
-        
+
+        inPreference = true;
+
         if (!inConstraints) {
 
-            auto_ptr<FastEnvironment> forPref(fe ? fe->copy() : 0);
-            
+            unique_ptr<FastEnvironment> forPref(fe ? fe->copy() : nullptr);
+
             checkingIfConstraintCouldOnlyBeFalse = true;
             p->getGoal()->visit(this);
-            
+
             int cr;
             childCouldOnlyBe.get_result(cr);
-            
+
             checkingIfConstraintCouldOnlyBeFalse = false;
-            
-            if (cr == 0) {            
+
+            if (cr == 0) {
                 builtPreferences.push_back(RPGBuilder::Constraint(p->getName()));
-            
+
                 builtPreferences.back().fe = forPref.release();
-                builtPreferences.back().cons = VAL::E_ATEND;            
+                builtPreferences.back().cons = VAL::E_ATEND;
                 builtPreferences.back().parsed_goal = p->getGoal();
             } else {
                 if (cr == -1) {
-                    //cout << "Warning: at-end preference " << p->getName() << " will always be violated, ignoring\n";                    
+                    //cout << "Warning: at-end preference " << p->getName() << " will always be violated, ignoring\n";
                     ++(prefNameToNumberOfTimesDefinitelyViolated.insert(make_pair(p->getName(),0)).first->second);
                 }
                 if (cr == 1) {
@@ -689,7 +689,7 @@ public:
             builtPreferences.push_back(RPGBuilder::Constraint(p->getName()));
             p->getGoal()->visit(this);
         }
-        
+
         inPreference = false;
 
     };
@@ -697,14 +697,14 @@ public:
 
     };
     virtual void visit_constraint_goal(constraint_goal *cg) {
-        
+
         if (inPreference && (!current_analysis->the_problem->metric || !Globals::optimiseSolutionQuality)) {
             return;
         }
-        
-        
+
+
         list<RPGBuilder::Constraint> & removeFrom = (inPreference ? builtPreferences : builtConstraints);
-        
+
         #ifdef STOCHASTICDURATIONS
         if (cg->getCons() == VAL::E_WITHIN) {
             const double prevDeadline = currentDeadline;
@@ -725,17 +725,17 @@ public:
                 return;
             }
             #endif
-                
+
             removeFrom.push_back(RPGBuilder::Constraint());
             removeFrom.back().cost = DBL_MAX;
         }
 
-        auto_ptr<FastEnvironment> forPref(fe ? fe->copy() : 0);
+        unique_ptr<FastEnvironment> forPref(fe ? fe->copy() : nullptr);
 
         removeFrom.back().cons = cg->getCons();
         removeFrom.back().deadline = cg->getDeadline();
         removeFrom.back().from = cg->getFrom();
-        
+
         if (removeFrom.back().cons != E_ALWAYS && removeFrom.back().cons != E_SOMETIME
              && removeFrom.back().cons != E_ATMOSTONCE && removeFrom.back().cons != E_ATEND
              && removeFrom.back().cons != E_SOMETIMEAFTER && removeFrom.back().cons != E_SOMETIMEBEFORE
@@ -743,15 +743,15 @@ public:
              ) {
             string & prefName = removeFrom.back().name;
             postmortem_noConstraints(true,prefName.c_str());
-            
+
             if (prefName != "anonymous") prefNameToID[prefName].push_back(-1);
             removeFrom.pop_back();
         } else {
 
             bool keepPref = true;
-            
+
             string & prefName = removeFrom.back().name;
-            
+
             switch(cg->getCons()) {
                 case VAL::E_ALWAYS:
                 case VAL::E_SOMETIME:
@@ -762,11 +762,11 @@ public:
                     // if the goal is contradictory, we can penalise; otherwise,
                     // keep
                     checkingIfConstraintCouldOnlyBeFalse = true;
-                    cg->getRequirement()->visit(this);     
+                    cg->getRequirement()->visit(this);
                     int cr;
                     childCouldOnlyBe.get_result(cr);
                     checkingIfConstraintCouldOnlyBeFalse = false;
-                    
+
                     if (cr == 1) {
                         keepPref = false;
                         prefNameToID[prefName].push_back(-512);
@@ -783,20 +783,20 @@ public:
                 case VAL::E_ATMOSTONCE:
                 {
                     // if this is always true, or always false, then it's permanently satisfied:
-                    // - if always true, we always have it, so only have it once 
+                    // - if always true, we always have it, so only have it once
                     // - if it's never true, we never have it, so can't have it more than once
 
                     checkingIfConstraintCouldOnlyBeFalse = true;
-                    cg->getRequirement()->visit(this);                    
+                    cg->getRequirement()->visit(this);
                     int cr;
                     childCouldOnlyBe.get_result(cr);
                     checkingIfConstraintCouldOnlyBeFalse = false;
-                    
-                    if (cr != 0) {                    
+
+                    if (cr != 0) {
                         keepPref = false;
                         prefNameToID[prefName].push_back(-512);
                     }
-                    
+
                     break;
                 }
                 case VAL::E_ALWAYSWITHIN:
@@ -807,32 +807,32 @@ public:
                     // - if the trigger is always false, is always satisfied
                     // Contradictory case:
                     // - if the trigger is always true, and the goal is always false
-                    
+
                     bool alwaysTrue = false;
                     bool alwaysFalse = false;
-                                        
+
                     checkingIfConstraintCouldOnlyBeFalse = true;
-                    cg->getRequirement()->visit(this);                    
+                    cg->getRequirement()->visit(this);
                     int cr;
                     childCouldOnlyBe.get_result(cr);
                     checkingIfConstraintCouldOnlyBeFalse = false;
-                    
+
                     if (cr == 1) {
                         alwaysTrue = true;
                     } else {
                         checkingIfConstraintCouldOnlyBeFalse = true;
-                        cg->getTrigger()->visit(this);                    
+                        cg->getTrigger()->visit(this);
                         int tr;
-                        childCouldOnlyBe.get_result(tr);                        
+                        childCouldOnlyBe.get_result(tr);
                         checkingIfConstraintCouldOnlyBeFalse = false;
-                        
+
                         if (tr == -1) {
                             alwaysTrue = true;
                         } else if (tr == 1 && cr == -1) {
                             alwaysFalse = true;
                         }
                     }
-                    
+
                     if (alwaysTrue) {
                         keepPref = false;
                         prefNameToID[prefName].push_back(-512);
@@ -840,11 +840,11 @@ public:
                         if (!inPreference) {
                             postmortem_unsatisfiableConstraint();
                         }
-                        keepPref = false;                        
+                        keepPref = false;
                         prefNameToID[prefName].push_back(-513);
                         ++(prefNameToNumberOfTimesDefinitelyViolated.insert(make_pair(prefName,0)).first->second);
                     }
-                    
+
                     break;
                 }
                 case VAL::E_SOMETIMEBEFORE:
@@ -854,32 +854,32 @@ public:
                     // - if the trigger is always false, preference is always true
                     // Contradictory case:
                     // - if the requirement is always false and the trigger is always true
-                    
+
                     bool alwaysTrue = false;
                     bool alwaysFalse = false;
-                    
+
                     checkingIfConstraintCouldOnlyBeFalse = true;
-                    cg->getRequirement()->visit(this);  
+                    cg->getRequirement()->visit(this);
                     int cr;
                     childCouldOnlyBe.get_result(cr);
                     checkingIfConstraintCouldOnlyBeFalse = false;
-                    
+
                     if (cr == 1) {
                         alwaysTrue = true;
                     } else {
                         checkingIfConstraintCouldOnlyBeFalse = true;
-                        cg->getTrigger()->visit(this);                    
+                        cg->getTrigger()->visit(this);
                         int tr;
                         childCouldOnlyBe.get_result(tr);
                         checkingIfConstraintCouldOnlyBeFalse = false;
-                        
+
                         if (tr == -1) {
                             alwaysTrue = true;
                         } else if (cr == -1 && tr == 1) {
                             alwaysFalse = true;
-                        }                    
+                        }
                     }
-                    
+
                     if (alwaysTrue) {
                         keepPref = false;
                         prefNameToID[prefName].push_back(-512);
@@ -887,11 +887,11 @@ public:
                         if (!inPreference) {
                             postmortem_unsatisfiableConstraint();
                         }
-                        keepPref = false;                        
+                        keepPref = false;
                         prefNameToID[prefName].push_back(-513);
                         ++(prefNameToNumberOfTimesDefinitelyViolated.insert(make_pair(prefName,0)).first->second);
                     }
-                    
+
                     break;
                 }
                 default:
@@ -900,18 +900,18 @@ public:
                     exit(1);
                 }
             }
-            
+
             /*
             if(cg->getRequirement()) {
-                
+
                 numToUse = &(removeFrom.back().goalNum);
                 litToUse = &(removeFrom.back().goal);
 
                 cg->getRequirement()->visit(this);
             }
-            
+
             if(cg->getTrigger()) {
-                
+
                 numToUse = &(removeFrom.back().triggerNum);
                 litToUse = &(removeFrom.back().trigger);
 
@@ -920,13 +920,13 @@ public:
 
             if (keepPref) {
                 removeFrom.back().fe = forPref.release();
-                
+
                 removeFrom.back().parsed_goal = cg->getRequirement();
                 removeFrom.back().parsed_trigger = cg->getTrigger();
             } else {
-                removeFrom.pop_back();                
-            } 
-        
+                removeFrom.pop_back();
+            }
+
         }
 
         numToUse = numericGoals;
@@ -1113,7 +1113,7 @@ void postmortem_processesMustHaveNoConditions(const string & actName) {
     cerr << "avoid these.  Alternatively, if you have an interesting application for them,\n";
     cerr << "please contact the authors to discuss it with them, who may be able to\n";
     cerr << "extend the planner to meet your needs.\n";
-    
+
     exit(0);
 };
 
@@ -1335,7 +1335,7 @@ private:
     bool checkpos;
     bool debug;
     bool valid;
-    
+
     bool visitingWhen;
 
     bool visitingDuration;
@@ -1346,9 +1346,9 @@ private:
 
     RPGBuilder::NoDuplicatePair addEffToList;
     RPGBuilder::NoDuplicatePair delEffToList;
-    
+
     /** @brief Where to record numeric effects in <code>visit_assignment</code>.
-     * 
+     *
      * The pointers are updated according to whether the effect is at the start/end
      * of an action.  The list refers to where the numeric effects themselves are
      * to be stored, and the set contains the indices of the numeric variables which
@@ -1356,7 +1356,7 @@ private:
      * with self-mutex effects to be discarded).
      */
     pair<list<RPGBuilder::NumericEffect>*, set<int>* > addEffToListNumeric;
-    
+
 
     list<vector<RPGBuilder::NoDuplicatePair > > literalAddTos;
     list<vector<RPGBuilder::NoDuplicatePair > > literalNegativeAddTos;
@@ -1407,8 +1407,8 @@ public:
 
     bool isDurative;
     RPGBuilder::op_type operatorType;
-    
-    
+
+
     static map<string, set<int> > litParamCounts;
     static map<string, set<int> > pneParamCounts;
     static bool initParamCounts;
@@ -1416,10 +1416,10 @@ public:
     static instantiatedOp* toBlame;
 
     map<string, list<int> > & prefNameToID;
-    
+
     vector<list<RPGBuilder::Constraint> > builtPreferences;
-    
-    
+
+
     TimedPrecEffCollector(instantiatedOp* currIOP, const VAL::operator_ * o, map<string, list<int> > & p, FastEnvironment * f, VAL::TypeChecker * t = 0) :
             thisIOP(currIOP), tc(t), adding(true), op(o), fe(f), inpres(true), checkpos(true),
             valid(true), visitingWhen(false), visitingDuration(false),
@@ -1434,8 +1434,8 @@ public:
 
     const bool & isValid() const {
         return valid;
-    }    
-    
+    }
+
     static void doInit() {
         if (current_analysis->the_domain->predicates) {
             for (pred_decl_list::const_iterator os = current_analysis->the_domain->predicates->begin();
@@ -1520,7 +1520,7 @@ public:
                 if (debug) cout << "\t\tNull, but don't care - is a negative pre\n";
             }
         } else {
-            addToList.push_back(addLit);                
+            addToList.push_back(addLit);
             //if (debug) cout << "\t\tPresent, added to list\n";
         }
         delete l;
@@ -1586,9 +1586,9 @@ public:
             addToListNumeric->push_back(RPGBuilder::NumericPrecondition(c->getOp(), const_cast<VAL::expression*>(c->getLHS()), const_cast<VAL::expression*>(c->getRHS()), fe, tc, adding));
             if (!addToListNumeric->back().valid) {
                 addToListNumeric->pop_back();
-                
+
                 RPGBuilder::NoDuplicatePair & addToList = (adding ? addToListPositive : addToListNegative);
-                
+
                 if (!addToList) {
                     string actionname;
                     string effectdescription;
@@ -1608,11 +1608,11 @@ public:
 
                 }
 
-                
+
                 // whether it's a negative or positive precondition, we assume it's false
-                addToList.push_back((Literal*) 0);                
+                addToList.push_back((Literal*) 0);
             }
-            
+
         }
     };
 
@@ -1765,15 +1765,15 @@ public:
 
     virtual void visit_timed_goal(timed_goal * p) {
 
-        
+
         Planner::time_spec priorPreconditionTS = preconditionTS;
-        
+
         const RPGBuilder::NoDuplicatePair oldAddToListPositive = addToListPositive;
         const RPGBuilder::NoDuplicatePair oldAddToListNegative = addToListNegative;
         list<RPGBuilder::NumericPrecondition> * const oldAddToListNumeric = addToListNumeric;
 
         preconditionTS = (Planner::time_spec) p->getTime();
-        
+
         switch (p->getTime()) {
         case Planner::E_AT_START:
             if (debug) cout << "\tAt start\n";
@@ -1809,20 +1809,20 @@ public:
         addToListPositive = oldAddToListPositive;
         addToListNegative = oldAddToListNegative;
         addToListNumeric = oldAddToListNumeric;
-        
+
         preconditionTS = priorPreconditionTS;
     };
 
     virtual void visit_imply_goal(imply_goal * g) {
-        
+
         if (!adding) {
-            postmortem_noADL();            
+            postmortem_noADL();
         }
-        
+
         if (debug) {
             cout << "=> Implication\n";
         }
-        
+
         const RPGBuilder::NoDuplicatePair oldAddToListPositive = addToListPositive;
         const RPGBuilder::NoDuplicatePair oldAddToListNegative = addToListNegative;
         list<RPGBuilder::NumericPrecondition> * const oldAddToListNumeric = addToListNumeric;
@@ -1844,16 +1844,16 @@ public:
         adding = false;
         g->getAntecedent()->visit(this);
         adding = true;
-        
+
         // as we've pushed the negation inwards, the implication is now written
         // (conds && negativeConds && numericConds) v (consequent)
-        
+
         // now see if we can always satisfy conds and negative conds
         // if we can, we don't need the consequent
-        
+
         bool couldBeTrue = true;
-        bool stateDependent = !numericConds.empty();       
-        
+        bool stateDependent = !numericConds.empty();
+
         for (int pass = 0; couldBeTrue && pass < 2; ++pass) {
             list<Literal*>::iterator cItr = (pass ? negativeConds.begin() : conds.begin());
             const list<Literal*>::iterator cEnd = (pass ? negativeConds.end() : conds.end());
@@ -1861,12 +1861,12 @@ public:
             for (; cItr != cEnd; ++cItr) {
                 Literal* const currLit = *cItr;
                 if (currLit) {
-                    const pair<bool,bool> & staticStatus = RPGBuilder::isStatic(currLit);                
+                    const pair<bool,bool> & staticStatus = RPGBuilder::isStatic(currLit);
                     if (staticStatus.first) {
                         if (pass ? staticStatus.second : !staticStatus.second) {
                             // require either a negative fact that is statically true
                             // or a positive fact that is statically false
-                            
+
                             couldBeTrue = false;
                             break;
                         }
@@ -1878,7 +1878,7 @@ public:
                         // require a never-ever-present positive literal
                         // condition is tautologous: can be reduced to (!a or b)
                         // and a is null
-                        
+
                         couldBeTrue = false;
                         break;
                     }
@@ -1892,28 +1892,28 @@ public:
         addToListPositive = oldAddToListPositive;
         addToListNegative = oldAddToListNegative;
         addToListNumeric = oldAddToListNumeric;
-                        
-        if (couldBeTrue) {        
+
+        if (couldBeTrue) {
             if (debug) {
                 cout << " --- Antedecent is contradictory\n";
             }
-            return;            
+            return;
         }
-        
+
         if (stateDependent) {
             postmortem_noADL();
         }
 
-        
+
         // condition was (!a or b)
         // !a is contradictory, so reduces to b
-                
+
         if (debug) {
             cout << " --- Reduces to just being the consequent\n";
         }
 
         g->getConsequent()->visit(this);
-        
+
     };
 
     virtual void visit_forall_effect(forall_effect * p) {
@@ -2021,7 +2021,7 @@ public:
 
         literalAddTos.pop_back();
         numericAddTos.pop_back();
-        
+
 #ifndef NDEBUG
         if (!isDurative) {
             assert(condEffs.back()->inv.empty());
@@ -2043,37 +2043,37 @@ public:
         adding = oldAdding;
 
     };
-    
+
     virtual void visit_preference(preference * p)
     {
-        
+
         if (preconditionTS == Planner::E_AT) {
             cout << "Error, no time specification on a preference in action schema " << *toBlame << "\n";
             exit(1);
         }
-    
+
         if (!current_analysis->the_problem->metric || !Globals::optimiseSolutionQuality) {
             return;
         }
-        
+
         const int tsAsInt = (preconditionTS == Planner::E_AT_START ? 0 : (preconditionTS == Planner::E_AT_END ? 2 : 1));
-        
-        builtPreferences[tsAsInt].push_back(RPGBuilder::Constraint(p->getName()));                
+
+        builtPreferences[tsAsInt].push_back(RPGBuilder::Constraint(p->getName()));
         if (fe) {
             builtPreferences[tsAsInt].back().fe = fe->copy();
         }
-        builtPreferences[tsAsInt].back().cons = VAL::E_ATEND;            
-        builtPreferences[tsAsInt].back().parsed_goal = p->getGoal();                                                
+        builtPreferences[tsAsInt].back().cons = VAL::E_ATEND;
+        builtPreferences[tsAsInt].back().parsed_goal = p->getGoal();
         builtPreferences[tsAsInt].back().attachedToOperator = make_pair(toBlame->getID(), preconditionTS);
-        
+
     }
-    
+
     virtual void visit_constraint_goal(constraint_goal *cg)
     {
         if(cg->getRequirement()) {
                 cg->getRequirement()->visit(this);
         }
-        
+
         if(cg->getTrigger()) {
                 cg->getTrigger()->visit(this);
         }
@@ -2114,7 +2114,7 @@ public:
                 addEffToListNumeric.first = &startNumericEff;
                 addEffToListNumeric.second = &startNumericEffsOnVar;
             }
-        
+
             break;
             }
         case VAL::E_CONTINUOUS: {
@@ -2130,7 +2130,7 @@ public:
         addEffToList = oldAdd;
         delEffToList = oldDel;
         addEffToListNumeric = oldNum;
-        
+
         if (debug) {
             cout << "Effect visited; reverting to numeric effect list and set at " << addEffToListNumeric.first << " and " << addEffToListNumeric.second << endl;
         }
@@ -2194,7 +2194,7 @@ public:
             }
 
             Literal* const realised = instantiatedOp::findLiteral(l);
-            
+
             if (debug && !realised) {
                 cout << "\t\tnot a fact that was never added: " << *l << endl;
             }
@@ -2243,9 +2243,9 @@ public:
     virtual void visit_action(VAL::action * p) {
         toBlame = thisIOP;
         isDurative = false;
-        
+
         operatorType = RPGBuilder::OT_NORMAL_ACTION;
-        
+
         addToListPositive = RPGBuilder::NoDuplicatePair(&startPrec, &startPrecSet);
         addToListNegative = RPGBuilder::NoDuplicatePair(&startNegPrec, &startNegPrecSet);
         addToListNumeric = &startPrecNumeric;
@@ -2263,9 +2263,9 @@ public:
         numericAddTos.back()[0] = addToListNumeric;
 
         preconditionTS = Planner::E_AT_START;
-        
+
         visit_operator_(p); //static_cast<VAL::operator_*>(p));
-        
+
         if (!literalNegativeAddTos.back()[0].empty()) {
             postmortem_noADL();
         }
@@ -2276,7 +2276,7 @@ public:
         isDurative = true;
 
         operatorType = RPGBuilder::OT_NORMAL_ACTION;
-        
+
         literalAddTos.push_back(vector<RPGBuilder::NoDuplicatePair>(3));
         literalNegativeAddTos.push_back(vector<RPGBuilder::NoDuplicatePair>(3));
         numericAddTos.push_back(vector<list<RPGBuilder::NumericPrecondition> * >(3));
@@ -2294,31 +2294,31 @@ public:
         numericAddTos.back()[2] = &endPrecNumeric;
 
         preconditionTS = Planner::E_AT; // an invalid value
-        
+
         visit_operator_(p); //static_cast<VAL::operator_*>(p));
-        
+
         for (int pass = 0; pass < 3; ++pass) {
             if (!literalNegativeAddTos.back()[pass].empty()) {
                 postmortem_noADL();
             }
         }
-        
+
         visitingDuration = true;
-        
+
         if (debug) cout << "Going through duration\n";
         WhereAreWeNow = PARSE_DURATION;
         p->dur_constraint->visit(this);
         WhereAreWeNow = PARSE_UNKNOWN;
-        visitingDuration = false;        
+        visitingDuration = false;
         toBlame = 0;
 
     };
     virtual void visit_process(VAL::process * p) {
         toBlame = thisIOP;
         isDurative = false;
-        
+
         operatorType = RPGBuilder::OT_PROCESS;
-        
+
         addToListPositive = RPGBuilder::NoDuplicatePair(&startPrec, &startPrecSet);
         addToListNegative = RPGBuilder::NoDuplicatePair(&startNegPrec, &startNegPrecSet);
         addToListNumeric = &startPrecNumeric;
@@ -2326,18 +2326,18 @@ public:
         delEffToList = RPGBuilder::NoDuplicatePair(&startDelEff, &startDelEffSet);
         addEffToListNumeric.first = &startNumericEff;
         addEffToListNumeric.second = &startNumericEffsOnVar;
-        
+
         literalAddTos.push_back(vector<RPGBuilder::NoDuplicatePair>(3));
         literalNegativeAddTos.push_back(vector<RPGBuilder::NoDuplicatePair>(3));
         numericAddTos.push_back(vector<list<RPGBuilder::NumericPrecondition> * >(3, (list<RPGBuilder::NumericPrecondition>*) 0));
-        
+
         literalAddTos.back()[0] = addToListPositive;
         literalNegativeAddTos.back()[0] = addToListNegative;
         numericAddTos.back()[0] = addToListNumeric;
-        
+
         visit_operator_(p); //static_cast<VAL::operator_*>(p));
         toBlame = 0;
-                
+
     };
     virtual void visit_event(VAL::event * p) {
         visit_operator_(p);
@@ -2358,8 +2358,8 @@ public:
             startNumericEff.push_back(RPGBuilder::NumericEffect(a->getOp(), pne->getStateID(), const_cast<VAL::expression*>(a->getExpr()), fe, tc));
             assert(startNumericEff.back().fluentIndex < instantiatedOp::howManyNonStaticPNEs());
             assert(startNumericEff.back().fluentIndex >= 0);
-            
-            
+
+
             bool isCTS = false;
             list<RPGBuilder::Operand>::iterator fItr = startNumericEff.back().formula.begin();
             const list<RPGBuilder::Operand>::iterator fEnd = startNumericEff.back().formula.end();
@@ -2428,19 +2428,19 @@ public:
             if (!addEffToListNumeric.second->insert(pne->getStateID()).second) {
                 string actionname;
                 string varname;
-                
+
                 {
                     ostringstream o;
                     o << *thisIOP;
                     actionname = o.str();
                 }
-                
+
                 {
                     ostringstream o;
                     o << *pne;
                     varname = o.str();
                 }
-                
+
                 postmortem_twoSimulataneousNumericEffectsOnTheSameVariable(actionname, varname);
             }
             addEffToListNumeric.first->push_back(RPGBuilder::NumericEffect(a->getOp(), pne->getStateID(), const_cast<VAL::expression*>(a->getExpr()), fe, tc));
@@ -2555,7 +2555,7 @@ public:
 
     InitialStateCollector(const VAL::operator_ * o, FastEnvironment * f, VAL::TypeChecker * t = 0, vector<bool> * setDefinedVectorValues=0)
         : tc(t), adding(true), op(o), fe(f), inpres(true), checkpos(true), assignTo(-1), TIL(false), sawAValueFor(setDefinedVectorValues) {
-                
+
         const int ifSize = instantiatedOp::howManyNonStaticPNEs();
         initialFluents.resize(ifSize, 0.0);
     }
@@ -2929,7 +2929,7 @@ vector<list<int> > RPGBuilder::rpgVariableDependencies;
 
 RPGBuilder::Metric * RPGBuilder::theMetric = 0;
 set<int> RPGBuilder::metricVars;
-// vector<bool> * RPGBuilder::factHasBeenSeenForWithinSoftDeadline = 0;    
+// vector<bool> * RPGBuilder::factHasBeenSeenForWithinSoftDeadline = 0;
 
 list<Literal*> RPGBuilder::literalGoals;
 list<double> RPGBuilder::literalGoalDeadlines;
@@ -3011,13 +3011,13 @@ RPGBuilder::op_type checkIfRogue(TimedPrecEffCollector & c)
     const bool rogueDebug = false;
 
     for (int pass = 0; pass < 3; ++pass) {
-        
+
         list<RPGBuilder::NumericPrecondition*> & durList = (pass ? (pass == 2 ? c.maxDurationExpression : c.minDurationExpression)
                                                                  : c.fixedDurationExpression);
-                                                                 
+
         list<RPGBuilder::NumericPrecondition*>::const_iterator dItr = durList.begin();
         const list<RPGBuilder::NumericPrecondition*>::const_iterator dEnd = durList.end();
-        
+
         for (; dItr != dEnd; ++dItr) {
             if (!(*dItr)) {
                 return RPGBuilder::OT_INVALID_ACTION;
@@ -3164,15 +3164,15 @@ void RPGBuilder::initialise()
     }
     if (RPGdebug && Globals::globalVerbosity & 65536) instantiatedOp::writeAllPNEs(cout);
 
-    
+
     #ifdef ENABLE_DEBUGGING_HOOKS
     Globals::markThatActionsInPlanHaveToBeKept();
     #endif
-    
+
     instantiatedOp::assignStateIDsToNonStaticLiteralsAndPNEs();
-    
+
     getBasicStaticInformationFromTIM();
-    
+
     if (RPGdebug) cout << "\nCaching action-literal dependencies\n";
 
     const int operatorCount = instantiatedOp::howMany();
@@ -3249,7 +3249,7 @@ void RPGBuilder::initialise()
     realRogueActions = vector<op_type>(operatorCount);
     pnes = vector<PNE*>(pneCount);
     definedValueInInitialState.resize(pneCount, false);
-    
+
     TimedPrecEffCollector::doInit(); // for robustness checking - set which predicate names are legal, and how many parameters they have
 
     {
@@ -3311,8 +3311,8 @@ void RPGBuilder::initialise()
                 literals[i] = *lsItr;
                 //cout << "Literal " << i << " - " << *(*lsItr) << " with global ID " << (*lsItr)->getGlobalID() << "\n";
             }
-            
-            
+
+
         }
     }
 
@@ -3320,7 +3320,7 @@ void RPGBuilder::initialise()
 
     {
         if (PNEdebug) cout << "PNEs in RPG instantiation:\n";
-        
+
         PNEStore::iterator pneItr = instantiatedOp::pnesBegin();
         const PNEStore::iterator pneEnd = instantiatedOp::pnesEnd();
         int sID;
@@ -3349,9 +3349,9 @@ void RPGBuilder::initialise()
 
     list<pair<int, list<Constraint> > > builtStartPreconditionPreferences;
     list<pair<int, list<Constraint> > > builtEndPreconditionPreferences;
-    
+
     preconditionPrefCount = 0;
-    
+
     for (; opsItr != opsEnd; ++opsItr) {
         instantiatedOp * const currOp = *opsItr;
 
@@ -3365,18 +3365,18 @@ void RPGBuilder::initialise()
         }
 
         instantiatedOps[operatorID] = currOp;
-        
+
         realRogueActions[operatorID] = OT_NORMAL_ACTION;
 
         TimedPrecEffCollector c(currOp, 0, prefNameToID, currOp->getEnv(), theTC);
         currOp->forOp()->visit(&c);
 
         realRogueActions[operatorID] = checkIfRogue(c);
-        
+
         if (realRogueActions[operatorID] == OT_NORMAL_ACTION) {
-            realRogueActions[operatorID] = c.operatorType;            
+            realRogueActions[operatorID] = c.operatorType;
         }
-        
+
         const bool rogueDebug = false;
 
         if (RPGdebug) cout << "Operator " << operatorID << " - " << *currOp << "\n";
@@ -3387,14 +3387,14 @@ void RPGBuilder::initialise()
                     cout << "Rogue action, skipping";
                 } else {
                     cout << "Process, skipping for now";
-                }             
+                }
             }
             deleteAndEmpty(c.fixedDurationExpression);
             deleteAndEmpty(c.minDurationExpression);
             deleteAndEmpty(c.maxDurationExpression);
             linearDiscretisation[operatorID] = 0;
             if (rogueActions[operatorID] == OT_INVALID_ACTION) {
-               if (rogueDebug) {                
+               if (rogueDebug) {
                     cout << "Operator " << operatorID << " is a rogue\n";
                 }
                 #ifdef ENABLE_DEBUGGING_HOOKS
@@ -3405,22 +3405,22 @@ void RPGBuilder::initialise()
 
                 {
                     list<Literal*> & currPreconditionsList = c.startPrec;
-                    
+
                     list<Literal*>::iterator precItr = c.startPrec.begin();
                     const list<Literal*>::iterator precEnd = c.startPrec.end();
-                    
+
                     for (; precItr != precEnd; ++precItr) {
                         const int precID = (*precItr)->getStateID();
                         if (precID >= 0) {
                             ostringstream namestream;
-                            namestream << *currOp;                    
-                            postmortem_processesMustHaveNoConditions(namestream.str());                                                
+                            namestream << *currOp;
+                            postmortem_processesMustHaveNoConditions(namestream.str());
                         }
                     }
                 }
-                
+
                 actionsToStartNumericEffects[operatorID] = c.startNumericEff;
-                
+
                 if (RPGdebug) {
                     cout << "Process " << operatorID << " start numeric effects:\n";
                     list<NumericEffect>::iterator effItr = c.startNumericEff.begin();
@@ -3431,7 +3431,7 @@ void RPGBuilder::initialise()
                         cout << "\n";
                     }
                 }
-                
+
             }
         } else {
 
@@ -3445,7 +3445,7 @@ void RPGBuilder::initialise()
                 builtEndPreconditionPreferences.push_back(make_pair(operatorID, c.builtPreferences[2]));
                 preconditionPrefCount += c.builtPreferences[2].size();
             }
-            
+
             initialUnsatisfiedStartPreconditions[operatorID] = c.startPrec.size();
             initialUnsatisfiedInvariants[operatorID] = c.inv.size();
             initialUnsatisfiedEndPreconditions[operatorID] = c.endPrec.size();
@@ -3880,7 +3880,7 @@ void RPGBuilder::initialise()
 
     taskPrefCount = 0;
     taskConstraintCount = 0;
-        
+
     {
         FastEnvironment env(0);
         GoalNumericCollector c(&numericGoals, &numericGoalDeadlines, &literalGoals, &literalGoalDeadlines, prefNameToID, prefNameToNumberOfTimesDefinitelyViolated, 0, &env, theTC);
@@ -3892,60 +3892,60 @@ void RPGBuilder::initialise()
             eliminateDuplicateConstraints(c.builtConstraints, ignoreMap, preferences, theTC);
         }
         eliminateDuplicateConstraints(c.builtPreferences, prefNameToID, preferences, /*&preferencesThatAreSoftDeadlines, */theTC);
-        
+
         taskPrefCount = c.builtPreferences.size() + c.builtConstraints.size();
         taskConstraintCount = c.builtConstraints.size();
         preferences.resize(taskPrefCount + preconditionPrefCount);
-        
+
         int pid = 0;
-        
+
         {
             list<Constraint>::const_iterator pItr = c.builtConstraints.begin();
             const list<Constraint>::const_iterator pEnd = c.builtConstraints.end();
-            
+
             for (; pItr != pEnd; ++pItr, ++pid) {
-                preferences[pid] = *pItr;            
+                preferences[pid] = *pItr;
                 //prefNameToID[pItr->name].push_back(pid);
             }
         }
-        
+
         {
             list<Constraint>::const_iterator pItr = c.builtPreferences.begin();
             const list<Constraint>::const_iterator pEnd = c.builtPreferences.end();
-            
+
             for (; pItr != pEnd; ++pItr, ++pid) {
-                preferences[pid] = *pItr;            
+                preferences[pid] = *pItr;
                 //prefNameToID[pItr->name].push_back(pid);
             }
         }
-        
+
         for(int pass = 0; pass < 2; ++pass){
             const list<pair<int, list<Constraint> > > & builtPreconditionPreferences = (pass == 1 ? builtEndPreconditionPreferences : builtStartPreconditionPreferences);
             list<pair<int, list<Constraint> > >::const_iterator actpItr = builtPreconditionPreferences.begin();
             const list<pair<int, list<Constraint> > >::const_iterator actpEnd = builtPreconditionPreferences.end();
-            
+
             for (; actpItr != actpEnd; ++actpItr) {
                 vector<int> & dest = (pass == 1 ? actionsToEndPreferences[actpItr->first] : actionsToStartPreferences[actpItr->first]);
                 dest.reserve(actpItr->second.size());
                 list<Constraint>::const_iterator pItr = actpItr->second.begin();
                 const list<Constraint>::const_iterator pEnd = actpItr->second.end();
-                
+
                 for (; pItr != pEnd; ++pItr, ++pid) {
-                    preferences[pid] = *pItr;            
+                    preferences[pid] = *pItr;
                     prefNameToID[pItr->name].push_back(pid);
                     dest.push_back(pid);
                 }
-                
+
             }
         }
         /*constraints.reserve(c.builtConstraints.size());
         constraints.insert(constraints.end(), c.builtConstraints.begin(), c.builtConstraints.end());*/
-        
+
         list<Literal*>::const_iterator gItr = literalGoals.begin();
         const list<Literal*>::const_iterator gEnd = literalGoals.end();
-        
+
         for (int gid = 0; gItr != gEnd; ++gItr, ++gid) {
-            
+
             literalsToGoalIndex.insert(make_pair((*gItr)->getStateID(), gid));
         }
     }
@@ -3953,7 +3953,7 @@ void RPGBuilder::initialise()
 
     oneShotInferForTILs(); // this is done here, as it adds extra invariants to actions
 
-    
+
     buildDurations(fixedDurationExpressions, minDurationExpressions, maxDurationExpressions);
 
     if (doTemporalAnalysis) {
@@ -3966,24 +3966,24 @@ void RPGBuilder::initialise()
 
     findStaticLiterals();
 
-        
-    PreferenceHandler::initialiseNNF();    
-    
+
+    PreferenceHandler::initialiseNNF();
+
     postFilterUnreachableActions();
 
     pruneStaticPreconditions();
-    
+
     buildThePropositionalBitOfConditionalEffects();
 
     buildRPGNumericPreconditions();
-    buildRPGNumericEffects();    
+    buildRPGNumericEffects();
     detectConditionalEffectsThatEncodeIntegralOutcomes();
     NumericAnalysis::findFactsThatDefineAndFixVariables();
 
     handleNumericInvariants();
 
-    
-    
+
+
     {
         list<pair<int, Planner::time_spec> >::iterator plaItr = preconditionlessActions.begin();
         const list<pair<int, Planner::time_spec> >::iterator plaEnd = preconditionlessActions.end();
@@ -4009,67 +4009,67 @@ void RPGBuilder::initialise()
     buildMetric(current_analysis->the_problem->metric);
 
     PreferenceHandler::flattenNNF();
-    
-    findSemaphoreFacts();        
-    
+
+    findSemaphoreFacts();
+
     TemporalAnalysis::findGoalSoftDeadlines(factRelevantToWithinPreferences, negativeFactRelevantToWithinPreferences);
-    
-    
+
+
 
     findSelfMutexes();
     doSomeUsefulMetricRPGInference();
-    
+
     NumericAnalysis::findVariablesThatAreTickers();
     {
         map<int, list<IntegralContinuousEffect> >::iterator iceItr = actionsToIntegralConditionalEffects.begin();
         const map<int, list<IntegralContinuousEffect> >::iterator iceEnd = actionsToIntegralConditionalEffects.end();
-        
+
         while (iceItr != iceEnd) {
-            
+
             if (rogueActions[iceItr->first]) {
                 map<int, list<IntegralContinuousEffect> >::iterator iceDel = iceItr++;
-                
+
                 actionsToIntegralConditionalEffects.erase(iceDel);
-                
+
             } else {
-                            
+
                 list<IntegralContinuousEffect>::iterator icItr = iceItr->second.begin();
                 const list<IntegralContinuousEffect>::iterator icEnd = iceItr->second.end();
-                
+
                 for (; icItr != icEnd; ++icItr) {
                     icItr->workOutSuitablePreconditionRelaxation();
                 }
-                
+
                 ++iceItr;
             }
         }
     }
     NumericAnalysis::findOrphanedNumericEffects();
-    
-        
+
+
     #ifdef POPF3ANALYSIS
     NumericAnalysis::findVariableBounds();
     #endif
     NumericAnalysis::findDominanceConstraintsAndMetricTrackingVariables();
     #ifdef POPF3ANALYSIS
     NumericAnalysis::findWhichVariablesAreOnlyInAtStarts();
-    NumericAnalysis::findGoalNumericUsageLimits(); 
+    NumericAnalysis::findGoalNumericUsageLimits();
     NumericAnalysis::findEarlierIsBetterTimeDependentRewards();
     #endif
     NumericAnalysis::findWhichVariablesHaveOrderIndependentEffects();
     NumericAnalysis::findMaximumGradients();
     NumericAnalysis::findEndEffectsSafeToMoveToTheStart();
 
-    
+
     removePointlessEffects();
-    
+
     separateOptimisationTILs();
     findUninterestingnessCriteria();
     findConcurrentRedundantActions();
-    
+
     PreferenceHandler::buildAutomata();
-    
-    
+
+
     if (doTemporalAnalysis) {
         TemporalAnalysis::buildTimelinesOnTILs();
         TemporalAnalysis::reboundActionsGivenTILTimelines();
@@ -4078,11 +4078,11 @@ void RPGBuilder::initialise()
     } else {
         globalHeuristic = generateRPGHeuristic();
     }
-    
+
     TemporalAnalysis::findCompressionSafeActions();
 
-    
-    
+
+
     #ifdef ENABLE_DEBUGGING_HOOKS
     if (Globals::planFilename) {
         cout << "Final check for whether actions have been erroneously pruned\n";
@@ -4206,7 +4206,7 @@ bool RPGBuilder::stepNeedsToHaveFinished(const ActionSegment & act, const Minima
     }
 
     #ifdef TOTALORDERSTATES
-    
+
     if (willDelete) {
 
         list<Literal*>::iterator fItr = willDelete->begin();
@@ -4214,15 +4214,15 @@ bool RPGBuilder::stepNeedsToHaveFinished(const ActionSegment & act, const Minima
 
         for (; fItr != fEnd; ++fItr) {
             const map<int,int>::const_iterator invItr = theState.invariants.find((*fItr)->getStateID());
-            
+
             if (invItr != theState.invariants.end()) {
-                
+
                 bool invariantFinishesWithAction = false;
-                
+
                 if (invItr->second == 1 && act.second == Planner::E_AT_END) {
                     list<Literal*>::const_iterator aiItr = actionsToInvariants[actID].begin();
                     const list<Literal*>::const_iterator aiEnd = actionsToInvariants[actID].end();
-                    
+
                     for (; aiItr != aiEnd; ++aiItr) {
                         if ((*aiItr)->getStateID() == (*fItr)->getStateID()) {
                             // ending an action with the only invariant on this fact
@@ -4231,52 +4231,52 @@ bool RPGBuilder::stepNeedsToHaveFinished(const ActionSegment & act, const Minima
                         }
                     }
                 }
-                
-                if (!invariantFinishesWithAction) {                    
+
+                if (!invariantFinishesWithAction) {
                     if (debug) {
                         cout << "Action " << *(RPGBuilder::getInstantiatedOp(actID)) << " not applicable: cannot skip past invariants on " << *(*fItr) << " owned by executing non-compression-safe actions\n";
                     }
                     return false;
                 }
             }
-            
+
             const StateBFacts::const_iterator csInvItr = theState.firstAnnotations.find((*fItr)->getStateID());
-            
+
             if (csInvItr != theState.firstAnnotations.end()) {
                 // must then come after what needs that fact
                 toBeNonMutex.insert(csInvItr->second.second.begin(),csInvItr->second.second.end());
             }
         }
     }
-    
+
     if (needs) {
-        
+
         list<Literal*>::iterator fItr = needs->begin();
         const list<Literal*>::iterator fEnd = needs->end();
-        
+
         for (; fItr != fEnd; ++fItr) {
             const StateFacts::const_iterator invItr = theState.first.find((*fItr)->getStateID());
             if (invItr != theState.first.end()) {
                 const StateBFacts::const_iterator invBItr = theState.firstAnnotations.find((*fItr)->getStateID());
-                
+
                 if (invBItr != theState.firstAnnotations.end()) {
                     toBeNonMutex.insert(invBItr->second.first.begin(), invBItr->second.first.end());
                 }
 
                 // fact is true, carry on
-                
+
                 continue;
             }
             if (debug) cout << "Would need an invariant " << *(*fItr) << ", which is not currently true\n";
-            
+
             return false;
-            
+
         }
-        
+
     }
-    
+
     #else
-    
+
     const StateFacts::const_iterator stateEnd = theState.first.end();
     const StateFacts::const_iterator retiredStateEnd = theState.retired.end();
 
@@ -4325,7 +4325,7 @@ bool RPGBuilder::stepNeedsToHaveFinished(const ActionSegment & act, const Minima
             }
         }
     }
-    
+
     if (needs) {
 
         list<Literal*>::iterator fItr = needs->begin();
@@ -4369,7 +4369,7 @@ bool RPGBuilder::stepNeedsToHaveFinished(const ActionSegment & act, const Minima
         }
 
     }
-    
+
     #endif
 
 
@@ -4434,8 +4434,8 @@ double RPGBuilder::DurationExpr::minOf(const vector<double> & minFluents, const 
     const int lim = weights.size();
 
     for (int i = 0; i < lim; ++i) {
-        const double & currW = weights[i];      
-        if (currW < 0.0) {            
+        const double & currW = weights[i];
+        if (currW < 0.0) {
             toReturn += currW * getValue(maxFluents,variables[i]);
         } else {
             toReturn += currW * getValue(minFluents,variables[i]);
@@ -4821,11 +4821,11 @@ void RPGBuilder::buildDurations(vector<list<NumericPrecondition*> > & fixedDurat
 
     rpgDurationExpressions = vector<vector<RPGDuration*> >(lim);
     nonTemporalDuration.resize(lim, 0.001);
-    
+
     if (durDebug) {
         cout << "Number of actions potentially needing durations: " << lim << endl;
     }
-    
+
     for (int i = 0; i < lim; ++i) {
 
         if (!rogueActions[i]) {
@@ -4834,7 +4834,7 @@ void RPGBuilder::buildDurations(vector<list<NumericPrecondition*> > & fixedDurat
                 cout << "Considering durations of " << *(getInstantiatedOp(i)) << ":";
                 cout.flush();
             }
-            
+
             bool durationConflict = false;
 
             rpgDurationExpressions[i] = vector<RPGDuration*>(1);
@@ -4846,7 +4846,7 @@ void RPGBuilder::buildDurations(vector<list<NumericPrecondition*> > & fixedDurat
             allDurations[2] = &(maxDurations[i]);
 
             bool durative = (!allDurations[0]->empty() || !allDurations[1]->empty() || !allDurations[2]->empty());
-            
+
             if (durative) {
                 pair<double, bool> evalDurMax(1000000000.0, false);
                 pair<double, bool> evalDurMin(0.000, false);
@@ -4868,13 +4868,13 @@ void RPGBuilder::buildDurations(vector<list<NumericPrecondition*> > & fixedDurat
 
                                 if (newEval.first > evalDurMax.first
                                         || newEval.first < evalDurMin.first) {
-                
+
                                     #ifdef ENABLE_DEBUGGING_HOOKS
                                     {
                                         ostringstream s;
                                         s << "Fixed duration of " << newEval.first << " is not acceptable";
                                         Globals::eliminatedAction(i, s.str().c_str());
-                                    } 
+                                    }
                                     #endif
 
                                     durationConflict = true;
@@ -4888,14 +4888,14 @@ void RPGBuilder::buildDurations(vector<list<NumericPrecondition*> > & fixedDurat
                                 #ifdef ENABLE_DEBUGGING_HOOKS
                                 {
                                     ostringstream s;
-                                    if (pass == 0) {                                        
+                                    if (pass == 0) {
                                         s << "Duration of action was fixed to " << newEval.first;
                                     } else if (pass == 2) {
                                         s << "Maximum duration of action was negative: " << newEval.first;
                                     }
-                                    
+
                                     Globals::eliminatedAction(i, s.str().c_str());
-                                } 
+                                }
                                 #endif
                                 durationConflict = true;
                                 break;
@@ -4945,7 +4945,7 @@ void RPGBuilder::buildDurations(vector<list<NumericPrecondition*> > & fixedDurat
                 }
 
                 if (!durationConflict && (evalDurMin.first == 0.0 || evalDurMax.first == 0.0)) {
-                    string diagnosis;                    
+                    string diagnosis;
                     if (!actionsToInvariants[i].empty()) {
                         diagnosis = "* Propositional over all conditions\n";
                         durationConflict = true;
@@ -4973,11 +4973,11 @@ void RPGBuilder::buildDurations(vector<list<NumericPrecondition*> > & fixedDurat
                     if (durationConflict) {
                         static bool issuedWarning = false;
                         static bool issuedSecondWarning = false;
-                        
+
                         if (!issuedWarning) {
                             cout << "== Warning ==\n\n";
                             cout << "The action " << *(instantiatedOps[i]) << " has ";
-                            
+
                             if (evalDurMin.first == 0.0 && evalDurMax.first == 0.0) {
                                 cout << "a fixed duration of zero";
                             } else if (evalDurMin.first == 0.0) {
@@ -4999,12 +4999,12 @@ void RPGBuilder::buildDurations(vector<list<NumericPrecondition*> > & fixedDurat
                             issuedSecondWarning = true;
                         }
                     }
-                }    
+                }
 
                 if (durationConflict) {
                     pruneIrrelevant(i);
                 } else {
-                    if (evalDurMin.first != 0.0 && evalDurMax.first != 0.0) {                        
+                    if (evalDurMin.first != 0.0 && evalDurMax.first != 0.0) {
                         if (evalDurMin.second) {
                             actionsToMinDurations[i] = evalDurMin.first;
                         } else {
@@ -5026,14 +5026,14 @@ void RPGBuilder::buildDurations(vector<list<NumericPrecondition*> > & fixedDurat
                         problemIsNotTemporal = false;
                     } else {
                         durative = false;
-                        
+
                         if (durDebug) {
                             cout << "Duration of " << *getInstantiatedOp(i) << " is 0, making action non-temporal\n";
                         }
                         assert(actionsToInvariants[i].empty());
                         assert(actionsToNegativeInvariants[i].empty());
                         assert(actionsToNumericInvariants[i].empty());
-                        
+
                         assert(actionsToEndPreconditions[i].empty());
                         assert(actionsToEndNegativePreconditions[i].empty());
                         assert(actionsToEndNumericPreconditions[i].empty());
@@ -5043,15 +5043,15 @@ void RPGBuilder::buildDurations(vector<list<NumericPrecondition*> > & fixedDurat
                             list<Literal*> & destList = (pol ? actionsToStartNegativeEffects[i] : actionsToStartEffects[i]);
                             list<Literal*>::const_iterator eItr = currList.begin();
                             const list<Literal*>::const_iterator eEnd = currList.end();
-                            
+
                             for (; eItr != eEnd; ++eItr) {
                                 list<Literal*>::iterator oItr = destList.begin();
                                 const list<Literal*>::iterator oEnd = destList.end();
-                                
+
                                 for (; oItr != oEnd; ++oItr) {
                                     if (*oItr == *eItr) break;
                                 }
-                                
+
                                 if (oItr == oEnd) {
                                     destList.push_back(*eItr);
                                     if (pol) {
@@ -5068,66 +5068,66 @@ void RPGBuilder::buildDurations(vector<list<NumericPrecondition*> > & fixedDurat
                             }
                             currList.clear();
                         }
-                        
-                        {                            
+
+                        {
                             list<NumericEffect> & currList = actionsToEndNumericEffects[i];
                             list<NumericEffect> & destList = actionsToStartNumericEffects[i];
-                                                        
+
                             destList.insert(destList.end(), currList.begin(), currList.end());
-                            
+
                             currList.clear();
-                            
+
                             /*list<int>::const_iterator eItr = currList.begin();
                             const list<int>::const_iterator eEnd = currList.end();
-                            
+
                             for (; eItr != eEnd; ++eItr) {
                                 list<int>::iterator oItr = destList.begin();
                                 const list<int>::iterator oEnd = destList.end();
-                                
+
                                 for (; oItr != oEnd; ++oItr) {
                                     if (*oItr == *eItr) break;
                                 }
-                                
+
                                 if (oItr == oEnd) {
                                     destList.push_back(*eItr);
                                     rpgNumericEffectsToActions[*eItr].push_back(make_pair(i, Planner::E_AT_START));
                                 }
                                 rpgNumericEffectsToActions[*eItr].remove(make_pair(i, Planner::E_AT_END));
                             }
-                            
+
                             currList.clear();*/
                         }
-                        
+
                         {
                             list<ProtoConditionalEffect*>::iterator condEffItr = actionsToRawConditionalEffects[i].begin();
                             const list<ProtoConditionalEffect*>::iterator condEffEnd = actionsToRawConditionalEffects[i].end();
-                            
+
                             for (; condEffItr != condEffEnd; ++condEffItr) {
-                                
+
                                 assert((*condEffItr)->inv.empty());
                                 assert((*condEffItr)->negInv.empty());
                                 assert((*condEffItr)->invNumeric.empty());
-                                
+
                                 assert((*condEffItr)->endPrec.empty());
                                 assert((*condEffItr)->endNegPrec.empty());
                                 assert((*condEffItr)->endPrecNumeric.empty());
-                                
+
                                 list<NumericEffect> & currList = (*condEffItr)->endNumericEff;
                                 list<NumericEffect> & destList = (*condEffItr)->startNumericEff;
-                                                            
+
                                 destList.insert(destList.end(), currList.begin(), currList.end());
-                                
+
                                 currList.clear();
-                                
+
                             }
                         }
-                        
+
                         nonTemporalDuration[i] = 0.0;
                     }
                 }
-                
+
             }
-            
+
             if (!durative) {
                 actionsToMinDurations[i] = 0.001;
                 actionsToMaxDurations[i] = 0.001;
@@ -5137,85 +5137,85 @@ void RPGBuilder::buildDurations(vector<list<NumericPrecondition*> > & fixedDurat
             if (durDebug) {
                 cout << endl;
             }
-            
-        }        
+
+        }
     }
 
 }
 
 struct LiteralTimeSpecLT {
-  
+
     bool operator()(const pair<Literal*, Planner::time_spec> & a, const pair<Literal*, Planner::time_spec> & b) const {
-        
+
         if (a.first->getStateID() < b.first->getStateID()) {
             return true;
         }
-        
+
         if (a.first->getStateID() > b.first->getStateID()) {
             return false;
         }
-        
+
         return (a.second < b.second);
     }
-    
+
 };
 
 void RPGBuilder::ConditionalEffect::makeNonTemporal() {
-    
+
     {
-        
-        set<pair<Literal*, Planner::time_spec>, LiteralTimeSpecLT> newPropositionalConditions;        
-                
+
+        set<pair<Literal*, Planner::time_spec>, LiteralTimeSpecLT> newPropositionalConditions;
+
         list<pair<Literal*, Planner::time_spec> >::const_iterator pcItr = propositionalConditions.begin();
         const list<pair<Literal*, Planner::time_spec> >::const_iterator pcEnd = propositionalConditions.end();
-        
+
         for (; pcItr != pcEnd; ++pcItr) {
             newPropositionalConditions.insert(make_pair(pcItr->first, Planner::E_AT_START));
         }
-        
+
         propositionalConditions.clear();
         propositionalConditions.insert(propositionalConditions.end(), newPropositionalConditions.begin(), newPropositionalConditions.end());
-        
+
     }
-    
+
     {
-        set<pair<int, Planner::time_spec> > newNumericPreconditions;    
-        
+        set<pair<int, Planner::time_spec> > newNumericPreconditions;
+
         list<pair<int, Planner::time_spec> >::const_iterator pcItr = numericPreconditions.begin();
         const list<pair<int, Planner::time_spec> >::const_iterator pcEnd = numericPreconditions.end();
-        
+
         for (; pcItr != pcEnd; ++pcItr) {
             newNumericPreconditions.insert(make_pair(pcItr->first, Planner::E_AT_START));
         }
-        
+
         numericPreconditions.clear();
         numericPreconditions.insert(numericPreconditions.end(), newNumericPreconditions.begin(), newNumericPreconditions.end());
     }
-    
+
     {
         set<pair<int, Planner::time_spec> > newNumericEffects;
-        
+
         list<pair<int, Planner::time_spec> >::const_iterator pcItr = numericEffects.begin();
         const list<pair<int, Planner::time_spec> >::const_iterator pcEnd = numericEffects.end();
-        
+
         for (; pcItr != pcEnd; ++pcItr) {
             newNumericEffects.insert(make_pair(pcItr->first, Planner::E_AT_START));
         }
-        
+
         numericEffects.clear();
         numericEffects.insert(numericEffects.end(), newNumericEffects.begin(), newNumericEffects.end());
     }
-    
+
     map<Literal*, Planner::time_spec, LiteralLT> strongestAddEffects;
     map<Literal*, Planner::time_spec, LiteralLT> strongestDelEffects;
-    
+
     for (int pass = 0; pass < 2; ++pass) {
-        
+
         const Planner::time_spec tsMatch = (pass ? Planner::E_AT_END : Planner::E_AT_START);
         {
             list<pair<Literal*, Planner::time_spec> >::const_iterator pcItr = propositionalDeleteEffects.begin();
             const list<pair<Literal*, Planner::time_spec> >::const_iterator pcEnd = propositionalDeleteEffects.end();
-            
+
             for (; pcItr != pcEnd; ++pcItr) {
                 if (pcItr->second == tsMatch) {
                     strongestAddEffects.erase(pcItr->first);
@@ -5226,7 +5226,7 @@ void RPGBuilder::ConditionalEffect::makeNonTemporal() {
         {
             list<pair<Literal*, Planner::time_spec> >::const_iterator pcItr = propositionalAddEffects.begin();
             const list<pair<Literal*, Planner::time_spec> >::const_iterator pcEnd = propositionalAddEffects.end();
-            
+
             for (; pcItr != pcEnd; ++pcItr) {
                 if (pcItr->second == tsMatch) {
                     strongestDelEffects.erase(pcItr->first);
@@ -5234,15 +5234,15 @@ void RPGBuilder::ConditionalEffect::makeNonTemporal() {
                 }
             }
         }
-        
+
     }
-    
+
     propositionalAddEffects.clear();
     propositionalDeleteEffects.clear();
-    
+
     propositionalAddEffects.insert(propositionalAddEffects.end(), strongestAddEffects.begin(), strongestAddEffects.end());
     propositionalDeleteEffects.insert(propositionalDeleteEffects.end(), strongestDelEffects.begin(), strongestDelEffects.end());
-    
+
 }
 
 RPGBuilder::LinearEffects * RPGBuilder::buildLE(list<RPGBuilder::NumericEffect> & effList, const string & whereEffectsAreFrom)
@@ -5414,14 +5414,14 @@ RPGBuilder::LinearEffects * RPGBuilder::buildLE(list<RPGBuilder::NumericEffect> 
 list<RPGBuilder::DurationExpr *> RPGBuilder::buildDEList(list<RPGBuilder::NumericPrecondition *> & d)
 {
     list<RPGBuilder::DurationExpr *> toReturn;
-    
+
     list<RPGBuilder::NumericPrecondition *>::iterator lItr = d.begin();
     const list<RPGBuilder::NumericPrecondition *>::iterator lEnd = d.end();
-    
+
     for (; lItr != lEnd; ++lItr) {
         toReturn.push_back(buildDE(*lItr));
     }
-    
+
     return toReturn;
 };
 
@@ -5476,7 +5476,7 @@ RPGBuilder::DurationExpr * RPGBuilder::buildDE(RPGBuilder::NumericPrecondition *
                     cout << ", normal, " << vItr->first << endl;
                 }
             }
-            
+
             toReturn->weights.push_back(*wItr);
             toReturn->variables.push_back(*vItr);
         }

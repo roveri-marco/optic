@@ -81,14 +81,14 @@ using namespace VAL;
 int main(int argc,char * argv[])
 {
 	current_analysis = & an_analysis;
-	
+
 	yfl = new yyFlexLexer;
-    
+
     ifstream current_in_stream(argv[1]);
-    yydebug=0; // Set to 1 to output yacc trace 
+    yydebug=0; // Set to 1 to output yacc trace
 
 	cout << "Processing file: " << argv[1] << '\n';
-	
+
 	if (current_in_stream.bad())
 	{
 	    cout << "Failed to open\n";
@@ -105,10 +105,10 @@ int main(int argc,char * argv[])
 	    yyparse();
 
 	    // Output syntax tree
-	    auto_ptr<WriteController> ts 
-	    		= auto_ptr<WriteController>(new TypeStripWriteController(current_analysis));
+	    unique_ptr<WriteController> ts
+	    		= unique_ptr<WriteController>(new TypeStripWriteController(current_analysis));
 	    parse_category::setWriteController(ts);
-	    if (top_thing) 
+	    if (top_thing)
 		{
 			string nm(argv[1]);
 			nm += ".untyped";
@@ -139,7 +139,7 @@ int main(int argc,char * argv[])
 		    // Switch the tokeniser to the current input stream
 		    yfl->switch_streams(&problem_in_stream,&cout);
 		    yyparse();
-		    
+
 		    if (top_thing)
 		    {
 		    	string nm(argv[2]);

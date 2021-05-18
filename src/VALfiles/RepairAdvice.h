@@ -52,10 +52,10 @@
 #include <memory>
 
 
-using std::auto_ptr;
+using std::unique_ptr;
 
 namespace VAL {
-  
+
 class UnsatCondition {
 protected:
 	mutable State state;
@@ -74,7 +74,7 @@ public:
   virtual State & getState() const {return state;};
   virtual double howLong() const {return 0.0;};
   virtual string getDisplayString() const {return "!";};
-  virtual string getAdviceString() const; 
+  virtual string getAdviceString() const;
 };
 
 
@@ -98,14 +98,14 @@ struct UnsatPrecondition : public UnsatCondition {
 struct UnsatDurationCondition : public UnsatCondition {
 
 	double time;
-	const Action * action; 
+	const Action * action;
   double error; //how far out was the duration?
-  
+
      UnsatDurationCondition(double t, const Action * a, const State * s,double e):
     	UnsatCondition(*s,0),
     	time(t), action(a), error(e)
     {};
-    
+
     ~UnsatDurationCondition() {};
     void display() const;
     string getDisplayString() const;
@@ -117,12 +117,12 @@ struct MutexViolation : public UnsatCondition {
 	double time;
 	const Action * action1;
 	const Action * action2;
-  
-  //string reason; //reason for the mutex condition 
+
+  //string reason; //reason for the mutex condition
      MutexViolation(double t, const Action * a1, const Action * a2, const State * s):
     	UnsatCondition(*s,0),time(t), action1(a1), action2(a2)
     {};
-    
+
     ~MutexViolation() {};
     void display() const;
     string getDisplayString() const;
@@ -163,12 +163,12 @@ struct UnsatInvariant : public UnsatCondition {
 	const Intervals & getInts() const {return satisfiedOn;};
 	double howLong() const {return endTime-startTime;};
   string getDisplayString() const;
-   
+
 };
 
 struct UnsatConditionFactory {
 	virtual ~UnsatConditionFactory() {};
-	virtual UnsatPrecondition * 
+	virtual UnsatPrecondition *
 			buildUnsatPrecondition(double t, const Action * a, const State * s)
 	{
 		return new UnsatPrecondition(t,a,s);
@@ -198,19 +198,19 @@ virtual MutexViolation *
 
 class ErrorLog {
 private:
-  static auto_ptr<UnsatConditionFactory> fac;
-  
-  vector<const UnsatCondition *> conditions; 
+  static unique_ptr<UnsatConditionFactory> fac;
+
+  vector<const UnsatCondition *> conditions;
 public:
   template<typename Fac>
-  static void replace() { 
-  	auto_ptr<Fac> f(new Fac);
+  static void replace() {
+  	unique_ptr<Fac> f(new Fac);
   	fac = f;
   };
   template<typename Fac>
   static void replace(Fac * f)
   {
-  	auto_ptr<Fac> nf(f);
+  	unique_ptr<Fac> nf(f);
   	fac = nf;
   };
   ErrorLog() {};

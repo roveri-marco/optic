@@ -81,15 +81,15 @@ using namespace VAL;
 int main(int argc,char * argv[])
 {
 	current_analysis = & an_analysis;
-	
+
 	yfl = new yyFlexLexer;
-    
+
     ifstream current_in_stream(argv[1]);
-    yydebug=0; // Set to 1 to output yacc trace 
+    yydebug=0; // Set to 1 to output yacc trace
 
 	cout << "Processing file: " << argv[1] << '\n';
 	LPGPTranslator * lpgp = 0;
-	
+
 	if (current_in_stream.bad())
 	{
 	    cout << "Failed to open\n";
@@ -107,13 +107,13 @@ int main(int argc,char * argv[])
 
 	    // Output syntax tree
 	    lpgp = new LPGPTranslator(current_analysis);
-	    auto_ptr<WriteController> ts 
-	    		= auto_ptr<WriteController>(lpgp);
+	    unique_ptr<WriteController> ts
+	    		= unique_ptr<WriteController>(lpgp);
 	    // NOTE: We pass responsibility for lpgp into parse_category. There
 	    // is no need to garbage collect it. BUT we access lpgp later through
 	    // this pointer, so beware!
 	    parse_category::setWriteController(ts);
-	    if (top_thing) 
+	    if (top_thing)
 		{
 			string nm(argv[1]);
 			nm += ".lpgp";
@@ -144,7 +144,7 @@ int main(int argc,char * argv[])
 		    // Switch the tokeniser to the current input stream
 		    yfl->switch_streams(&problem_in_stream,&cout);
 		    yyparse();
-		    
+
 		    if (top_thing)
 		    {
 		    	string nm(argv[2]);
@@ -154,7 +154,7 @@ int main(int argc,char * argv[])
 		    	nm += ".durations";
 		    	ofstream dursfile(nm.c_str());
 		    	dursfile << lpgp->yieldDurations();
-		    	// Note the access to lpgp even though this was wraped in an 
+		    	// Note the access to lpgp even though this was wraped in an
 		    	// autopointer inside the current analysis.
 		    };
 		}

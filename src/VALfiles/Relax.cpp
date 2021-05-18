@@ -81,15 +81,15 @@ using namespace VAL;
 int main(int argc,char * argv[])
 {
 	current_analysis = & an_analysis;
-	
+
 	yfl = new yyFlexLexer;
-    
+
     ifstream current_in_stream(argv[1]);
-    yydebug=0; // Set to 1 to output yacc trace 
+    yydebug=0; // Set to 1 to output yacc trace
 
 	cout << "Processing file: " << argv[1] << '\n';
 	RelaxTranslator * dyna = 0;
-	
+
 	if (current_in_stream.bad())
 	{
 	    cout << "Failed to open\n";
@@ -107,13 +107,13 @@ int main(int argc,char * argv[])
 
 	    // Output syntax tree
 	    dyna = new RelaxTranslator(current_analysis);
-	    auto_ptr<WriteController> ts 
-	    		= auto_ptr<WriteController>(dyna);
+	    unique_ptr<WriteController> ts
+	    		= unique_ptr<WriteController>(dyna);
 	    // NOTE: We pass responsibility for dyna into parse_category. There
 	    // is no need to garbage collect it. BUT we access dyna later through
 	    // this pointer, so beware!
 	    parse_category::setWriteController(ts);
-	    if (top_thing) 
+	    if (top_thing)
 		{
 			string nm(argv[1]);
 			nm += ".rlx";
@@ -144,7 +144,7 @@ int main(int argc,char * argv[])
 		    // Switch the tokeniser to the current input stream
 		    yfl->switch_streams(&problem_in_stream,&cout);
 		    yyparse();
-		    
+
 		    if (top_thing)
 		    {
 		    	string nm(argv[2]);

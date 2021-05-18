@@ -33,7 +33,7 @@
 #include "FlexLexer.h"
 #include "TypedAnalyser.h"
 #include "TIM.h"
-
+#include <utility>
 
 extern int yyparse();
 extern int yydebug;
@@ -79,11 +79,11 @@ void performTIMAnalysis(char * argv[])
     current_analysis->const_tab.replaceFactory<TIMobjectSymbol>();
     current_analysis->op_tab.replaceFactory<TIMactionSymbol>();
     current_analysis->setFactory(new TIMfactory());
-    auto_ptr<EPSBuilder> eps(new specEPSBuilder<TIMpredSymbol>());
-    Associater::buildEPS = eps;
-    
+    unique_ptr<EPSBuilder> eps(new specEPSBuilder<TIMpredSymbol>());
+    Associater::buildEPS = std::move(eps);
+
     ifstream* current_in_stream;
-    yydebug=0; // Set to 1 to output yacc trace 
+    yydebug=0; // Set to 1 to output yacc trace
 
     yfl= new yyFlexLexer;
 
@@ -142,7 +142,7 @@ void performTIMAnalysis(char * argv[])
     delete yfl;
 
     #ifdef STATICHACK
-    
+
     cout << "Domain: '" << current_analysis->the_domain->name << "'\n";
     if (current_analysis->the_domain->name.find("storage") == 0) {
         cout << "HACK: Recognised the storage domain, overriding recognised static fact data\n";
@@ -152,23 +152,23 @@ void performTIMAnalysis(char * argv[])
         s.insert("compatible");
         setStatics(s);
     }
-    
+
     #endif
-    
-    
+
+
     DurativeActionPredicateBuilder dapb;
     current_analysis->the_domain->visit(&dapb);
 
 	theTC = new TypeChecker(current_analysis);
-    
+
     bool domainOkay = false;
-    
+
     try {
         domainOkay = theTC->typecheckDomain();
     }
     catch (std::exception e) {
     }
-    
+
     if (!domainOkay) {
 		cerr << "Type Errors Encountered in Domain File\n";
 		cerr << "--------------------------------------\n\n";
@@ -179,18 +179,18 @@ void performTIMAnalysis(char * argv[])
             theTC->typecheckDomain();
         }
         catch (std::exception e) {
-        }        
+        }
 		exit(1);
 	}
-	
+
     bool problemOkay = false;
-	
+
     try {
         problemOkay = theTC->typecheckProblem();
     }
     catch (std::exception e) {
     }
-            
+
 	if (!problemOkay) {
 		cerr << "Type Errors Encountered in Problem File\n";
 		cerr << "---------------------------------------\n\n";
@@ -202,12 +202,12 @@ void performTIMAnalysis(char * argv[])
         }
         catch (std::exception e) {
         }
-                    
+
 		exit(1);
 	}
     TypePredSubstituter a;
     current_analysis->the_problem->visit(&a);
-   	current_analysis->the_domain->visit(&a); 
+   	current_analysis->the_domain->visit(&a);
 
    	Analyser aa(dapb.getIgnores());
    	current_analysis->the_problem->visit(&aa);
@@ -233,4 +233,3 @@ void performTIMAnalysis(char * argv[])
 }
 
 };
-
