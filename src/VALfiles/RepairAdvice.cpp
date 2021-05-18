@@ -49,18 +49,18 @@
 #include "Utils.h"
 
 namespace VAL {
-  
-auto_ptr<UnsatConditionFactory> ErrorLog::fac(new UnsatConditionFactory);
+
+unique_ptr<UnsatConditionFactory> ErrorLog::fac(new UnsatConditionFactory);
 
 string UnsatCondition::getAdviceString() const
 {
-   
+
    string ans;
    ostringstream aStringStream;
    ostream * oldReport = report;
    report = &aStringStream;
    advice();
-   
+
 		ans = aStringStream.str();
 
    report = oldReport;
@@ -69,7 +69,7 @@ string UnsatCondition::getAdviceString() const
 
 void UnsatPrecondition::display() const
 {
-    *report << *action << " has an unsatisfied precondition at time "<< time; 
+    *report << *action << " has an unsatisfied precondition at time "<< time;
      if(LaTeX) *report << "\\\\";
      *report <<"\n";
 };
@@ -83,20 +83,20 @@ string UnsatPrecondition::getDisplayString() const
 void UnsatPrecondition::advice() const
 {
     if(LaTeX) *report <<"\\item "; else *report <<"\n";
-    
+
    display();
 
     action->displayDurationAdvice(&state);
 
-    if(ap->isAdvice()) 
+    if(ap->isAdvice())
     {
-    	if(LaTeX) ap->displayLaTeX(); else ap->display();  
+    	if(LaTeX) ap->displayLaTeX(); else ap->display();
     }
 };
 
 void UnsatDurationCondition::display() const
 {
-    *report << *action << " has an unsatisfied duration constraint at time "<< time; 
+    *report << *action << " has an unsatisfied duration constraint at time "<< time;
      if(LaTeX) *report << "\\\\";
      *report <<"\n";
 };
@@ -156,7 +156,7 @@ string UnsatGoal::getDisplayString() const
     return ans;
 };
 
-   
+
 void UnsatGoal::advice() const
 {
     if(LaTeX) *report <<"\\item "; else *report <<"\n";
@@ -169,7 +169,7 @@ void UnsatInvariant::display() const
 {
      if(LaTeX) *report <<"\\item ";
     *report << *action << " has its condition unsatisfied between time "<< startTime <<" to "<< endTime << ", ";
-    
+
     if(!rootError)
     {
       *report << "the condition is satisfied on ";
@@ -181,23 +181,23 @@ void UnsatInvariant::display() const
       };
 
      // if(LaTeX) *report << " For each $t$ in $( 0, "<<endTime-startTime<<")$ follow:\\\\";
-     // else *report << " For each t in ( 0, "<<endTime-startTime<<") follow:\n"; 
-     if(!LaTeX) *report << "\n"; 
+     // else *report << " For each t in ( 0, "<<endTime-startTime<<") follow:\n";
+     if(!LaTeX) *report << "\n";
 };
 
 string UnsatInvariant::getDisplayString() const
 {
     string ans =  "The invariant condition is unsatisfied";
-    
+
   return ans;
 };
 
 void UnsatInvariant::advice() const
-{     
+{
     if(!LaTeX) *report <<"\n";
     display();
 
-    if(ap->isAdvice()) 
+    if(ap->isAdvice())
     {
     	if(LaTeX) ap->displayLaTeX(); else ap->display();
     }
@@ -212,21 +212,21 @@ void ErrorLog::displayReport() const
   	{
   	     (*i)->display();
   	};
-   
+
 };
 
 ErrorLog::~ErrorLog()
-{       
+{
 	for(vector<const UnsatCondition *>::const_iterator i = conditions.begin();i != conditions.end();++i)
 	{
 			delete (*i);
-	}; 
+	};
 };
 
 void ErrorLog::addPrecondition(double t, const Action * a, const State * s)
 {
   const UnsatCondition * pre = fac->buildUnsatPrecondition(t,a,s);
-  conditions.push_back(pre);  
+  conditions.push_back(pre);
 };
 
 void ErrorLog::addUnsatDurationCondition(double t, const Action * a, const State * s,double e)
@@ -250,8 +250,7 @@ void ErrorLog::addGoal(const Proposition * p, const State * s)
 void ErrorLog::addUnsatInvariant(double st, double e, Intervals ints, const Action * a, const State * s,bool rootError)
 {
     const UnsatInvariant * inv = fac->buildUnsatInvariant(st,e,ints,a,s,rootError);
-    conditions.push_back(inv);  
+    conditions.push_back(inv);
 };
 
 };
-

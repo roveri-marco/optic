@@ -46,7 +46,7 @@ void cwrite(const pddl_type * p,ostream & o)
 };
 
 
-CompoundPropStore::CompoundPropStore(int c,vector<pair<pddl_type *,vector<const pddl_type *> > > & tps,TMap & t,extended_pred_symbol * e,Associater * a) : 
+CompoundPropStore::CompoundPropStore(int c,vector<pair<pddl_type *,vector<const pddl_type *> > > & tps,TMap & t,extended_pred_symbol * e,Associater * a) :
 		PropStore(), stores(c)
 {
 	int arity = tps.size();
@@ -66,10 +66,10 @@ CompoundPropStore::CompoundPropStore(int c,vector<pair<pddl_type *,vector<const 
 //		{
 //			t.write(cout);
 //		};
-		
+
 		SimplePropStore * s = t.get(tps1.begin(),tps1.end());
 		if(!s)
-		{	
+		{
 //			cout << "About to find\n";
 			extended_pred_symbol * f = a->find(e,tps1.begin(),tps1.end());
 			if(!f->getParent())
@@ -88,14 +88,14 @@ CompoundPropStore::CompoundPropStore(int c,vector<pair<pddl_type *,vector<const 
 //				++te;
 //			};
 //			cout << "\n";
-			
+
 			t.insert(tps1.begin(),tps1.end(),s);
 		};
 		stores[i] = s;
 		records.insert(tps1.begin(),tps1.end(),s);
 	};
 };
-	
+
 PropStore * extended_pred_symbol::records() const
 {
 	if(!props)
@@ -141,14 +141,14 @@ vector<double> extended_pred_symbol::getTimedAchievers(Environment * f,const pro
 PropInfoFactory * PropInfoFactory::pf = 0;
 
 
-auto_ptr<EPSBuilder> Associater::buildEPS(new EPSBuilder());
+unique_ptr<EPSBuilder> Associater::buildEPS(new EPSBuilder());
 
 // Associater associates predicates with their various type-specific versions.
 // So, if a predicate is overloaded to work with multiple types this will store
 // a tree structured association, indexed by types, down to an extended_pred_symbol
 // that is the substitute predicate symbol for the specific type sequence.
 Associater * Associater::handle(proposition * p)
-{	
+{
 //	cout << "A-handle " << p->head->getName() << "\n";
 	Associater * a = this;
 	if(p->args->empty())
@@ -161,13 +161,13 @@ Associater * Associater::handle(proposition * p)
 		};
 		a =0;
 	};
-		
+
 	parameter_symbol_list::iterator i = p->args->begin();
 	while(i != p->args->end())
 	{
 		pddl_type * t = (*i)->type;
 //		cout << "T " << t->getName() << "\n";
-			
+
 		++i;
 		Associater * aa = a->lookup(t);
 		if(!aa)
@@ -185,7 +185,7 @@ Associater * Associater::handle(proposition * p)
 		a = aa;
 	};
 
-	if(a) 
+	if(a)
 	{
 		if (!a->get()) {
 			std::cerr << "A problem has been encountered with your domain/problem file.\n";
@@ -249,7 +249,7 @@ void CompoundPropStore::notify(void(extended_pred_symbol::*f)(operator_ *,const 
 	{
 //		cout << "?";
 		extended_pred_symbol * ep = (*i)->getEP();
-		if(ep) 
+		if(ep)
 		{
 //			cout << "Notification\n";
 			(ep->*f)(o,p);
@@ -274,7 +274,7 @@ PropInfo * CompoundPropStore::partialGet(FastEnvironment * f,const proposition *
 	{
 		PropInfo * u = (*s)->partialGet(f,prop);
 		if(u) return u;
-	};	
+	};
 	return 0;
 };
 

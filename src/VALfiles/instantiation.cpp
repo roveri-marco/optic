@@ -129,7 +129,7 @@ void LitStoreEvaluator::evaluateSimpleGoal(FastEnvironment * f, simple_goal * s)
             }
         }
     }
-    
+
     //if (eps->appearsStatic() && eps->isCompletelyStatic(f, s->getProp())) {
     if (hpsIsStatic) {
         if (esgDebug) {
@@ -139,7 +139,7 @@ void LitStoreEvaluator::evaluateSimpleGoal(FastEnvironment * f, simple_goal * s)
         unknownTrue = false;
         unknownFalse = false;
         bool epsMatch = false;
-        
+
         holding_pred_symbol::PIt epsItr = hps->pBegin();
         const holding_pred_symbol::PIt epsEnd = hps->pEnd();
 
@@ -152,7 +152,7 @@ void LitStoreEvaluator::evaluateSimpleGoal(FastEnvironment * f, simple_goal * s)
                 break;
             }
         }
-        
+
         if (!epsMatch) {
             valueTrue = (InitialStateEvaluator::init0State.find(s->getProp()->head) != InitialStateEvaluator::init0State.end());
             valueFalse = !valueTrue;
@@ -299,7 +299,7 @@ class JPDCData
 public:
     JPDCData() {
     }
-    
+
     /**
      *  An iterator through the map of JPDCs stored for the parameter corresponding to this object.  Each
      *  entry in the map is a pair consisting of:
@@ -309,14 +309,14 @@ public:
      *    parameters if this parameter is assigned this value.  Each entry of this map
      *    is a pair consisting of:
      *     - the index of another operator parameter (where parameter 0 is the first parameter)
-     *     - a set of values that can be given to that parameter    
+     *     - a set of values that can be given to that parameter
      */
     typedef map<int, map<int, set<int> > >::iterator iterator;
 
     /** Const version of the <code>iterator</code> for this class. */
     typedef map<int, map<int, set<int> > >::const_iterator const_iterator;
-    
-    
+
+
     /** @Return <code>true</code> if no JPDCs are defined from this object (i.e. from its corresponding parameter). */
     inline bool empty() const {
         return jpdcs.empty();
@@ -335,7 +335,7 @@ public:
     * @Return An iterator pointing to the end of the collection of JPDCs for the parameter
     *         corresponding to this object.
     * @see jpdcs
-    */    
+    */
     inline const_iterator end() const {
         return jpdcs.end();
     }
@@ -370,7 +370,7 @@ public:
      *  @return  An <code>iterator<code> pointing to where <code>d</code> was inserted; or, if JPDCs
      *           were previously defined from the given value of the parameter (<code>d.first</code>), an
      *           iterator pointing to where these are.
-     *  
+     *
      */
     inline iterator insert(const int & paramID, const iterator & oItr, const pair<int, map<int, set<int> > > & d) {
         assert(d.second.find(paramID) == d.second.end());
@@ -415,8 +415,8 @@ public:
     inline const_iterator find(const int & thisVal) const {
         return jpdcs.find(thisVal);
     }
-    
-    
+
+
 };
 
 //typedef map<int, map<int, set<int> > > JPDCData;
@@ -463,9 +463,9 @@ protected:
 
 public:
 
-    /** How many parameters the operator has. */    
+    /** How many parameters the operator has. */
     int domCount;
-    
+
     /**
     *  The domains of the parameters of this operator.  Each entry in the vector
     *  is a pair, where:
@@ -473,12 +473,12 @@ public:
     *     any type-correct value
     *   - otherwise, the second value contains a set of permissible values for that
     *     parameter
-    * 
+    *
     *  (The use of a paired representation is to improve the efficiency of union/intersection
     *  operations.)
     */
     vector<pair<bool, set<int> > > domains;
-    
+
     /**
     * Joint parameter domain constraints.  For each parameter <code>i</code>, <code>jpdcs[i][j][k]</code>
     * (if defined) is a set of permissible values for parameter <code>k</code> if <code>i</code> is
@@ -488,9 +488,9 @@ public:
     * ever used in a downwards direction.
     */
     vector<JPDCData> jpdcs;
-    
-    
-    
+
+
+
     /**
      *  Initialise a record of the parameter domains and constraints between them for an operator.
      *
@@ -499,7 +499,7 @@ public:
     ParameterDomainsAndConstraints(const int & i)
     : domCount(i), domains(i, make_pair(true, set<int>())), jpdcs(i) {
     }
-    
+
     /**
      *  Copy constructor: duplicate the record of the parameter domains and constraints between them.
      *
@@ -511,12 +511,12 @@ public:
     /**
      *  A function to either take the union of, or the intersection, of two set pairs, overwriting
      *  one of the inputs.
-     *  
+     *
      *  @param dest    One of the input set pairs, to be overwritten by the output of the intersection/union operation
      *  @param other   The other input set pair for the operation
      *  @param doUnion If <code>true</code>, the union of the two sets is taken.  Otherwise, the intersection
      *                 is taken.
-     *  
+     *
      *  @return  <code>true</code> if elements were removed from <code>dest</code>.
      *
      *  @see domains
@@ -609,7 +609,7 @@ public:
      *  - Otherwise, both the existing records and the new records impose restrictions on
      *    a parameter, based on the value given to that specified.  In this case:
      *    - if the existing data has restrictions from a value of the current parameter which
-     *      the new data does not, these restrictions are unaffected     
+     *      the new data does not, these restrictions are unaffected
      *    - if the new data has restrictions from a value of the current parameter which
      *      the existing data does not, these restrictions are copied as-is
      *    - otherwise, both the existing data and the new data restrict the value of another
@@ -833,10 +833,10 @@ class ParameterDomainConstraints : public VAL::VisitController
 
 protected:
     typedef map<const VAL::const_symbol*, int, ConstSymbolLT> pviLookup;
-    
+
     /** How many parameters the operator has */
     const int varCount;
-    
+
     /**
      * A stack of domain constraints, built whilst visiting the tree defining the actions' preconditions.
      * Internal nodes (conjunction and disjunction) push a new object onto the stack, and leaf nodes
@@ -846,9 +846,9 @@ protected:
      * in the member variable <code>doUnion</code>: if the front element is <code>true</code>,
      * the parent is a disjunction node, and the union can be taken; otherwise, the parent is a
      * conjunction and the intersection should be taken.
-     */    
+     */
     list<ParameterDomainsAndConstraints> domainStack;
-    
+
     /**
      *  For each parameter of the operator, a vectors of the type-correct parameter bindings.
      *  These form the basis of the <code>int</code> identifiers for parameters used elsewhere
@@ -856,22 +856,22 @@ protected:
      *  <code>b</code> is the entry <code>[a][b]</code>.
      */
     vector<vector<VAL::const_symbol*> > possibleParameterValues;
-    
-    /** 
+
+    /**
      * For each action parameter, a map from which values are type-correct to
      * a unique identifier for each.  This allows ints rather than const_symbol*s to be
      * used elsewhere.
      */
     vector<pviLookup > parameterValuesToIndices;
-    
+
     /** The symbols used in the action definition for each parameter (e.g. <code>?a</code>, <code>?b</code>) */
     vector<VAL::parameter_symbol *> vars;
 
     /** The symbol denoting the equality predicate */
     VAL::pred_symbol * const equality;
-    
+
     /**
-     * If the front element is <code>true</code>, then when visiting leaf nodes (facts), 
+     * If the front element is <code>true</code>, then when visiting leaf nodes (facts),
      * the parent is a disjunction node, and the permissible domains for each parameter
      * are those according to the fact being visited, and those already on the front of
      * <code>domainStack</code>.  Otherwise, if the front element is <code>false</code>,
@@ -879,17 +879,17 @@ protected:
      * constraints and the existing constraints should be respected.
      */
     list<bool> doUnion;
-   
+
     /**
      * If a leaf node does not contain a static fact, then the domains can't be restricted
      * beyond the values that are type-correct.  In this case, the index of the parameters
      * referred to by the fact are added to the set at the front of this stack.
      */
     list<set<int> > panic;
-    
+
     /** True if the parent of the current node is the root node.*/
     bool rootSpecial;
-    
+
     /** A set of parameters to visit, to propagate parameter constraint changes. */
     set<int> updateFrom;
 
@@ -901,7 +901,7 @@ protected:
           possibleParameterValues(varCount),
           parameterValuesToIndices(varCount), vars(varCount),
           equality(VAL::current_analysis->pred_tab.symbol_probe("=")) {
-              
+
         {
             int i = 0;
             for (typename T::const_iterator p = parameters->begin();
@@ -939,7 +939,7 @@ protected:
             }
         }
         domainStack.push_front(ParameterDomainsAndConstraints(varCount));
-        
+
         // inheriting classes should always call their own propagate after this constructor
         //propagate();
 
@@ -967,13 +967,13 @@ protected:
     }
 
     virtual void propagate() = 0;
-    
+
 #ifndef NDEBUG
-    /** @brief  Whether to be verbose - by default, no, but inheriting classes my change this. */ 
+    /** @brief  Whether to be verbose - by default, no, but inheriting classes my change this. */
     virtual bool beVerbose() const {
         return false;
     }
-    
+
     virtual void checkParameterOptionRemains(const int & paramID) {
 
     }
@@ -1290,7 +1290,7 @@ public:
             blindPanic();
         }
     };
-    
+
     /**
      * Visit a conjunction node.  A new entry is pushed to the front of <code>domainStack</code>,
      * and the value <code>false</code> is pushed to the front of <code>doUnion</code>.  Hence,
@@ -1377,17 +1377,17 @@ public:
     virtual void visit_timed_goal(VAL::timed_goal * t) {
         t->getGoal()->visit(this);
     }
-    
+
     /** Stub code to visit implication goals.  For now, do nothing.  @see blindPanic */
     virtual void visit_imply_goal(VAL::imply_goal *) {
         blindPanic();
     }
-    
+
     /** Stub code to visit negative goals.  For now, do nothing.  @see blindPanic */
     virtual void visit_neg_goal(VAL::neg_goal *) {
         blindPanic();
     }
-    
+
     /** Stub code to visit numeric goals.  For now, these are ignored - any domain constraints are determined solely from the logical preconditions. */
     virtual void visit_comparison(VAL::comparison *) {};
     virtual void visit_preference(VAL::preference *) {};
@@ -1413,16 +1413,16 @@ public:
      * the actions' preconditions have been visited by this class.
      *
      * @Return An iterator pointing to the first combination of parameter bindings
-     */      
+     */
     virtual PDCIterator * getIterator();
 };
 
 class OperatorParameterDomainConstraints : public ParameterDomainConstraints {
-  
+
 protected:
     /** @brief The operator for which parameter domain constraints are being constructed. */
     const VAL::operator_ * const op;
-    
+
     virtual void propagate() {
         while (!updateFrom.empty()) {
             //   set<int>::iterator nItr = updateFrom.begin();
@@ -1437,7 +1437,7 @@ protected:
             panic.pop_front();
         }
     }
-    
+
 #ifndef NDEBUG
 
     virtual bool beVerbose() const {
@@ -1447,31 +1447,31 @@ protected:
     virtual void checkParameterOptionRemains(const int & paramID) {
         if (instantiatedOp::insistOnOp == op) {
             const int lookedUp = parameterValuesToIndices[paramID].find(instantiatedOp::insistOnOpParameters[paramID])->second;
-            
+
             assert(domainStack.front().domains[paramID].first
                    || (domainStack.front().domains[paramID].second.find(lookedUp) != domainStack.front().domains[paramID].second.end()));
         }
-            
+
     }
 
 #endif
-    
+
 public:
-    
+
     OperatorParameterDomainConstraints(const VAL::operator_ * const opIn, VAL::TypeChecker & tc)
         : ParameterDomainConstraints(opIn->parameters, opIn->name->getName(), tc), op(opIn)
     {
         propagate();
     }
-    
+
 };
 
 class DerivationRuleParameterDomainConstraints : public ParameterDomainConstraints {
-    
+
 protected:
     /** @brief The derivation rule for which parameter domain constraints are being constructed. */
     const VAL::derivation_rule * const rule;
-    
+
     virtual void propagate() {
         while (!updateFrom.empty()) {
             //   set<int>::iterator nItr = updateFrom.begin();
@@ -1486,15 +1486,15 @@ protected:
             panic.pop_front();
         }
     }
-        
+
 public:
-    
+
     DerivationRuleParameterDomainConstraints(const VAL::derivation_rule * const ruleIn, VAL::TypeChecker & tc)
         : ParameterDomainConstraints(ruleIn->get_head()->args, ruleIn->get_head()->head->getName(), tc), rule(ruleIn)
     {
         propagate();
     }
-        
+
 };
 
 
@@ -1514,11 +1514,11 @@ protected:
      *    multiple constraints on that parameter.  It must be deleted when no longer needed.
      *  - <code>borrowed</code> means the set was borrowed from a JPDC, and hence can be used
      *    but must not be deleted, as this will be handled by the <code>JPDCData</code> class.
-     */      
+     */
     enum SetStatus { whole = 0, needsDeleting = 1, borrowed = 2 };
 
     friend class ParameterDomainConstraints;
-    
+
     ParameterDomainConstraints * const parent;
     ParameterDomainsAndConstraints & pds;
 
@@ -1537,7 +1537,7 @@ protected:
      *  thus far.  The parameter given is the index of the parameter from which the JPDCs are to be
      *  used to restrict the values of lower-indexed parameters.  Its JPDCs are applied to the possible values
      *  of earlier parameters (recording the new sets in <code>allowedValuesForParameter</code>.  The procedure is
-     *  essentially recursive, but to support iteration rather than having to explicitly enumerate and then return the 
+     *  essentially recursive, but to support iteration rather than having to explicitly enumerate and then return the
      *  possible bindings, it is preempted, and enough information is stored in <code>allowedValuesForParameter</code>
      *  and <code>popSet</code> to allow it to pick up from where it left off, and update from the next value
      *  of the specified parameter each time it is called.
@@ -1850,7 +1850,7 @@ void instantiatedOp::instantiate(const VAL::operator_ * op, const VAL::problem *
         }
     }
 
-    auto_ptr<PDCIterator> options(pdc.getIterator());
+    unique_ptr<PDCIterator> options(pdc.getIterator());
 
     while (options->isValid()) {
         for (int x = 0; x < opParamCount; ++x) {
@@ -1927,11 +1927,11 @@ void instantiatedOp::instantiate(const VAL::operator_ * op, const VAL::problem *
 void instantiatedDrv::instantiate(const VAL::derivation_rule * op, const VAL::problem * prb, VAL::TypeChecker & tc)
 {
     FastEnvironment e(static_cast<const id_var_symbol_table*>(op->get_vars())->numSyms());
-    
+
     const int opParamCount = op->get_head()->args->size();
-    
+
     DerivationRuleParameterDomainConstraints pdc(op, tc);
-    
+
     //cout << c << " candidates to consider\n";
     SimpleEvaluator se(&tc, &e, ISC());
     if (!opParamCount) {
@@ -1947,30 +1947,30 @@ void instantiatedDrv::instantiate(const VAL::derivation_rule * op, const VAL::pr
         };
         return;
     };
-    
+
     vector<VAL::parameter_symbol *> vars(opParamCount);
-    
+
     {
         int i = 0;
         parameter_symbol_list::const_iterator p = op->get_head()->args->begin();
         parameter_symbol_list::const_iterator pEnd = op->get_head()->args->end();
-        
+
         for (; p != pEnd; ++p, ++i) {
             vars[i] = *p;
         }
     }
-    
-    auto_ptr<PDCIterator> options(pdc.getIterator());
-            
+
+    unique_ptr<PDCIterator> options(pdc.getIterator());
+
     while (options->isValid()) {
-                
+
         for (int x = 0; x < opParamCount; ++x) {
             e[vars[x]] = (*options)[x];
         }
-        
+
         {
 
-            se.prepareForVisit(&e);            
+            se.prepareForVisit(&e);
             const_cast<VAL::derivation_rule*>(op)->visit(&se);
             if (!se.reallyFalse()) {
                 FastEnvironment * ecpy = e.copy();
@@ -1983,7 +1983,7 @@ void instantiatedDrv::instantiate(const VAL::derivation_rule * op, const VAL::pr
         };
 
         options->next();
-        
+
     };
 };
 
@@ -2411,7 +2411,7 @@ instantiatedOp::PNEEffectsIterator instantiatedOp::PNEEffectsEnd()
 
 int instantiatedOp::nonStaticLiteralCount = 0;
 int instantiatedOp::nonStaticPNECount = 0;
-    
+
 bool instantiatedOp::staticFactsAndLiteralsHaveBeenGivenIDs = false;
 
 void instantiatedOp::assignStateIDsToNonStaticLiteralsAndPNEs()
@@ -2419,10 +2419,10 @@ void instantiatedOp::assignStateIDsToNonStaticLiteralsAndPNEs()
     nonStaticLiteralCount = 0;
     nonStaticPNECount = 0;
     {
-        
+
         LiteralStore::iterator lsItr = instantiatedOp::literalsBegin();
         const LiteralStore::iterator lsEnd = instantiatedOp::literalsEnd();
-        
+
         for (; lsItr != lsEnd; ++lsItr) {
             holding_pred_symbol * const hps = EPS((*lsItr)->getHead())->getParent();
 
@@ -2439,20 +2439,20 @@ void instantiatedOp::assignStateIDsToNonStaticLiteralsAndPNEs()
                     }
                 }
             }
-    
+
             if (!hpsIsStatic) {
                 (*lsItr)->setStateID(nonStaticLiteralCount);
                 ++nonStaticLiteralCount;
             }
         }
-        
+
     }
-    
+
     {
-    
+
         PNEStore::iterator psItr = instantiatedOp::pnesBegin();
         const PNEStore::iterator psEnd = instantiatedOp::pnesEnd();
-        
+
         for (; psItr != psEnd; ++psItr) {
             if (!EFT((*psItr)->getHead())->isStatic()) {
                 (*psItr)->setStateID(nonStaticPNECount);
@@ -2460,10 +2460,10 @@ void instantiatedOp::assignStateIDsToNonStaticLiteralsAndPNEs()
             }
         }
     }
-    
+
     staticFactsAndLiteralsHaveBeenGivenIDs = true;
 }
 
 
 };
-// kate: indent-mode cstyle; space-indent on; indent-width 4; replace-tabs on; 
+// kate: indent-mode cstyle; space-indent on; indent-width 4; replace-tabs on;

@@ -1,4 +1,6 @@
 #!/bin/bash
+
+mkdir -p static
 cd static
 make -j1 parser
 make -j4 optic-cplex
