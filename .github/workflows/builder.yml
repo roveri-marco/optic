@@ -8,7 +8,7 @@ on:
     # only merge to this branch when it's time to release You can also
     # use another GitHub trigger entirely
     branches:
-      - "singularity-build-and-release"
+      - "master"
 
 jobs:
   release:
