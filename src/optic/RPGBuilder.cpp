@@ -3020,6 +3020,7 @@ RPGBuilder::op_type checkIfRogue(TimedPrecEffCollector & c)
 
         for (; dItr != dEnd; ++dItr) {
             if (!(*dItr)) {
+	        if (rogueDebug) cout << "Start Precondition " << *dItr << " doesn't exist\n";
                 return RPGBuilder::OT_INVALID_ACTION;
             }
             assert((*dItr)->valid);
