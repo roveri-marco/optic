@@ -5,7 +5,6 @@ set( CMAKE_MODULE_PATH    ${CMAKE_MODULE_PATH}
                           ${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules
                           ${CMAKE_CURRENT_SOURCE_DIR}/../cmake/modules)
 
-
 set(DOXYFILE_TARGET_SUFFIX optic)
 include(UseDoxygen OPTIONAL)
 
@@ -24,7 +23,7 @@ if(STATIC_OPTIC)
 set(CMAKE_CXX_LINK_FLAGS "-static ${CMAKE_CXX_LINK_FLAGS}")
 endif(STATIC_OPTIC)
 
-include_directories(${val_SOURCE_DIR} ${val_SOURCE_DIR}/parsing ${val_BINARY_DIR} ${CLP_INCLUDES}/coin ${CBC_INCLUDES}/coin ${CPLEX_INCLUDES} ${CONCERT_INCLUDES}  ${GSL_INCLUDES})
+include_directories(${val_SOURCE_DIR} ${val_SOURCE_DIR}/parsing ${val_BINARY_DIR} ${COINUTILS_INCLUDES}/coin ${OSI_INCLUDES}/coin ${CGL_INCLUDES}/coin ${CLP_INCLUDES}/coin ${CBC_INCLUDES}/coin ${CPLEX_INCLUDES} ${CONCERT_INCLUDES} ${GSL_INCLUDES})
 
 set(optic_build_srcs
     compressionsafescheduler.cpp
@@ -54,10 +53,10 @@ SET_TARGET_PROPERTIES(OpticCommon PROPERTIES COMPILE_FLAGS "-DPOPF3ANALYSIS")
 if (CLP_INCLUDES AND CBC_INCLUDES)
 
     ADD_EXECUTABLE(optic-clp opticMain.cpp solver-clp.cpp)
-    
+
     target_link_libraries(optic-clp
         OpticCommon
-        ${CBC_SOLVER_LIBRARY} ${CBC_LIBRARY} ${CGL_LIBRARIES} ${OSICLP_LIBRARIES} ${OSI_LIBRARIES} ${CLP_LIBRARIES}  ${COINUTILS_LIBRARIES} -lz -lbz2
+        ${CBC_SOLVER_LIBRARY} ${CBC_LIBRARY} ${CGL_LIBRARIES} ${OSICLP_LIBRARIES} ${OSI_LIBRARIES} ${CLP_LIBRARIES} ${COINUTILS_LIBRARIES} -lz -lbz2
     )
     SET_TARGET_PROPERTIES(optic-clp PROPERTIES COMPILE_FLAGS "-DPOPF3ANALYSIS")
 

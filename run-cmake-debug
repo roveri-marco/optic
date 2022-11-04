@@ -1,4 +1,10 @@
 #!/bin/bash
+export CXX=g++-12
+export CC=gcc-12
+# export PATH="/opt/homebrew/opt/flex/bin:$PATH"
+export LDFLAGS="-L/opt/homebrew/opt/flex/lib"
+export CPPFLAGS="-I/opt/homebrew/opt/flex/include"
+
 mkdir -p debug
 cd debug
-cmake -DCMAKE_BUILD_TYPE=Debug ../src
+cmake -DCMAKE_VERBOSE_MAKEFILE=True -DCMAKE_BUILD_TYPE=Debug ../src

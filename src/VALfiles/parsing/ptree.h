@@ -70,6 +70,7 @@ using std::map;
 using std::cout;
 using std::string;
 using std::unique_ptr;
+using std::auto_ptr;
 using std::ostream;
 
 namespace VAL {
@@ -227,7 +228,7 @@ public:
     virtual void display(int ind) const;
     virtual void write(ostream & o) const {};
     virtual void visit(VisitController * v) const {};
-    static void setWriteController(unique_ptr<WriteController> w);
+    static void setWriteController(unique_ptr<WriteController> & w);
     static WriteController * recoverWriteController();
 };
 
@@ -305,23 +306,23 @@ class symbol_table : public map<string,symbol_class*>
 {
 private:
 	typedef map<string,symbol_class*> _Base;
-	unique_ptr<SymbolFactory<symbol_class> > factory;
+	auto_ptr<SymbolFactory<symbol_class> > factory;
 
 public :
 
-	symbol_table() : factory(new SymbolFactory<symbol_class>()) {};
+        symbol_table() : factory(new SymbolFactory<symbol_class>()) {};
 
 	void setFactory(SymbolFactory<symbol_class> * sf)
 	{
-		unique_ptr<SymbolFactory<symbol_class> > x(sf);
-		factory = std::move(x);
+		auto_ptr<SymbolFactory<symbol_class> > x(sf);
+		factory = x;
 	};
 
 	template<class T>
 	void replaceFactory()
 	{
-		unique_ptr<SymbolFactory<symbol_class> > x(new SpecialistSymbolFactory<symbol_class,T>());
-		factory = std::move(x);
+		auto_ptr<SymbolFactory<symbol_class> > x(new SpecialistSymbolFactory<symbol_class,T>());
+		factory = x;
 	};
 
     typedef typename _Base::iterator iterator;
