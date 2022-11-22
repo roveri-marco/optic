@@ -58,6 +58,7 @@ Compilation is in two stages:
 Run one of:
 
 run-cmake-debug, if you want to link against CLP, with debugging enabled
+run-cmake-debug-macos, if you are on MacOS, and if yoy want to link agains CLP
 
 run-cmake-for-cplex-debug-x86, if you want to link against CLP and/or CPLEX,
   with debugging enabled.  It assumes you are using the 32-bit version of
