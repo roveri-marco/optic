@@ -24,10 +24,11 @@ set(CMAKE_CXX_LINK_FLAGS "-static ${CMAKE_CXX_LINK_FLAGS}")
 endif(STATIC_OPTIC)
 
 IF(CMAKE_SYSTEM_NAME MATCHES "Darwin")
-
+MESSAGE("Configuring optic for MacOs")
 include_directories(${val_SOURCE_DIR} ${val_SOURCE_DIR}/parsing ${val_BINARY_DIR} ${COINUTILS_INCLUDES}/coin ${OSI_INCLUDES}/coin ${CGL_INCLUDES}/coin ${CLP_INCLUDES}/coin ${CBC_INCLUDES}/coin ${CPLEX_INCLUDES} ${CONCERT_INCLUDES} ${GSL_INCLUDES})
 
 ELSE()
+MESSAGE("Configuring optic for Linux")
 
 include_directories(${val_SOURCE_DIR} ${val_SOURCE_DIR}/parsing ${val_BINARY_DIR} ${CLP_INCLUDES}/coin ${CBC_INCLUDES}/coin ${CPLEX_INCLUDES} ${CONCERT_INCLUDES}  ${GSL_INCLUDES})
 

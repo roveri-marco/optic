@@ -6,7 +6,7 @@ endif(COMMAND cmake_policy)
 project(buildroot)
 
 if(CMAKE_SYSTEM_NAME MATCHES "Darwin")
-   MESSAGE(DEBUG "Compiling for MacOS/Darwin")
+   MESSAGE("Compiling for MacOS/Darwin")
    # set(CMAKE_C_COMPILER /opt/homebrew/bin/gcc-12)
    # set(CMAKE_CXX_COMPILER /opt/homebrew/bin/g++-12)
    set(COINUTILS_INCLUDES /opt/homebrew/opt/coinutils/include/coinutils)
@@ -31,7 +31,7 @@ if(CMAKE_SYSTEM_NAME MATCHES "Darwin")
 
 ELSE()
 
-  MESSAGE(DEBUG "Compiling assuming Linux environment")
+  MESSAGE("Compiling assuming Linux environment")
   set(CMAKE_CXX_FLAGS "-g3 -O -fprofile-arcs -Wno-conversion-null -Wno-enum-compare -Wno-maybe-uninitialized -Wno-switch -Wno-nonnull-compare -Wno-unused-but-set-variable -Wno-unused-variable -Wno-sign-compare")
 
 ENDIF()
