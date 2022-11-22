@@ -3,12 +3,12 @@ OPTIC
 
 This package contains OPTIC, a planner for use in problems where plan cost is
 determined by preferences or time-dependent goal-collection costs.  For more
-details, see the paper "Temporal Planning with Preferences and Time-Dependent 
-Continuous Costs", J. Benton, A. J. Coles, and A. I. Coles, ICAPS 2012.  
+details, see the paper "Temporal Planning with Preferences and Time-Dependent
+Continuous Costs", J. Benton, A. J. Coles, and A. I. Coles, ICAPS 2012.
 
 OPTIC is derived from the planner POPF.  In the interests of developing a
-single, capable planner, the sources here also contain the TIL-abstraction 
-extension of POPF described in the paper "Automated  Planning for Liner 
+single, capable planner, the sources here also contain the TIL-abstraction
+extension of POPF described in the paper "Automated  Planning for Liner
 Shipping Fleet Repositioning", K. Tierney, A. J. Coles, A. I. Coles, C. Kroer,
 A. Britt, and R. M. Jensen, ICAPS 2012.  This can be invoked with an extra
 command line flag (details below).
@@ -29,12 +29,24 @@ In both cases, you also need:
 - cmake
 - perl, bison and flex (used to build the parser)
 
-Packages of these are available for most linux distributions. For Ubuntu, 
+Packages of these are available for most linux distributions. For Ubuntu,
 the following should install CLP and the other build pre-requisites:
 
 sudo apt-get install cmake coinor-libcbc-dev coinor-libclp-dev \
                      coinor-libcoinutils-dev libbz2-dev bison flex
-            
+
+
+For MacOS (tried on MacOs Ventura 13)
+--------------
+Install brew from https://brew.sh/ following standard instructions.
+
+Then install the following packages:
+
+<packages>
+
+e.g. use
+
+brew install <packages>
 
 Compiling
 ---------
@@ -61,7 +73,6 @@ run-cmake-for-cplex-static-x86, if you want to link against CLP and/or CPLEX,
   and producing a statically linked binary.    It assumes you are using the
   32-bit version of CPLEX, on Linux - if this is not the case, edit the
   script.
-
 
 Note that if you want to make static binaries with CLP, you must have static
 versions of the CLP libraries installed.  This may mean downloading and
@@ -154,7 +165,7 @@ ulimit -v 4000000
 Feedback
 --------
 
-If you do something exciting with OPTIC, do let us know.  If you tried to do 
+If you do something exciting with OPTIC, do let us know.  If you tried to do
 something with it, but it failed, you may have found a bug.  In common with
 POPF, the three most likely sources of bugs are:
 
@@ -165,15 +176,15 @@ The three most common causes of bugs (over 90% of bug reports) are:
   cases.  We've attempted to make the planner degrade gracefully, but there are
   still cases where it will report problems using ADL as being unsolvable.
   ** In particular check there are no negative preconditions in your domain. **
-  
+
 - Domain modelling bugs. OPTIC and POPF support the full start--end semantics
   of PDDL 2.1, and self-overlapping actions, so errors in the temporal
   placement of preconditions and effects (at start, at end etc.) are more
   likely to cause issues with POPF than with other planners. For instance, if
   a 'move' action is written (erroneously) as deleting the old location at the
-  end (rather than at the start), then OPTIC/POPF will consider concurrent move 
-  actions for the same vehicle; whereas planners which do not make as clear a 
-  distinction between the start and end-points of durative actions would not 
+  end (rather than at the start), then OPTIC/POPF will consider concurrent move
+  actions for the same vehicle; whereas planners which do not make as clear a
+  distinction between the start and end-points of durative actions would not
   consider this. Thus, in domains with errors such as this, they might have to
   consider a far larger search space than other temporal planners.
 
