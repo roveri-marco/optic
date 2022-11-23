@@ -42,11 +42,11 @@ Install brew from https://brew.sh/ following standard instructions.
 
 Then install the following packages:
 
-<packages>
+cbc clp cgl coinutils osi gsl
 
 e.g. use
 
-brew install <packages>
+brew install cbc clp cgl coinutils osi gsl
 
 Compiling
 ---------
