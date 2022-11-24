@@ -52,6 +52,9 @@ e.g. use
 
 brew install cbc clp cgl coinutils osi gsl flex
 
+REMARK: Do not follow the instructions suggested by the installation
+of FLEX (i.e. to modify the path to point flex to the bew version)
+
 Compiling
 ---------
 
