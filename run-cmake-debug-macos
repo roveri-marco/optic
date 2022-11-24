@@ -4,6 +4,7 @@ export CC=gcc-12
 # export PATH="/opt/homebrew/opt/flex/bin:$PATH"
 export LDFLAGS="-L/opt/homebrew/opt/flex/lib"
 export CPPFLAGS="-I/opt/homebrew/opt/flex/include"
+export CXXFLAGS="-I/opt/homebrew/opt/flex/include"
 
 mkdir -p debug
 cd debug

@@ -38,15 +38,19 @@ sudo apt-get install cmake coinor-libcbc-dev coinor-libclp-dev \
 
 For MacOS (tried on MacOs Ventura 13)
 --------------
+
+Install the Xcode Command Line Tools (Xcode CLT),
+See for instructions: https://mac.install.guide/commandlinetools/index.html
+
 Install brew from https://brew.sh/ following standard instructions.
 
 Then install the following packages:
 
-cbc clp cgl coinutils osi gsl
+cbc clp cgl coinutils osi gsl flex
 
 e.g. use
 
-brew install cbc clp cgl coinutils osi gsl
+brew install cbc clp cgl coinutils osi gsl flex
 
 Compiling
 ---------
