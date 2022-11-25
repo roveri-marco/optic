@@ -8,5 +8,4 @@ export CXXFLAGS="-I/opt/homebrew/opt/flex/include"
 
 mkdir -p debug
 cd debug
-# cmake -DCMAKE_VERBOSE_MAKEFILE=True -DCMAKE_BUILD_TYPE=Debug ../src
-cmake -DCMAKE_BUILD_TYPE=Debug ../src
+cmake -DCMAKE_BUILD_TYPE=Release ../src
