@@ -59,7 +59,7 @@ WriteController * parse_category::recoverWriteController()
 	return wcntr.release();
 };
 
-void parse_category::setWriteController(unique_ptr<WriteController> w) {wcntr = std::move(w);};
+void parse_category::setWriteController(unique_ptr<WriteController> & w) {wcntr = std::move(w);};
 
 void parse_category::display(int ind) const
 {
