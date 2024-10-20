@@ -36,7 +36,8 @@
 #include <cassert>
 #include <cstring>
 
-#include <values.h>
+#include <limits.h>
+#include <float.h>
 
 using std::set;
 using std::map;

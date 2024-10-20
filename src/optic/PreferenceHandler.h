@@ -32,6 +32,8 @@
 #include "NNF.h"
 #include "choosepreconditions.h"
 
+typedef unsigned int uint;
+
 namespace Planner {
 
 struct ConditionAndPolarity {
