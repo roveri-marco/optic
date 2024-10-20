@@ -36,7 +36,7 @@ sudo apt-get install cmake coinor-libcbc-dev coinor-libclp-dev \
                      coinor-libcoinutils-dev libbz2-dev bison flex
 
 
-For MacOS (tried on MacOs Ventura 13)
+For MacOS (tried on MacOs Sequoia 15.0.1)
 --------------
 
 Install the Xcode Command Line Tools (Xcode CLT),
